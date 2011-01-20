@@ -18,16 +18,16 @@ export securitygroup2="app"
 export ip="1.2.3.4"
 
 
-if [ "$#" == "0" ]; then echo "!USAGE: INSTANCESIZE ELASTICIP(optional)"; exit; fi
-if [ "$1" == "" ]; then echo "Must provide a INSTANCESIZE"; exit; fi
-#if [ "$2" == "" ]; then echo "Must provide an ELASTICIP"; exit; fi
+#if [ "$#" == "0" ]; then echo "!USAGE: INSTANCESIZE(optional) ELASTICIP(optional) Sizes: m1.small | m1.large | m1.xlarge | c1.medium | c1.xlarge | m2.xlarge | m2.2xlarge | m2.4xlarge | t1.micro"; exit; fi
+
 
 ./common.sh
 
 INSTANCESIZE=$1
 ELASTICIP=$2
 
-
+if [ "$1" == "" ]; then INSTANCESIZE="t1.micro"; fi
+echo Creating instance of size $INSTANCESIZE
 
 # 	The variables that start with the name .EC2. are used by the Tools API. They are the directory where you downloaded your Tools installation and the key and cert files provided to you by Amazon when you created your instance. The other variables are used by the shell commands in this example, and include:
 #
@@ -79,6 +79,12 @@ do
 done
 echo Instance ${iid} is running
 
+
+#Add Tag(s)
+ec2-create-tags ${iid} --tag Name="webauto"
+echo Tag added to Instance ${iid}
+
+
 #	Now we have the running instance ID, which we will use going forward. We next attach the ESB volume to the running instance, associating a device name. After we attach the volume, we wait until its status indicates that it is attached.
 
 #
@@ -118,6 +124,19 @@ if [ "$ELASTICIP" != "" ]; then
 	${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
 	sleep 30
 fi
+
+
+#Get the IP address
+export ipaddress=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f18`
+echo IP Address of ${iid} is ${ipaddress}
+
+
+#Write a record to instances.conf
+#TODO Properly form this record, choose internal instanceid, etc.
+echo "2:$INSTANCESIZE:${iid}:${ipaddress}:" >> conf/instances.conf
+
+
+
 
 #	Our final step for starting our instance is to copy and execute some additional commands within the running instance. These operations will create a mount point and mount the volume. Our commands assume that any partitioning and file system type creation has already been setup in the Amazon image.s /etc/fstab file. We use SSH to copy and execute these commands. Because EC2 does not allow username/password authentication, we must provide our identity file to SSH.
 
