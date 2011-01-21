@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source common.sh
+
 if [ "$#" == "0" ]; then echo "!USAGE: HOST APP APPDIR HTTPPORT MAXTHREADS JVMROUTE"; exit; fi
 if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 if [ "$2" == "" ]; then echo "Must provide an APP"; exit; fi
@@ -7,8 +9,6 @@ if [ "$3" == "" ]; then echo "Must provide an APPDIR"; exit; fi
 if [ "$4" == "" ]; then echo "Must provide an HTTPPORT"; exit; fi
 if [ "$5" == "" ]; then echo "Must provide a MAXTHREADS"; exit; fi
 if [ "$6" == "" ]; then echo "Must provide a JVMROUTE"; exit; fi
-
-./common.sh
 
 HOST=$1
 APP=$2

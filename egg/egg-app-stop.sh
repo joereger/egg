@@ -1,13 +1,12 @@
 #!/bin/bash
 
+source common.sh
+
 if [ "$#" == "0" ]; then echo "!USAGE: APP"; exit; fi
 if [ "$1" == "" ]; then echo "Must provide an APP"; exit; fi
 
-./common.sh
-
 APP=$1
 
-mkdir -p tmp
 TOMCATSFILE=conf/tomcats.conf
 INSTANCESFILE=conf/instances.conf
 
@@ -31,7 +30,7 @@ do
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	
 		TOMCATID_A=$(echo "$intomcatline" | cut -d ":" -f1)
-		INSTANCEID_A=$(echo "$intomcatline" | cut -d ":" -f2)
+		LOGICALINSTANCEID_A=$(echo "$intomcatline" | cut -d ":" -f2)
 		APPNAME_A=$(echo "$intomcatline" | cut -d ":" -f3)
 		MEMMIN_A=$(echo "$intomcatline" | cut -d ":" -f4)
 		MEMMAX_A=$(echo "$intomcatline" | cut -d ":" -f5)
@@ -41,7 +40,7 @@ do
 		
 			echo --FOUND $APP TOMCAT INSTANCE--
 			echo TOMCATID=$TOMCATID_A
-			echo INSTANCEID=$INSTANCEID_A
+			echo LOGICALINSTANCEID=$LOGICALINSTANCEID_A
 			echo APPNAME=$APPNAME_A
 			echo MEMMIN=$MEMMIN_A
 			echo MEMMAX=$MEMMAX_A
@@ -51,20 +50,20 @@ do
 			APPDIR=$APPNAME_A$TOMCATID_A
 			echo APPDIR=$APPDIR
 			
-			#Read INSTANCESFILE     INSTANCEID:INSTANCESIZE:AMAZONINSTANCEID:HOST:ELASTICIP
+			#Read INSTANCESFILE    
 			while read ininstancesline;
 			do
 				#Ignore lines that start with a comment hash mark
 				if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 				
-					INSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
+					LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
 					INSTANCESIZE_B=$(echo "$ininstancesline" | cut -d ":" -f2)
 					AMAZONINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f3)
 					HOST_B=$(echo "$ininstancesline" | cut -d ":" -f4)
 					ELASTICIP_B=$(echo "$ininstancesline" | cut -d ":" -f5)
 					
-					if [ "$INSTANCEID_B" == "$INSTANCEID_A" ]; then
-						echo FOUND INSTANCE $INSTANCEID_B $INSTANCESIZE_B $HOST_B
+					if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID_A" ]; then
+						echo FOUND LOGICALINSTANCE $LOGICALINSTANCEID_B $INSTANCESIZE_B $HOST_B
 					
 						#Set HOST
 						HOST=$HOST_B

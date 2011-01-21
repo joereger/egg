@@ -1,12 +1,6 @@
 #!/bin/bash
 
-#Set up EC2 vars
-export EC2_HOME=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308
-export PATH=$PATH:$EC2_HOME/bin
-export EC2_PRIVATE_KEY=/home/ec2-user/.ec2/pk-***REMOVED***.pem
-export EC2_CERT=/home/ec2-user/.ec2/cert-***REMOVED***.pem
-export PATH=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308/bin:$PATH
-export JAVA_HOME=/usr/lib/jvm/jre
+source common.sh
 
 export amiid="ami-08728661"
 #export config="/root/ec2/v1bundles/liverepeater-origin-lb.zip"
@@ -17,11 +11,7 @@ export securitygroup1="default"
 export securitygroup2="app"
 export ip="1.2.3.4"
 
-
 #if [ "$#" == "0" ]; then echo "!USAGE: INSTANCESIZE(optional) ELASTICIP(optional) Sizes: m1.small | m1.large | m1.xlarge | c1.medium | c1.xlarge | m2.xlarge | m2.2xlarge | m2.4xlarge | t1.micro"; exit; fi
-
-
-./common.sh
 
 INSTANCESIZE=$1
 ELASTICIP=$2
@@ -133,7 +123,7 @@ echo IP Address of ${iid} is ${ipaddress}
 
 #Write a record to instances.conf
 #TODO Properly form this record, choose internal instanceid, etc.
-echo "2:$INSTANCESIZE:${iid}:${ipaddress}:" >> conf/instances.conf
+#echo "2:$INSTANCESIZE:${iid}:${ipaddress}:" >> conf/instances.conf
 
 
 
