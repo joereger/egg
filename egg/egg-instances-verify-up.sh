@@ -76,7 +76,7 @@ do
 				echo Instance ${iid} is running
 				
 				#Add Tag(s)
-				ec2-create-tags ${iid} --tag Name="webauto"
+				ec2-create-tags ${iid} --tag Name="eggweb"
 				echo Tag added to Instance ${iid}
 				
 				# Attach the volume to the running instance
