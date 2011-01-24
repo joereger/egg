@@ -38,24 +38,3 @@ ssh $HOST "sed -i \"
 $enginetag
 \" egg/$APPDIR/tomcat/conf/server.xml"
 
-
-
-
-
-#Runs locally
-#sed -i "
-#/<Connector port=\"8080\" protocol=\"HTTP\/1.1\"/, /\/>/ c\
-#$executortag \
-#$connectortag
-#" server.xml
-
-#For testing, writes to a separate file
-#sed "
-#/<Connector port=\"8080\" protocol=\"HTTP\/1.1\"/, /\/>/ c\
-#$executortag \
-#$connectortag
-#" server.xml > serverout.xml
-
-
-
-
