@@ -21,6 +21,8 @@ ssh $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
 
 #Copy the WAR file
 scp egg/conf/$APP/war/ROOT.war ec2-user@$HOST:ROOT.war
+ssh $HOST "cp ROOT.war egg/$APPDIR/ROOT.war"
+ssh $HOST "rm -rf ROOT.war"
 
 #Unzip the WAR file
-ssh $HOST "unzip ROOT.war egg/$APPDIR/tomcat/webapps/ROOT"
+ssh $HOST "unzip egg/$APPDIR/ROOT.war egg/$APPDIR/tomcat/webapps/ROOT"

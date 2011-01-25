@@ -21,6 +21,7 @@ while read line; do
   	IID=$(echo "$line" | cut -f3)
   	echo Found instance ${IID}
 	
+	#Default to this being a rogue instance
 	ISVALIDINSTANCE=0
   
   	#Read INSTANCESFILE   
