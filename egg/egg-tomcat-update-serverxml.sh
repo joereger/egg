@@ -17,6 +17,10 @@ HTTPPORT=$4
 MAXTHREADS=$5
 JVMROUTE=$6
 
+if [ "$MAXTHREADS" == "" ]; then
+	$MAXTHREADS=500
+fi
+
 #Build up the tags that need to be overwritten in server.xml
 executortag="<Executor name=\\\"tomcatThreadPool\\\" namePrefix=\\\"catalina-exec-\\\" maxThreads=\\\"$MAXTHREADS\\\" minSpareThreads=\\\"10\\\" maxIdleTime=\\\"60000\\\" />"
 connectortag="<Connector executor=\\\"tomcatThreadPool\\\" port=\\\"$HTTPPORT\\\" connectionTimeout=\\\"20000\\\" redirectPort=\\\"8443\\\" />"

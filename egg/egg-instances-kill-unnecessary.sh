@@ -32,9 +32,27 @@ while read line; do
 		
 			LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
 			INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-			AMAZONINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f3)
-			HOST=$(echo "$ininstancesline" | cut -d ":" -f4)
-			ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
+			AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
+			ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
+			
+			#Default AMIID
+			if [ "$AMIID" == "" ]; then
+				AMIID="ami-08728661"
+			fi
+			
+			#Read AMAZONIIDSFILE   
+			while read amazoniidsline;
+			do
+				#Ignore lines that start with a comment hash mark
+				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+						AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
+						HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+					fi
+				fi
+			done < "$AMAZONIIDSFILE"
+			
 			
 			#If this instance is found, mark the iid as being valid
 			if [ "$AMAZONINSTANCEID" == "$IID" ]; then
@@ -44,8 +62,8 @@ while read line; do
 	done < "$INSTANCESFILE"
   
   	if [ $ISVALIDINSTANCE == 0 ]; then
-		echo Terminating unnecessary instance $IID
-		${EC2_HOME}/bin/ec2-terminate-instances $IID
+		echo Terminating unnecessary instance
+		./egg-instance-terminate.sh $LOGICALINSTANCEID
 	else 
 		echo Not terminating instance $IID
 	fi

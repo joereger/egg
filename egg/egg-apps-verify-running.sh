@@ -35,9 +35,11 @@ do
 		MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
 		MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
 		HTTPPORT=$(echo "$intomcatline" | cut -d ":" -f6)
+		MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
 	
 		#Determine APPDIR
 		APPDIR=$APPNAME$TOMCATID
+		JVMROUTE=$APPNAME$TOMCATID
 		
 		#Read INSTANCESFILE    
 		while read ininstancesline;
@@ -47,11 +49,25 @@ do
 			
 				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
 				INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-				AMAZONINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f3)
-				HOST=$(echo "$ininstancesline" | cut -d ":" -f4)
-				ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
+				AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
+				ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
 				
 				if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
+				
+					#Read AMAZONIIDSFILE   
+					while read amazoniidsline;
+					do
+						#Ignore lines that start with a comment hash mark
+						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
+								HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+							fi
+						fi
+					done < "$AMAZONIIDSFILE"
+				
+				
 					echo "  "
 					echo CHECKING $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/
 					
@@ -66,7 +82,20 @@ do
 					else 
 						echo Instance not found, will create
 						export thisinstanceisup=0 
+						#Create the instance
 						./egg-verify-instances-up.sh
+						#Read AMAZONIIDSFILE... again now that a new instance has been spun up
+						while read amazoniidsline;
+						do
+							#Ignore lines that start with a comment hash mark
+							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+								LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+								if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
+									HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+								fi
+							fi
+						done < "$AMAZONIIDSFILE"
 					fi
 					
 					#Tomcat Check
@@ -75,6 +104,9 @@ do
 					if [ "$tomcatcheck" != 1 ]; then
 						echo Tomcat not found, will create
 						./egg-tomcat-create.sh $HOST $APPDIR
+						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
+						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
 					else 
 						echo Tomcat found
 					fi
@@ -85,6 +117,16 @@ do
 					if [ "$warcheck" != 1 ]; then
 						echo WAR not found, will deploy
 						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
+					else 
+						echo WAR found
+					fi
+					
+					#Instance.props File Check
+					echo Start Instance.props File Check
+					propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
+					if [ "$propscheck" != 1 ]; then
+						echo Instance.props not found, will send
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
 					else 
 						echo WAR found
 					fi

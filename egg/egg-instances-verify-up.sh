@@ -3,11 +3,16 @@
 source common.sh
 
 INSTANCESFILE=conf/instances.conf
+AMAZONIIDSFILE=conf/amazoniids.conf
 
-if [ ! -f "$INSTANCESFILE" ];
-then
+if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
   exit 1
+fi
+
+if [ ! -f "$AMAZONIIDSFILE" ]; then
+  echo "$AMAZONIIDSFILE does not exist so creating it."
+  cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
 		
 #Read INSTANCESFILE   
@@ -18,19 +23,38 @@ do
 	
 		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
 		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-		AMAZONINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f3)
-		HOST=$(echo "$ininstancesline" | cut -d ":" -f4)
-		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
+		AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
+		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
 		
-		echo FOUND LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE AMAZONINSTANCEID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=$ELASTICIP
+		#Default AMIID
+		if [ "$AMIID" == "" ]; then
+			AMIID="ami-08728661"
+		fi
+		
+		#Read AMAZONIIDSFILE   
+		while read amazoniidsline;
+		do
+			#Ignore lines that start with a comment hash mark
+			if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+				LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+				if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+					AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
+					HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+				fi
+			fi
+		done < "$AMAZONIIDSFILE"
+		
+		echo "   "
+		echo Checking LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE AMAZONINSTANCEID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=$ELASTICIP
 		
 		#Determine whether this instance is running
 		thisinstanceisup=0
 		export RUNNING="running"
 		export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
-		if [ $status == ${RUNNING} ]; then
+		if [ "$status" == "$RUNNING" ]; then
 			export thisinstanceisup=1  	
 		fi
+		echo Thisinstanceisup=$thisinstanceisup
 		
 		#Start an instance if necessary
 		if [ ${thisinstanceisup} == "0" ]; then
@@ -39,7 +63,7 @@ do
 			#TEMP BLOCK OUT
 			#if [ "1" == "0" ]; then
 			
-				export amiid="ami-08728661"
+				
 				export key="joekey"
 				export id_file="/home/ec2-user/.ssh/joekey.pem"
 				export zone="us-east-1c"
@@ -51,9 +75,9 @@ do
 				echo Creating instance of size $INSTANCESIZE
 				
 				echo Launching AMI ${amiid}
-				${EC2_HOME}/bin/ec2-run-instances ${amiid} -t $INSTANCESIZE -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
+				${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
 				if [ $? != 0 ]; then
-				   echo Error starting instance for image ${amiid}
+				   echo Error starting instance for image ${AMIID}
 				   exit 1
 				fi
 				export iid=`cat /tmp/origin.ec2 | grep INSTANCE | cut -f2`
@@ -115,15 +139,16 @@ do
 			#TEMP BLOCK OUT
 			#fi
 			
-			#Write a record to instances.conf
-			#TEST VARS
-			#AMAZONINSTANCEID="i-3333333"
-			#HOST="0.0.0.0"
-			#ELASTICIP="1.1.1.1"
+			#Delete any current line with this logicalinstanceid
 			sed -i "
-			/${ininstancesline}/ c\
-			$LOGICALINSTANCEID:$INSTANCESIZE:$AMAZONINSTANCEID:$HOST:$ELASTICIP
-			" $INSTANCESFILE
+			/^${LOGICALINSTANCEID}:/ d\
+			" $AMAZONIIDSFILE
+			
+			#Write a record to amazoniids.conf
+			sed -i "
+			/#BEGINDATA/ a\
+			$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST
+			" $AMAZONIIDSFILE
 			
 		fi
 		

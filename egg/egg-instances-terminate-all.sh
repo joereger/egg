@@ -17,20 +17,8 @@ do
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
-		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-		AMAZONINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f3)
-		HOST=$(echo "$ininstancesline" | cut -d ":" -f4)
-		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
 		
-		echo Terminating LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE AMAZONINSTANCEID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=$ELASTICIP
-		
-		${EC2_HOME}/bin/ec2-terminate-instances $AMAZONINSTANCEID
-			
-		#Write a record to instances.conf, blanking out amazoninstanceid and other vars
-		sed -i "
-		/${ininstancesline}/ c\
-		$LOGICALINSTANCEID:$INSTANCESIZE:::
-		" $INSTANCESFILE
+		./egg-instance-terminate.sh $LOGICALINSTANCEID	
 
 	fi
 done < "$INSTANCESFILE"
