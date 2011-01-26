@@ -12,6 +12,7 @@ APACHEZIP="apache-tomcat-7.0.6.zip"
 APACHEZIPLOCATION="resources"
 APACHEDIRINSIDEZIP="apache-tomcat-7.0.6"
 
+./egg-tomcat-stop.sh $HOST $APPDIR
 ssh $HOST "mkdir -p egg"
 scp $APACHEZIPLOCATION/$APACHEZIP ec2-user@$HOST:$APACHEZIP
 ssh $HOST "rm -rf egg/$APPDIR"
