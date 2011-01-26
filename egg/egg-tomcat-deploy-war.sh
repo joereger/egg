@@ -20,7 +20,7 @@ ssh $HOST "rm -rf egg/$APPDIR/tomcat/webapps/ROOT"
 ssh $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
 
 #Copy the WAR file
-scp egg/conf/$APP/war/ROOT.war ec2-user@$HOST:ROOT.war
+scp egg/war/$APP/ROOT.war ec2-user@$HOST:ROOT.war
 ssh $HOST "cp ROOT.war egg/$APPDIR/ROOT.war"
 ssh $HOST "rm -rf ROOT.war"
 
