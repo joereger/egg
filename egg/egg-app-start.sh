@@ -57,23 +57,33 @@ do
 				if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 				
 					LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
-					INSTANCESIZE_B=$(echo "$ininstancesline" | cut -d ":" -f2)
-					AMAZONINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f3)
-					HOST_B=$(echo "$ininstancesline" | cut -d ":" -f4)
-					ELASTICIP_B=$(echo "$ininstancesline" | cut -d ":" -f5)
+					INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
+					AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
+					ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
+					
+					#Read AMAZONIIDSFILE   
+					while read amazoniidsline;
+					do
+						#Ignore lines that start with a comment hash mark
+						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
+								HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+							fi
+						fi
+					done < "$AMAZONIIDSFILE"
 					
 					if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID_A" ]; then
-						echo FOUND LOGICALINSTANCE $LOGICALINSTANCEID_B $INSTANCESIZE_B $HOST_B
-					
-						#Set HOST
-						HOST=$HOST_B
-						echo HOST=$HOST
+						echo FOUND LOGICALINSTANCE $LOGICALINSTANCEID_B $INSTANCESIZE $HOST
 					fi
 				fi
 			done < "$INSTANCESFILE"
 			
-			#Stop this instance
-			./egg-tomcat-start.sh $HOST $APPDIR
+			#Start this instance
+			if [ "$HOST" != "" ]; then
+				./egg-tomcat-start.sh $HOST $APPDIR
+			fi
 		
 		fi
 	fi

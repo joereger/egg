@@ -17,4 +17,3 @@ APPDIR=$3
 #Delete the instance
 ssh $HOST "rm -rf egg/$APPDIR"
 
-#TODO update the records file
