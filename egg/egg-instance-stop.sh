@@ -27,9 +27,10 @@ do
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID_IN=$(echo "$ininstancesline" | cut -d ":" -f1)
-		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-		AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
-		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
+		SECURITYGROUP=$(echo "$ininstancesline" | cut -d ":" -f2)
+		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f3)
+		AMIID=$(echo "$ininstancesline" | cut -d ":" -f4)
+		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
 		
 		#If this is the instance that should be started
 		if [ "$LOGICALINSTANCEID_IN" == "$LOGICALINSTANCEID" ]; then

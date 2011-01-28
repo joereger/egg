@@ -9,5 +9,5 @@ if [ "$2" == "" ]; then echo "Must provide an APPDIR"; exit; fi
 HOST=$1
 APPDIR=$2
 
-ssh $HOST "sudo /etc/init.d/httpd stop"
+ssh $HOST "sudo /sbin/service httpd stop"
 

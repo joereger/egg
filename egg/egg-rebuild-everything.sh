@@ -14,4 +14,7 @@ done
 ./egg-instances-verify-up.sh
 
 #Create Tomcats, Deploy WARs and Start Tomcats
-./egg-apps-verify-running.sh
+./egg-apps-verify-up.sh
+
+#Create Apaches
+./egg-apaches-verify-up.sh

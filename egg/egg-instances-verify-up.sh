@@ -22,9 +22,10 @@ do
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
-		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-		AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
-		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
+		SECURITYGROUP=$(echo "$ininstancesline" | cut -d ":" -f2)
+		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f3)
+		AMIID=$(echo "$ininstancesline" | cut -d ":" -f4)
+		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
 		
 		#Default AMIID
 		if [ "$AMIID" == "" ]; then
@@ -68,7 +69,7 @@ do
 				export id_file="/home/ec2-user/.ssh/joekey.pem"
 				export zone="us-east-1c"
 				export securitygroup1="default"
-				export securitygroup2="app"
+				export securitygroup2="$SECURITYGROUP"
 				export ip="1.2.3.4"
 				
 				if [ "$INSTANCESIZE" == "" ]; then INSTANCESIZE="t1.micro"; fi

@@ -11,6 +11,7 @@ APPDIR=$2
 
 ./egg-apache-stop.sh $HOST
 ssh $HOST "sudo yum -y install httpd"
-ssh $HOST "sudo chkconfig httpd on"
+ssh $HOST "sudo /sbin/chkconfig httpd on"
+ssh $HOST "cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.original"
 ./egg-apache-configure.sh $HOST
 ./egg-apache-start.sh $HOST

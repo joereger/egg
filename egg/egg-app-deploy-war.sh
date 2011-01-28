@@ -9,6 +9,12 @@ APP=$1
 
 TOMCATSFILE=conf/tomcats.conf
 INSTANCESFILE=conf/instances.conf
+AMAZONIIDSFILE=conf/amazoniids.conf
+
+if [ ! -f "$AMAZONIIDSFILE" ]; then
+  echo "$AMAZONIIDSFILE does not exist so creating it."
+  cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
+fi
 
 
 if [ ! -f "$TOMCATSFILE" ];
@@ -57,9 +63,10 @@ do
 				if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 				
 					LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
-					INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f2)
-					AMIID=$(echo "$ininstancesline" | cut -d ":" -f3)
-					ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f4)
+					SECURITYGROUP=$(echo "$ininstancesline" | cut -d ":" -f2)
+					INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f3)
+					AMIID=$(echo "$ininstancesline" | cut -d ":" -f4)
+					ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
 					
 					#Read AMAZONIIDSFILE   
 					while read amazoniidsline;
