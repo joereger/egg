@@ -11,19 +11,19 @@ export PATH=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308/bin:$PATH
 export JAVA_HOME=/usr/lib/jvm/jre
 
 #Report to log
-echo "______________" >> /home/ec2-user/egg/startup.log
-echo `date` >> /home/ec2-user/egg/startup.log
-echo "Hello from startup.sh" >> /home/ec2-user/egg/startup.log
+echo "______________STARTUP" >> /home/ec2-user/egg/logs/startup.log
+echo `date` >> /home/ec2-user/egg/logs/startup.log
+echo "Hello from startup.sh" >> /home/ec2-user/egg/logs/startup.log
 
 
 #Associate Elastic IP
 $EC2_HOME/bin/ec2-associate-address -K $EC2_PRIVATE_KEY -C $EC2_CERT 184.73.230.222 -i i-03c7116f
 if [ $? != 0 ]; then
-   echo "Error associating elastic ip" >> /home/ec2-user/egg/startup.log
+   echo "Error associating elastic ip" >> /home/ec2-user/egg/logs/startup.log
 else 
-   echo "Success associating elastic ip" >> /home/ec2-user/egg/startup.log	
+   echo "Success associating elastic ip" >> /home/ec2-user/egg/logs/startup.log	
 fi
 
 
 #Report to log
-echo "End of startup.sh reached" >> /home/ec2-user/egg/startup.log
+echo "End of startup.sh reached" >> /home/ec2-user/egg/logs/startup.log

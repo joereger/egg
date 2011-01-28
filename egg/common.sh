@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#Log script execution
+./egg-log.sh "______ $0 $@"
+
+#Redirect stdout to debug.log
+exec > >(tee -a logs/debug.log)
+exec 2>&1
+
 #Set up EC2 vars
 export EC2_HOME=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308
 export PATH=$PATH:$EC2_HOME/bin

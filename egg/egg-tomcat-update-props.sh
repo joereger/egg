@@ -11,9 +11,9 @@ HOST=$1
 APP=$2
 APPDIR=$3
 
-echo "HOST is $HOST"
-echo "APP is $APP"
-echo "APPDIR is $APPDIR"
+./egg-log.sh "HOST is $HOST"
+./egg-log.sh "APP is $APP"
+./egg-log.sh "APPDIR is $APPDIR"
 
 #Delete combined.props, in case it exists and then create the output/combined file
 if [ -e conf/$APP/combined.props ]; then
@@ -24,18 +24,18 @@ touch "conf/$APP/combined.props"
 
 #Determine which of system.props and/or instance.props exist and combine them into combined.props
 if [ -e conf/$APP/system.props ] && [ -e conf/$APP/$APPDIR/instance.props ]; then
-	echo "Both system.props and instance.props exist"
+	./egg-log.sh "Both system.props and instance.props exist"
 	cat conf/$APP/system.props >> conf/$APP/combined.props
 	echo -e "\n" >> conf/$APP/combined.props
 	cat conf/$APP/$APPDIR/instance.props >> conf/$APP/combined.props
 elif [ -e conf/$APP/system.props ]; then
-	echo "Only system.props exists"
+	./egg-log.sh "Only system.props exists"
 	cp conf/$APP/system.props conf/$APP/combined.props
 elif [ -e conf/$APP/$APPDIR/instance.props ]; then
-	echo "Only instance.props exists"
+	./egg-log.sh "Only instance.props exists"
 	cp conf/$APP/$APPDIR/instance.props conf/$APP/combined.props
 else
-	echo "Neither instance.props nor system.props exist"
+	./egg-log.sh "Neither instance.props nor system.props exist"
 fi
 
 #Make sure /conf exists
