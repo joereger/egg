@@ -86,3 +86,8 @@ do
 		fi	
 	fi
 done < "$INSTANCESFILE"
+
+
+#Any time we change instances we have to update the apacheconfig
+./egg-apaches-configure-all.sh $HOST
+

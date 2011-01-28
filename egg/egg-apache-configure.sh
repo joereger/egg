@@ -245,6 +245,9 @@ ssh $HOST "sed \"
 /# VirtualHost example:/ i\
 $VHOSTS
 \" /etc/httpd/conf/httpd.conf.original > /etc/httpd/conf/httpd.conf"
+#Make sure it's stopped/started
+./egg-apache-stop.sh $HOST
+./egg-apache-start.sh $HOST
 
 
 

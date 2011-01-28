@@ -98,21 +98,17 @@ do
 					fi
 					
 					#Apache Check
-					#TODO Check
-					
-					#HTTP Check
-					echo Start HTTP Check
-					url="http://$HOST:$HTTPPORT/"
-					retries=1
-					timeout=60
-					status=`wget -t 1 -T 60 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
-					if [ "$status" == "200" ]; then
-						echo HTTP 200 found
-					else
-						echo HTTP 200 not found, will stop/start tomcat
-						./egg-tomcat-stop.sh $HOST $APPDIR
-						./egg-tomcat-start.sh $HOST $APPDIR
+					echo Start Apache Check
+					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
+					if [ "$apachecheck" != 1 ]; then
+						echo Apache not found, will create
+						./egg-apache-stop.sh $HOST
+						./egg-apache-create.sh $HOST
+						./egg-apache-configure.sh $APACHEID
+					else 
+						echo Tomcat found
 					fi
+					
 					
 				fi
 			fi

@@ -14,6 +14,8 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
   cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
+
+SOMETHINGHASCHANGED="0"
 		
 #Read INSTANCESFILE   
 while read ininstancesline;
@@ -151,8 +153,19 @@ do
 			$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST
 			" $AMAZONIIDSFILE
 			
+			#Any time we change instances we have to update the apacheconfig
+			SOMETHINGHASCHANGED="1"
+			
 		fi
 		
 	fi
 done < "$INSTANCESFILE"
+
+#Any time we change instances we have to update the apacheconfig
+if [ "$SOMETHINGHASCHANGED" == "1" ]; then
+	./egg-apaches-configure-all.sh $HOST
+fi
+
+
+
 			

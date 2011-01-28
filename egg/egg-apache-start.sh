@@ -2,7 +2,7 @@
 
 source common.sh
 
-if [ "$#" == "0" ]; then echo "!USAGE: HOST APPDIR"; exit; fi
+if [ "$#" == "0" ]; then echo "!USAGE: HOST"; exit; fi
 if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 
 HOST=$1
