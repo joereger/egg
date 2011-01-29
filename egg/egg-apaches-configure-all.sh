@@ -9,7 +9,6 @@ source common.sh
 
 APACHESFILE=conf/apaches.conf
 
-
 if [ ! -f "$APACHESFILE" ];
 then
   echo "Sorry, $APACHESFILE does not exist."

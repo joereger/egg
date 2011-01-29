@@ -215,7 +215,7 @@ do
 			VHOSTS=$VHOSTS"deny from env=isrobot"	
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$BALANCEMEMBERS"
+			VHOSTS=$VHOSTS$BALANCEMEMBERS
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS"</Proxy>"
@@ -229,7 +229,7 @@ do
 			
 			VHOSTS=$VHOSTS"ErrorLog logs/$APPNAME-error_log"
 			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTSTransferLog logs/$APPNAME-access_log"
+			VHOSTS=$VHOSTS"TransferLog logs/$APPNAME-access_log"
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS"</VirtualHost>"
 			VHOSTS=$VHOSTS$'\n'
