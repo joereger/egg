@@ -16,14 +16,12 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
   cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
 
-if [ ! -f "$TOMCATSFILE" ];
-then
+if [ ! -f "$TOMCATSFILE" ]; then
   echo "Sorry, $TOMCATSFILE does not exist."
   exit 1
 fi
 
-if [ ! -f "$INSTANCESFILE" ];
-then
+if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
   exit 1
 fi

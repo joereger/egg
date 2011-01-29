@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Log script execution
+#Log script execution yo yo yo
 ./egg-log.sh "______ $0 $@"
 
 #Redirect stdout to debug.log

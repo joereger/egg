@@ -4,8 +4,7 @@ source common.sh
 
 INSTANCESFILE=conf/instances.conf
 
-if [ ! -f "$INSTANCESFILE" ];
-then
+if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
   exit 1
 fi

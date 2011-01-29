@@ -17,14 +17,12 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
 fi
 
 
-if [ ! -f "$APACHESFILE" ];
-then
+if [ ! -f "$APACHESFILE" ]; then
   echo "Sorry, $APACHESFILE does not exist."
   exit 1
 fi
 
-if [ ! -f "$INSTANCESFILE" ];
-then
+if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
   exit 1
 fi
