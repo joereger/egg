@@ -6,10 +6,17 @@ source common.sh
 ${EC2_HOME}/bin/ec2-describe-tags --filter key=Name --filter value=${EC2NAMETAG} |
 while read line; do
   	IID=$(echo "$line" | cut -f3)
-  	echo "Found instance ${IID} and will terminate it... dun dun dun."
-	${EC2_HOME}/bin/ec2-terminate-instances ${IID}
+  	export TERMINATED="terminated"
+    export status=`${EC2_HOME}/bin/ec2-describe-instances ${IID} | grep INSTANCE | cut -f6`
+    if [ "$status" != "$TERMINATED" ]; then
+        echo "Found instance ${IID}... terminating... dun dun dun."
+	    ${EC2_HOME}/bin/ec2-terminate-instances ${IID}
+    else
+        echo "Found instance ${IID}... already terminated."
+    fi
 done
 
 #Empty the amazoniids.conf file by copying in an empty one
-cp conf/amazoniids-sample.conf conf/amazoniids.conf
-			
+AMAZONIIDSSAMPLEFILE=conf/amazoniids-sample.conf
+AMAZONIIDSFILE=conf/amazoniids.conf
+cp $AMAZONIIDSSAMPLEFILE $AMAZONIIDSFILE

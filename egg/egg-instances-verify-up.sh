@@ -143,21 +143,23 @@ do
 				HOST=${ipaddress}
 
 				#Need to wait for SSH to be available
+				export sshtest="yipee"
 				export sshdone="false"
 				while [ $sshdone == "false" ]
 				do
-				    sshcheck=`ssh -t -t $HOST "[ -d ./ ] && echo 1"`
-					if [ "$sshcheck" != 1 ]; then
-					    echo sshcheck=$sshcheck
-						echo "SSH not up yet, sleeping 10 seconds:"
-						sleep 10
+				    export sshcheck=`ssh $HOST "[ -d ./ ] && echo yipee"`
+					if [ "$sshcheck" == "$sshtest" ]; then
+					    export sshdone="true"
 					else
-						export sshdone="true"
+					    echo sshcheck=${sshcheck}
+						echo "SSH not up yet, sleeping 10 seconds."
+						sleep 10
 					fi
 				done
 				echo "SSH is running"
 
 				#Uninstall sendmail
+				echo "Uninstalling sendmail"
 				ssh -t -t $HOST "sudo yum -y remove sendmail"
 			
 			#TEMP BLOCK OUT
@@ -182,7 +184,8 @@ done < "$INSTANCESFILE"
 
 #Any time we change instances we have to update the apacheconfig
 if [ "$SOMETHINGHASCHANGED" == "1" ]; then
-	./egg-apaches-configure-all.sh $HOST
+    ./egg-apaches-verify-up.sh
+	./egg-apaches-configure-all.sh
 fi
 
 
