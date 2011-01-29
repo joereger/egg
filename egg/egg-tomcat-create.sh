@@ -13,14 +13,14 @@ APACHEZIPLOCATION="resources"
 APACHEDIRINSIDEZIP="apache-tomcat-7.0.6"
 
 ./egg-tomcat-stop.sh $HOST $APPDIR
-ssh $HOST "mkdir -p egg"
+ssh -t -t $HOST "mkdir -p egg"
 scp $APACHEZIPLOCATION/$APACHEZIP ec2-user@$HOST:$APACHEZIP
-ssh $HOST "rm -rf egg/$APPDIR"
-ssh $HOST "mkdir -p egg/$APPDIR"
-ssh $HOST "unzip $APACHEZIP -d egg/$APPDIR"
-ssh $HOST "mv egg/$APPDIR/$APACHEDIRINSIDEZIP/ egg/$APPDIR/tomcat/"
-ssh $HOST "rm $APACHEZIP"
-ssh $HOST "cp egg/$APPDIR/tomcat/conf/server.xml egg/$APPDIR/tomcat/conf/server.xml.original"
+ssh -t -t $HOST "rm -rf egg/$APPDIR"
+ssh -t -t $HOST "mkdir -p egg/$APPDIR"
+ssh -t -t $HOST "unzip $APACHEZIP -d egg/$APPDIR"
+ssh -t -t $HOST "mv egg/$APPDIR/$APACHEDIRINSIDEZIP/ egg/$APPDIR/tomcat/"
+ssh -t -t $HOST "rm $APACHEZIP"
+ssh -t -t $HOST "cp egg/$APPDIR/tomcat/conf/server.xml egg/$APPDIR/tomcat/conf/server.xml.original"
 
 
 

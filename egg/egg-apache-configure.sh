@@ -74,15 +74,17 @@ do
 		
 		if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
 		
-			#Read AMAZONIIDSFILE   
+			#Read AMAZONIIDSFILE
+			AMAZONINSTANCEID=""
+		    HOST=""
 			while read amazoniidsline;
 			do
 				#Ignore lines that start with a comment hash mark
 				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-						AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-						HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+						AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+						HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 					fi
 				fi
 			done < "$AMAZONIIDSFILE"
@@ -233,13 +235,14 @@ do
 	fi
 done < "$APPSFILE"
 
+#First I copy the base httpd.conf over to the remote Apache host
+scp resources/httpd.conf ec2-user@$HOST:/etc/httpd/conf/httpd.conf
 
 #Now I need to write this spectacular wonder called VHOSTS to the httpd.conf file
-#Note that httpd.conf.original is created when the Apache is created
-ssh $HOST "sed \"
+ssh -t -t $HOST "sed \"
 /# VirtualHost example:/ i\
 $VHOSTS
-\" /etc/httpd/conf/httpd.conf.original > /etc/httpd/conf/httpd.conf"
+\" /etc/httpd/conf/httpd.conf > /etc/httpd/conf/httpd.conf"
 #Make sure it's stopped/started
 ./egg-apache-stop.sh $HOST
 ./egg-apache-start.sh $HOST

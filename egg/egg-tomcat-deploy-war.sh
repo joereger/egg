@@ -16,13 +16,13 @@ APPDIR=$3
 ./egg-tomcat-stop.sh $HOST $APPDIR
 
 #Delete ROOT dir, recreate it
-ssh $HOST "rm -rf egg/$APPDIR/tomcat/webapps/ROOT"
-ssh $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/ROOT"
+ssh -t -t $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
 
 #Copy the WAR file
 scp egg/war/$APP/ROOT.war ec2-user@$HOST:ROOT.war
-ssh $HOST "cp ROOT.war egg/$APPDIR/ROOT.war"
-ssh $HOST "rm -rf ROOT.war"
+ssh -t -t $HOST "cp ROOT.war egg/$APPDIR/ROOT.war"
+ssh -t -t $HOST "rm -rf ROOT.war"
 
 #Unzip the WAR file
-ssh $HOST "unzip egg/$APPDIR/ROOT.war egg/$APPDIR/tomcat/webapps/ROOT"
+ssh -t -t $HOST "unzip egg/$APPDIR/ROOT.war egg/$APPDIR/tomcat/webapps/ROOT"

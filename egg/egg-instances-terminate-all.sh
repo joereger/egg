@@ -2,23 +2,14 @@
 
 source common.sh
 
-INSTANCESFILE=conf/instances.conf
+#Delete any instance tagged with EC2NAMETAG
+${EC2_HOME}/bin/ec2-describe-tags --filter key=Name --filter value=${EC2NAMETAG} |
+while read line; do
+  	IID=$(echo "$line" | cut -f3)
+  	echo "Found instance ${IID} and will terminate it... dun dun dun."
+	${EC2_HOME}/bin/ec2-terminate-instances ${IID}
+done
 
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-		
-#Read INSTANCESFILE   
-while read ininstancesline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
-	
-		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
-		
-		./egg-instance-terminate.sh $LOGICALINSTANCEID	
-
-	fi
-done < "$INSTANCESFILE"
+#Empty the amazoniids.conf file by copying in an empty one
+cp conf/amazoniids-sample.conf conf/amazoniids.conf
 			

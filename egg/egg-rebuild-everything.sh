@@ -3,7 +3,7 @@
 source common.sh
 
 #Kill all Instances
-${EC2_HOME}/bin/ec2-describe-tags --filter key=Name --filter value=eggweb |
+${EC2_HOME}/bin/ec2-describe-tags --filter key=Name --filter value=${EC2NAMETAG} |
 while read line; do
   	IID=$(echo "$line" | cut -f3)
   	echo Terminating instance ${IID}

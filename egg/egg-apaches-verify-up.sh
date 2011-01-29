@@ -51,15 +51,17 @@ do
 				
 				if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
 				
-					#Read AMAZONIIDSFILE   
+					#Read AMAZONIIDSFILE
+					AMAZONINSTANCEID=""
+					HOST=""
 					while read amazoniidsline;
 					do
 						#Ignore lines that start with a comment hash mark
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-								HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
 					done < "$AMAZONIIDSFILE"
@@ -82,14 +84,16 @@ do
 						#Create the instance
 						./egg-verify-instances-up.sh
 						#Read AMAZONIIDSFILE... again now that a new instance has been spun up
+						AMAZONINSTANCEID=""
+		                HOST=""
 						while read amazoniidsline;
 						do
 							#Ignore lines that start with a comment hash mark
 							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 								LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 								if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-									HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+									HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 								fi
 							fi
 						done < "$AMAZONIIDSFILE"
@@ -97,7 +101,7 @@ do
 					
 					#Apache Check
 					echo Start Apache Check
-					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
+					apachecheck=`ssh -t -t $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
 						echo Apache not found, will create
 						./egg-apache-stop.sh $HOST

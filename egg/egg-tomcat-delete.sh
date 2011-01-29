@@ -15,5 +15,5 @@ APPDIR=$3
 ./egg-tomcat-stop.sh $HOST $APPDIR
 
 #Delete the instance
-ssh $HOST "rm -rf egg/$APPDIR"
+ssh -t -t $HOST "rm -rf egg/$APPDIR"
 

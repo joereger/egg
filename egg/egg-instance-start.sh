@@ -40,15 +40,17 @@ do
 				AMIID="ami-08728661"
 			fi
 			
-			#Read AMAZONIIDSFILE   
+			#Read AMAZONIIDSFILE
+			AMAZONINSTANCEID=""
+		    HOST=""
 			while read amazoniidsline;
 			do
 				#Ignore lines that start with a comment hash mark
 				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-						AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-						HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+						AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+						HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 					fi
 				fi
 			done < "$AMAZONIIDSFILE"

@@ -29,7 +29,7 @@ enginetag="<Engine name=\\\"Catalina\\\" defaultHost=\\\"localhost\\\" jvmRoute=
 #Note that server.xml.original is created when the Tomcat is created
 #This first sed program operates on server.xml.original and saves to .xml
 #Operate on Connector tag, also add executor tag before it
-ssh $HOST "sed \"
+ssh -t -t $HOST "sed \"
 /<Connector port=\\\"8080\\\" protocol=\\\"HTTP\\\/1.1\\\"/, /\\\/>/ c\
 $executortag \
 $connectortag
@@ -37,7 +37,7 @@ $connectortag
 
 #This sed command operates directly on server.xml
 #Operate on Engine tag
-ssh $HOST "sed -i \"
+ssh -t -t $HOST "sed -i \"
 /<Engine name=\\\"Catalina\\\" defaultHost=\\\"localhost\\\">/ c\
 $enginetag
 \" egg/$APPDIR/tomcat/conf/server.xml"

@@ -34,15 +34,17 @@ do
 			AMIID="ami-08728661"
 		fi
 		
-		#Read AMAZONIIDSFILE   
+		#Read AMAZONIIDSFILE
+		AMAZONINSTANCEID=""
+		HOST=""
 		while read amazoniidsline;
 		do
 			#Ignore lines that start with a comment hash mark
 			if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 				LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 				if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-					AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-					HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+					AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+					HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 				fi
 			fi
 		done < "$AMAZONIIDSFILE"
@@ -61,7 +63,7 @@ do
 		
 		#Start an instance if necessary
 		if [ ${thisinstanceisup} == "0" ]; then
-			echo Will create amazon ec2 instance for logical instance $LOGICALINSTANCEID
+			echo "Will create amazon ec2 instance for logical instance $LOGICALINSTANCEID"
 			
 			#TEMP BLOCK OUT
 			#if [ "1" == "0" ]; then
@@ -80,7 +82,7 @@ do
 				echo Launching AMI ${amiid}
 				${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
 				if [ $? != 0 ]; then
-				   echo Error starting instance for image ${AMIID}
+				   echo "Error starting instance for amazonimageid ${AMIID}"
 				   exit 1
 				fi
 				export iid=`cat /tmp/origin.ec2 | grep INSTANCE | cut -f2`
@@ -103,7 +105,7 @@ do
 				echo Instance ${iid} is running
 				
 				#Add Tag(s)
-				ec2-create-tags ${iid} --tag Name="eggweb"
+				ec2-create-tags ${iid} --tag Name="${EC2NAMETAG}"
 				echo Tag added to Instance ${iid}
 				
 				# Attach the volume to the running instance
@@ -129,6 +131,7 @@ do
 				if [ "$ELASTICIP" != "" ]; then  
 					echo Associating elastic IP address $ELASTICIP
 					${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
+					echo Waiting 30 seconds
 					sleep 30
 				fi
 				
@@ -138,6 +141,24 @@ do
 			
 				AMAZONINSTANCEID=${iid}
 				HOST=${ipaddress}
+
+				#Need to wait for SSH to be available
+				export sshdone="false"
+				while [ $sshdone == "false" ]
+				do
+				    sshcheck=`ssh -t -t $HOST "[ -d ./ ] && echo 1"`
+					if [ "$sshcheck" != 1 ]; then
+					    echo sshcheck=$sshcheck
+						echo "SSH not up yet, sleeping 10 seconds:"
+						sleep 10
+					else
+						export sshdone="true"
+					fi
+				done
+				echo "SSH is running"
+
+				#Uninstall sendmail
+				ssh -t -t $HOST "sudo yum -y remove sendmail"
 			
 			#TEMP BLOCK OUT
 			#fi
@@ -155,9 +176,7 @@ do
 			
 			#Any time we change instances we have to update the apacheconfig
 			SOMETHINGHASCHANGED="1"
-			
 		fi
-		
 	fi
 done < "$INSTANCESFILE"
 

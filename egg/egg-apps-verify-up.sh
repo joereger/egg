@@ -58,15 +58,17 @@ do
 				
 				if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
 				
-					#Read AMAZONIIDSFILE   
+					#Read AMAZONIIDSFILE
+					AMAZONINSTANCEID=""
+		            HOST=""
 					while read amazoniidsline;
 					do
 						#Ignore lines that start with a comment hash mark
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-								HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
 					done < "$AMAZONIIDSFILE"
@@ -95,8 +97,8 @@ do
 							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 								LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 								if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f3)
-									HOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+									HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 								fi
 							fi
 						done < "$AMAZONIIDSFILE"
@@ -104,7 +106,7 @@ do
 					
 					#Tomcat Check
 					echo Start Tomcat Check
-					tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
+					tomcatcheck=`ssh -t -t $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
 					if [ "$tomcatcheck" != 1 ]; then
 						echo Tomcat not found, will create
 						./egg-tomcat-create.sh $HOST $APPDIR
@@ -117,7 +119,7 @@ do
 					
 					#WAR File Check
 					echo Start WAR File Check
-					warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
+					warcheck=`ssh -t -t $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
 					if [ "$warcheck" != 1 ]; then
 						echo WAR not found, will deploy
 						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
@@ -127,7 +129,7 @@ do
 					
 					#Instance.props File Check
 					echo Start Instance.props File Check
-					propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
+					propscheck=`ssh -t -t $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
 					if [ "$propscheck" != 1 ]; then
 						echo Instance.props not found, will send
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
