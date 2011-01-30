@@ -3,7 +3,7 @@
 source common.sh
 
 INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=conf/amazoniids.conf
+AMAZONIIDSFILE=data/amazoniids.conf
 
 if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
@@ -12,7 +12,7 @@ fi
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
+  cp data/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
 
 SOMETHINGHASCHANGED="0"

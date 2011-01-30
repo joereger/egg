@@ -12,11 +12,11 @@ INSTANCESFILE=conf/instances.conf
 TOMCATSFILE=conf/tomcats.conf
 URLSFILE=conf/urls.conf
 APPSFILE=conf/apps.conf
-AMAZONIIDSFILE=conf/amazoniids.conf
+AMAZONIIDSFILE=data/amazoniids.conf
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
+  cp data/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
 
 if [ ! -f "$APACHESFILE" ]; then
@@ -235,17 +235,38 @@ do
 	fi
 done < "$APPSFILE"
 
-#First I copy the base httpd.conf over to the remote Apache host
-scp resources/httpd.conf ec2-user@$HOST:/etc/httpd/conf/httpd.conf
-
-#Now I need to write this spectacular wonder called VHOSTS to the httpd.conf file
-ssh -t -t $HOST "sed \"
+#Write .tmp to data/ dir
+sed \"
 /# VirtualHost example:/ i\
 $VHOSTS
-\" /etc/httpd/conf/httpd.conf > /etc/httpd/conf/httpd.conf"
-#Make sure it's stopped/started
-./egg-apache-stop.sh $HOST
-./egg-apache-start.sh $HOST
+\" resources/httpd.conf > data/httpd.conf.$APACHEID.tmp
+
+#Determine difference
+if [ diff httpd.conf.$APACHEID.tmp httpd.conf.$APACHEID.latest >/dev/null ]; then
+    echo httpd.conf.$APACHEID.tmp is the same as httpd.conf.$APACHEID.tmp
+else
+    echo httpd.conf.$APACHEID.tmp has been updated
+    #Promote .tmp to .latest
+    cp data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest
+    rm -f data/httpd.conf.$APACHEID.tmp
+
+    #Copy latest to the remote Apache host
+    scp data/httpd.conf.$APACHEID.latest ec2-user@$HOST:/etc/httpd/conf/httpd.conf
+
+    #Bounce Apache
+    ./egg-apache-stop.sh $HOST
+    ./egg-apache-start.sh $HOST
+fi
+
+
+#Now I need to write this spectacular wonder called VHOSTS to the httpd.conf file
+#ssh -t -t $HOST "sed \"
+#/# VirtualHost example:/ i\
+#$VHOSTS
+#\" /etc/httpd/conf/httpd.conf > /etc/httpd/conf/httpd.conf"
+
+
+
 
 
 

@@ -9,11 +9,11 @@ source common.sh
 
 APACHESFILE=conf/apaches.conf
 INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=conf/amazoniids.conf
+AMAZONIIDSFILE=data/amazoniids.conf
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp conf/amazoniids-sample.conf $AMAZONIIDSFILE
+  cp data/amazoniids-sample.conf $AMAZONIIDSFILE
 fi
 
 
