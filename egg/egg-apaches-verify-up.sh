@@ -65,53 +65,33 @@ do
 							fi
 						fi
 					done < "$AMAZONIIDSFILE"
-				
-				
-					echo "  "
-					echo CHECKING APACHE $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/
-					
-					#Instance Check
-#					echo Start Instance Check
-#					export thisinstanceisup=0
-#					export RUNNING="running"
-#					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
-#					if [ $status == ${RUNNING} ]; then
-#						echo Instance found
-#						export thisinstanceisup=1
-#					else
-#						echo Instance not found, will create
-#						export thisinstanceisup=0
-#						#Create the instance
-#						./egg-verify-instances-up.sh
-#						#Read AMAZONIIDSFILE... again now that a new instance has been spun up
-#						AMAZONINSTANCEID=""
-#		                HOST=""
-#						while read amazoniidsline;
-#						do
-#							#Ignore lines that start with a comment hash mark
-#							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
-#								LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
-#								if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-#									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
-#									HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
-#								fi
-#							fi
-#						done < "$AMAZONIIDSFILE"
-#					fi
-					
-					#Apache Check
+
+					echo CHECKING APACHE $INSTANCESIZE http://$HOST/
+
+					#Apache Existence Check
 					echo Start Apache Check
 					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
-						echo Apache not found, will create
+						echo Apache installation folder not found, will create
 						./egg-apache-stop.sh $HOST
 						./egg-apache-create.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 					else 
-						echo Tomcat found
+						echo Apache installation folder found
 					fi
 					
-					
+					#Apache Process Check
+					processcheck=`ssh $HOST "[! pgrep httpd -c >/dev/null] && echo 1"`
+					if [ "$processcheck" != 1 ]; then
+						echo Apache process not found processcheck=$processcheck
+						./egg-apache-stop.sh $HOST
+						./egg-apache-start.sh $HOST
+					else
+						echo Apache process found
+					fi
+
+
+
 				fi
 			fi
 		done < "$INSTANCESFILE"

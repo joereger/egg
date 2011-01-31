@@ -9,4 +9,6 @@ HOST=$1
 APPDIR=$2
 
 ssh -t -t $HOST "sudo /sbin/service httpd stop"
+ssh -t -t $HOST "sudo killall -9 httpd"
+
 

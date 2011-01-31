@@ -187,8 +187,6 @@ do
 				fi
 			done < "$TOMCATSFILE"
 			
-			
-			
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS$'\n'
 			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
@@ -241,11 +239,11 @@ sed \"
 $VHOSTS
 \" resources/httpd.conf > data/httpd.conf.$APACHEID.tmp
 
-#Determine difference
+#Determine whether this new config is different than the latest
 if [ diff httpd.conf.$APACHEID.tmp httpd.conf.$APACHEID.latest >/dev/null ]; then
     echo httpd.conf.$APACHEID.tmp is the same as httpd.conf.$APACHEID.tmp
 else
-    echo httpd.conf.$APACHEID.tmp has been updated
+    echo httpd.conf.$APACHEID.tmp is different than httpd.conf.$APACHEID.tmp
     #Promote .tmp to .latest
     cp data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest
     rm -f data/httpd.conf.$APACHEID.tmp
