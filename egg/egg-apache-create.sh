@@ -12,5 +12,4 @@ HOST=$1
 ssh -t -t $HOST "sudo yum -y install httpd"
 ssh -t -t $HOST "sudo /sbin/chkconfig httpd on"
 ssh -t -t $HOST "sudo cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.original"
-./egg-apache-configure.sh $HOST
-./egg-apache-start.sh $HOST
+

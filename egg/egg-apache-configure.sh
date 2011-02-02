@@ -234,7 +234,7 @@ do
 	fi
 done < "$APPSFILE"
 
-
+#Append the VHOSTS entry to the end of the file
 cp resources/httpd.conf data/httpd.conf.$APACHEID.tmp
 echo -e ${VHOSTS} >> data/httpd.conf.$APACHEID.tmp
 
@@ -259,11 +259,6 @@ fi
 rm -f data/httpd.conf.$APACHEID.tmp
 
 
-#Now I need to write this spectacular wonder called VHOSTS to the httpd.conf file
-#ssh -t -t $HOST "sed \"
-#/# VirtualHost example:/ i\
-#$VHOSTS
-#\" /etc/httpd/conf/httpd.conf > /etc/httpd/conf/httpd.conf"
 
 
 

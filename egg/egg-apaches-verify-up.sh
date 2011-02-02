@@ -76,6 +76,7 @@ do
 						./egg-apache-stop.sh $HOST
 						./egg-apache-create.sh $HOST
 						./egg-apache-configure.sh $APACHEID
+						./egg-apache-start.sh $HOST
 					else 
 						echo Apache installation folder found
 					fi
@@ -85,6 +86,7 @@ do
 					if [ "$processcheck" != 1 ]; then
 						echo Apache process not found processcheck=$processcheck
 						./egg-apache-stop.sh $HOST
+						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST
 					else
 						echo Apache process found
