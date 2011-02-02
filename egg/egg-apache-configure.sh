@@ -99,6 +99,7 @@ done < "$INSTANCESFILE"
 #I need to iterate apps to find those that should be on this Apache.
 #Along the way I'm building up VHOSTS with the VirtualHost config section(s)
 VHOSTS=""
+NEWLINE="\x0a"
 while read inappsline;
 do
 	#Ignore lines that start with a comment hash mark
@@ -109,17 +110,17 @@ do
 		
 			#This is an app that should be on this Apache
 		
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"<VirtualHost *:80>"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"DocumentRoot /www/docs/$APPNAME"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			
 			BALANCEMEMBERS=""
-			BALANCEMEMBERS=$BALANCEMEMBERS$'\n'
+			BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
 			
 			PROXYPASSREVERSES=""
-			PROXYPASSREVERSES=$PROXYPASSREVERSES$'\n'
+			PROXYPASSREVERSES=$PROXYPASSREVERSES$NEWLINE
 			
 			#Read TOMCATSFILE to find instances that should be on this Apache.
 			while read intomcatline;
@@ -138,28 +139,30 @@ do
 					if [ "$APPNAME_A" == "$APPNAME" ]; then
 						
 						#This is a Tomcat instance that should be represented in this app's VirtualHost config
-						
+
+						ISFIRST="0";
 						#Iterate urls.conf to get ServerAlias directives
 						while read inurlsline;
 						do
 							#Ignore lines that start with a comment hash mark
-							COUNT=0;
 							if [ $(echo "$inurlsline" | cut -c1) != "#" ]; then
 								APPNAME_B=$(echo "$inurlsline" | cut -d ":" -f1)
 								URL=$(echo "$inurlsline" | cut -d ":" -f2)
 								if [ "$APPNAME_B" == "$APPNAME" ]; then
-									let COUNT=COUNT+1
-									if [ "$COUNT" == "1" ]; then
+									if [ $ISFIRST = "0" ]; then
 										VHOSTS=$VHOSTS"ServerName "$URL
-										VHOSTS=$VHOSTS$'\n'
+										VHOSTS=$VHOSTS$NEWLINE
 									else
 										VHOSTS=$VHOSTS"ServerAlias "$URL
-										VHOSTS=$VHOSTS$'\n'
+										VHOSTS=$VHOSTS$NEWLINE
 									fi
-										
+									ISFIRST="1"
 								fi
 							fi
-						done < "$URLSFILE"	
+						done < "$URLSFILE"
+
+						#Flag, true if this tomcat host is found in amazoniids.conf
+						TOMCATFOUND="false"
 						
 						#Read AMAZONIIDSFILE to get the HOST for this Tomcat
 						while read amazoniidsline;
@@ -168,85 +171,80 @@ do
 							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 								LOGICALINSTANCEID_D=$(echo "$amazoniidsline" | cut -d ":" -f1)
 								if [ "$LOGICALINSTANCEID_D" == "$LOGICALINSTANCEID_TOMCAT" ]; then
-									AMAZONINSTANCEID_TOMCAT=$(echo "$amazoniidsline" | cut -d ":" -f3)
-									HOST_TOMCAT=$(echo "$amazoniidsline" | cut -d ":" -f4)
+									AMAZONINSTANCEID_TOMCAT=$(echo "$amazoniidsline" | cut -d ":" -f2)
+									HOST_TOMCAT=$(echo "$amazoniidsline" | cut -d ":" -f3)
+								    TOMCATFOUND="true"
 								fi
 							fi
 						done < "$AMAZONIIDSFILE"
 						
-						
-						#Build BalanceMember for this Tomcat
-						BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=node1 acquire=60000 smax=15 max=20 ttl=120 timeout=120 retry=60"
-						BALANCEMEMBERS=$BALANCEMEMBERS$'\n'
-						
-						#Build ProxyPassReverse for this Tomcat
-						PROXYPASSREVERSES=$PROXYPASSREVERSES"ProxyPassReverse / http://$HOST_TOMCAT/"
-						PROXYPASSREVERSES=$PROXYPASSREVERSES$'\n'
+						if [ "$TOMCATFOUND" == "true" ]; then
+                            #Build BalanceMember for this Tomcat
+                            BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=node1 acquire=60000 smax=15 max=20 ttl=120 timeout=120 retry=60"
+                            BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
+
+                            #Build ProxyPassReverse for this Tomcat
+                            PROXYPASSREVERSES=$PROXYPASSREVERSES"ProxyPassReverse / http://$HOST_TOMCAT/"
+                            PROXYPASSREVERSES=$PROXYPASSREVERSES$NEWLINE
+						fi
 					
 					fi
 				fi
 			done < "$TOMCATSFILE"
 			
-			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"<Proxy balancer://$APPNAME>"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase slurp isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase yandexbot isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase msnbot isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase MJ12bot isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase Sosospider isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase Exabot isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase bingbot isrobot"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"deny from env=isrobot"	
-			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS$BALANCEMEMBERS
-			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"</Proxy>"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"ProxyPreserveHost On"
-			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS$PROXYPASSREVERSES
-			VHOSTS=$VHOSTS$'\n'
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			
 			VHOSTS=$VHOSTS"ErrorLog logs/$APPNAME-error_log"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"TransferLog logs/$APPNAME-access_log"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"</VirtualHost>"
-			VHOSTS=$VHOSTS$'\n'
+			VHOSTS=$VHOSTS$NEWLINE
 			
 		fi
 	fi
 done < "$APPSFILE"
 
-#Write .tmp to data/ dir
-sed \"
-/# VirtualHost example:/ i\
-$VHOSTS
-\" resources/httpd.conf > data/httpd.conf.$APACHEID.tmp
+
+cp resources/httpd.conf data/httpd.conf.$APACHEID.tmp
+echo -e ${VHOSTS} >> data/httpd.conf.$APACHEID.tmp
 
 #Determine whether this new config is different than the latest
-if [ diff httpd.conf.$APACHEID.tmp httpd.conf.$APACHEID.latest >/dev/null ]; then
-    echo httpd.conf.$APACHEID.tmp is the same as httpd.conf.$APACHEID.tmp
+if  diff data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest >/dev/null ; then
+    echo httpd.conf.$APACHEID.tmp is the same as httpd.conf.$APACHEID.latest
 else
     echo httpd.conf.$APACHEID.tmp is different than httpd.conf.$APACHEID.tmp
     #Promote .tmp to .latest
     cp data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest
-    rm -f data/httpd.conf.$APACHEID.tmp
 
     #Copy latest to the remote Apache host
     scp data/httpd.conf.$APACHEID.latest ec2-user@$HOST:/etc/httpd/conf/httpd.conf
@@ -255,6 +253,8 @@ else
     ./egg-apache-stop.sh $HOST
     ./egg-apache-start.sh $HOST
 fi
+
+rm -f data/httpd.conf.$APACHEID.tmp
 
 
 #Now I need to write this spectacular wonder called VHOSTS to the httpd.conf file
