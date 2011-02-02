@@ -247,7 +247,9 @@ else
     cp data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest
 
     #Copy latest to the remote Apache host
-    scp data/httpd.conf.$APACHEID.latest ec2-user@$HOST:/etc/httpd/conf/httpd.conf
+    scp data/httpd.conf.$APACHEID.latest ec2-user@$HOST:httpd.conf.tmp
+    ssh -t -t $HOST "sudo cp httpd.conf.tmp /etc/httpd/conf/httpd.conf"
+    ssh -t -t $HOST "rm -f httpd.conf.tmp"
 
     #Bounce Apache
     ./egg-apache-stop.sh $HOST
