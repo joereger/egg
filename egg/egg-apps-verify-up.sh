@@ -112,7 +112,6 @@ do
 						./egg-tomcat-create.sh $HOST $APPDIR
 						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
-						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
 					else 
 						echo Tomcat found
 					fi
@@ -134,7 +133,7 @@ do
 						echo Instance.props not found, will send
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
 					else 
-						echo WAR found
+						echo Instance.props found
 					fi
 					
 					#HTTP Check
