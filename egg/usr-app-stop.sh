@@ -38,7 +38,8 @@ if [ "$APP" != "" ]; then
     done < "$APPSFILE"
 
     if [ "$CHOSENAPP" != "" ]; then
-        echo "$CHOSENAPP will be stopped"
+        #echo "$CHOSENAPP will be stopped"
+        ./egg-log.sh "$CHOSENAPP will be stopped"
         ./egg-app-stop.sh $CHOSENAPP
     fi
 fi

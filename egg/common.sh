@@ -1,11 +1,18 @@
 #!/bin/bash
 
-#Log script execution yo yo yo
-./egg-log.sh "______ $0 $@"
+source colors.sh
 
 #Redirect stdout to debug.log
 exec > >(tee -a logs/debug.log)
 exec 2>&1
+
+#Log script execution yo yo yo
+#echo -e ${cc_black_cyan}
+WHATTOLOG="$0 $@"
+echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> /home/ec2-user/egg/logs/debug.log
+echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> /home/ec2-user/egg/logs/status.log
+#./egg-log-status.sh "$0 $@"
+#echo -e ${c_reset}
 
 #Set up EC2 vars
 export EC2_HOME=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308
@@ -17,3 +24,4 @@ export JAVA_HOME=/usr/lib/jvm/jre
 
 #EC2 Name Tag for all instances
 export EC2NAMETAG="eggcontrolled"
+
