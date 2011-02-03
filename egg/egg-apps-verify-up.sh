@@ -76,6 +76,7 @@ do
 				
 					echo "  "
 					echo CHECKING $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/
+					./egg-log-status.sh "Checking $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/"
 					
 					#Instance Check
 					echo Start Instance Check
@@ -86,7 +87,7 @@ do
 						echo Instance found
 						export thisinstanceisup=1  	
 					else 
-						echo Instance not found, will create
+						./egg-log-status.sh "Instance not found, will create"
 						export thisinstanceisup=0 
 						#Create the instance
 						./egg-verify-instances-up.sh
@@ -108,7 +109,7 @@ do
 					echo Start Tomcat Check
 					tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
 					if [ "$tomcatcheck" != 1 ]; then
-						echo Tomcat not found, will create
+						./egg-log-status.sh "Tomcat not found, will create"
 						./egg-tomcat-create.sh $HOST $APPDIR
 						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
@@ -120,7 +121,7 @@ do
 					echo Start WAR File Check
 					warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
 					if [ "$warcheck" != 1 ]; then
-						echo WAR not found, will deploy
+						./egg-log-status.sh "WAR not found, will deploy"
 						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
 					else 
 						echo WAR found
@@ -130,7 +131,7 @@ do
 					echo Start Instance.props File Check
 					propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
 					if [ "$propscheck" != 1 ]; then
-						echo Instance.props not found, will send
+						./egg-log-status.sh "Instance.props not found, will send"
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
 					else 
 						echo Instance.props found
@@ -145,7 +146,7 @@ do
 					if [ "$status" == "200" ]; then
 						echo HTTP 200 found
 					else
-						echo HTTP 200 not found, will stop/start tomcat
+						./egg-log-status.sh "HTTP 200 not found, will stop/start tomcat"
 						./egg-tomcat-stop.sh $HOST $APPDIR
 						./egg-tomcat-start.sh $HOST $APPDIR
 					fi
