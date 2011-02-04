@@ -22,6 +22,10 @@ ssh -t -t $HOST "sudo chmod -R 755 egg/$APPDIR"
 ssh -t -t $HOST "mv egg/$APPDIR/$APACHEDIRINSIDEZIP/ egg/$APPDIR/tomcat/"
 ssh -t -t $HOST "rm $APACHEZIP"
 ssh -t -t $HOST "cp egg/$APPDIR/tomcat/conf/server.xml egg/$APPDIR/tomcat/conf/server.xml.original"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/docs"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/examples"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/host-manager"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/manager"
 
 
 
