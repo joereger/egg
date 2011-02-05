@@ -66,121 +66,119 @@ do
 		#Start an instance if necessary
 		if [ ${thisinstanceisup} == "0" ]; then
 			echo "Will create amazon ec2 instance for logical instance $LOGICALINSTANCEID"
-			
-			#TEMP BLOCK OUT
-			#if [ "1" == "0" ]; then
-			
-				
-				export key="joekey"
-				export id_file="/home/ec2-user/.ssh/joekey.pem"
-				export zone="us-east-1c"
-				export securitygroup1="default"
-				export securitygroup2="$SECURITYGROUP"
-				export ip="1.2.3.4"
-				
-				if [ "$INSTANCESIZE" == "" ]; then INSTANCESIZE="t1.micro"; fi
 
-				./egg-log-status.sh "Launching AMI ${amiid} of size $INSTANCESIZE"
-				${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
-				if [ $? != 0 ]; then
-				   ./egg-log-status.sh "Error starting instance for amazonimageid ${AMIID}"
-				   exit 1
-				fi
-				export iid=`cat /tmp/origin.ec2 | grep INSTANCE | cut -f2`
-	
-				# Loop until the status changes to .running.
-				sleep 30
-				./egg-log-status.sh "Starting instance ${iid}"
-				export RUNNING="running"
-				export done="false"
-				while [ $done == "false" ]
-				do
-				   export status=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f6`
-				   if [ $status == ${RUNNING} ]; then
-					  export done="true"
-				   else
-					  echo Waiting 10 sec...
-					  sleep 10
-				   fi
-				done
-				echo Instance ${iid} is running
-				
-				#Add Tag(s)
-				ec2-create-tags ${iid} --tag Name="${EC2NAMETAG}"
-				echo Tag added to Instance ${iid}
+            export key="joekey"
+            export id_file="/home/ec2-user/.ssh/joekey.pem"
+            export zone="us-east-1c"
+            export securitygroup1="default"
+            export securitygroup2="$SECURITYGROUP"
+            export ip="1.2.3.4"
+
+            if [ "$INSTANCESIZE" == "" ]; then INSTANCESIZE="t1.micro"; fi
+
+            ./egg-log-status.sh "Launching AMI ${amiid} of size $INSTANCESIZE"
+            ${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
+            if [ $? != 0 ]; then
+               ./egg-log-status.sh "Error starting instance for amazonimageid ${AMIID}"
+               exit 1
+            fi
+            export iid=`cat /tmp/origin.ec2 | grep INSTANCE | cut -f2`
+
+            # Loop until the status changes to .running.
+            sleep 30
+            ./egg-log-status.sh "Starting instance ${iid}"
+            export RUNNING="running"
+            export done="false"
+            while [ $done == "false" ]
+            do
+               export status=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f6`
+               if [ $status == ${RUNNING} ]; then
+                  export done="true"
+               else
+                  echo Waiting 10 sec...
+                  sleep 10
+               fi
+            done
+            echo Instance ${iid} is running
+
+            #Add Tag(s)
+            ec2-create-tags ${iid} --tag Name="${EC2NAMETAG}"
+            echo Tag added to Instance ${iid}
 
 
-	
-				# Associate the Elastic IP with the instance
-				if [ "$ELASTICIP" != "" ]; then  
-					./egg-log-status.sh "Associating elastic IP address $ELASTICIP"
-					${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
-					echo Waiting 30 seconds
-					sleep 30
-				fi
-				
-				#Get the IP address
-				export ipaddress=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f18`
-				./egg-log-status.sh "IP Address of ${iid} is ${ipaddress}"
-			
-				AMAZONINSTANCEID=${iid}
-				HOST=${ipaddress}
 
-				#Need to wait for SSH to be available
-				export sshtest="yipee"
-				export sshdone="false"
-				while [ $sshdone == "false" ]
-				do
-				    export sshcheck=`ssh $HOST "[ -d ./ ] && echo yipee"`
-					if [ "$sshcheck" == "$sshtest" ]; then
-					    export sshdone="true"
-					else
-					    echo sshcheck=${sshcheck}
-						echo "SSH not up yet, sleeping 10 seconds."
-						sleep 10
-					fi
-				done
-				./egg-log-status.sh "SSH is running"
+            # Associate the Elastic IP with the instance
+            if [ "$ELASTICIP" != "" ]; then
+                ./egg-log-status.sh "Associating elastic IP address $ELASTICIP"
+                ${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
+                echo Waiting 30 seconds
+                sleep 30
+            fi
 
-				#Uninstall sendmail
-				echo "Uninstalling sendmail"
-				ssh -t -t $HOST "sudo yum -y remove sendmail"
+            #Get the IP address
+            export ipaddress=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f18`
+            ./egg-log-status.sh "IP Address of ${iid} is ${ipaddress}"
+
+            #Get the internalhost address
+            export INTERNALHOSTNAME=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f5`
+            ./egg-log-status.sh "Internal Host of ${iid} is ${INTERNALHOSTNAME}"
+
+            AMAZONINSTANCEID=${iid}
+            HOST=${ipaddress}
+
+            #Need to wait for SSH to be available
+            export sshtest="yipee"
+            export sshdone="false"
+            while [ $sshdone == "false" ]
+            do
+                export sshcheck=`ssh $HOST "[ -d ./ ] && echo yipee"`
+                if [ "$sshcheck" == "$sshtest" ]; then
+                    export sshdone="true"
+                else
+                    echo sshcheck=${sshcheck}
+                    echo "SSH not up yet, sleeping 10 seconds."
+                    sleep 10
+                fi
+            done
+            ./egg-log-status.sh "SSH is running"
+
+            #Uninstall sendmail
+            echo "Uninstalling sendmail"
+            ssh -t -t $HOST "sudo yum -y remove sendmail"
 
 
-				#Attach EBS volumes if necessary
-				if [ "$EBSVOLUME" != "" ]; then
-                    # Attach the volume to the running instance
-                    # For future reference here's what I did to the volume to create the file system
-                    # yum install xfsprogs
-                    #grep -q xfs /proc/filesystems || sudo modprobe xfs
-                    #sudo mkfs.xfs /dev/sdh
-                    #Note that this filesystem creation is done manually and only once to make the EBS volume usable
-                    ./egg-log-status.sh "Attaching volume ${EBSVOLUME}"
-                    ${EC2_HOME}/bin/ec2-attach-volume ${EBSVOLUME} -i ${iid} -d ${EBSDEVICENAME}
-                    echo "Sleeping 15 sec for volume to attach"
-                    sleep 15
-                    # Loop until the volume status changes to "attached"
-                    export ATTACHED="attached"
-                    export done="false"
-                    while [ $done == "false" ]
-                    do
-                       export status=`${EC2_HOME}/bin/ec2-describe-volumes | grep ATTACHMENT | grep ${EBSVOLUME} | cut -f5`
-                       if [ $status == ${ATTACHED} ]; then
-                          export done="true"
-                       else
-                          echo "Waiting 10 secs"
-                          sleep 10
-                       fi
-                    done
-                    ./egg-log-status.sh "Volume ${EBSVOLUME} is attached"
-                    #Configure the instance to have the drive on reboot and to have it mounted as /vol
-                    ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"
-                    ssh -t -t $HOST "sudo mkdir -m 000 /vol"
-                    ssh -t -t $HOST "sudo mount /vol"
-				fi
-			
-			#TEMP BLOCK OUT
-			#fi
+            #Attach EBS volumes if necessary
+            if [ "$EBSVOLUME" != "" ]; then
+                # Attach the volume to the running instance
+                # For future reference here's what I did to the volume to create the file system
+                # yum install xfsprogs
+                #grep -q xfs /proc/filesystems || sudo modprobe xfs
+                #sudo mkfs.xfs /dev/sdh
+                #Note that this filesystem creation is done manually and only once to make the EBS volume usable
+                ./egg-log-status.sh "Attaching volume ${EBSVOLUME}"
+                ${EC2_HOME}/bin/ec2-attach-volume ${EBSVOLUME} -i ${iid} -d ${EBSDEVICENAME}
+                echo "Sleeping 15 sec for volume to attach"
+                sleep 15
+                # Loop until the volume status changes to "attached"
+                export ATTACHED="attached"
+                export done="false"
+                while [ $done == "false" ]
+                do
+                   export status=`${EC2_HOME}/bin/ec2-describe-volumes | grep ATTACHMENT | grep ${EBSVOLUME} | cut -f5`
+                   if [ "$status" == "${ATTACHED}" ]; then
+                      export done="true"
+                   else
+                      echo "Waiting 10 secs"
+                      sleep 10
+                   fi
+                done
+                ./egg-log-status.sh "Volume ${EBSVOLUME} is attached"
+                #Configure the instance to have the drive on reboot and to have it mounted as /vol
+                ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"
+                ssh -t -t $HOST "sudo mkdir -m 000 /vol"
+                ssh -t -t $HOST "sudo mount /vol"
+            fi
+
 			
 			#Delete any current line with this logicalinstanceid
 			sed -i "
@@ -190,7 +188,7 @@ do
 			#Write a record to amazoniids.conf
 			sed -i "
 			/#BEGINDATA/ a\
-			$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST
+			$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST:$INTERNALHOSTNAME
 			" $AMAZONIIDSFILE
 			
 			#Any time we change instances we have to update the apacheconfig
@@ -200,10 +198,10 @@ do
 done < "$INSTANCESFILE"
 
 #Any time we change instances we have to update the apacheconfig
-if [ "$SOMETHINGHASCHANGED" == "1" ]; then
-    ./egg-apaches-verify-up.sh
-	./egg-apaches-configure-all.sh
-fi
+#if [ "$SOMETHINGHASCHANGED" == "1" ]; then
+#    ./egg-apaches-verify-up.sh
+#	./egg-apaches-configure-all.sh
+#fi
 
 
 
