@@ -72,7 +72,7 @@ do
 					echo Start Apache Check
 					apachecheck=`ssh $HOST "[ -e /etc/my.cnf/ ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
-						echo MySQL my.cnf not found, will create
+						./egg-log-status.sh "MySQL my.cnf not found, will create"
 						./egg-mysql-create.sh $HOST
 						./egg-mysql-configure.sh $MYSQLID
 						./egg-mysql-start.sh $HOST
@@ -83,7 +83,7 @@ do
 					#Apache Process Check
 					processcheck=`ssh $HOST "[! pgrep mysql -c >/dev/null] && echo 1"`
 					if [ "$processcheck" != 1 ]; then
-						echo MySQL process not found processcheck=$processcheck
+						./egg-log-status.sh "MySQL process not found processcheck=$processcheck"
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $MYSQLID
 						./egg-mysql-start.sh $HOST
