@@ -67,18 +67,15 @@ do
 			fi
 			echo Thisinstanceisup=$thisinstanceisup
 			
-			#Start an instance if necessary
+
 			if [ ${thisinstanceisup} == "1" ]; then
 				echo "Will stop amazon ec2 instance for logical instance $LOGICALINSTANCEID"
-				
-				#TEMP BLOCK OUT
-				#if [ "1" == "0" ]; then
-				
-					#Terminate command
-					${EC2_HOME}/bin/ec2-terminate-instances $AMAZONINSTANCEID
-					
-				#TEMP BLOCK OUT
-				#fi
+
+				#Try for some graceful shutdown of MySQL
+				./egg-mysql-stop.sh $HOST
+
+                #Terminate command
+                ${EC2_HOME}/bin/ec2-terminate-instances $AMAZONINSTANCEID
 			
 				#Delete any current line with this logicalinstanceid
 				sed -i "

@@ -197,6 +197,7 @@ do
 	fi
 done < "$INSTANCESFILE"
 
+
 #Any time we change instances we have to update the apacheconfig
 #if [ "$SOMETHINGHASCHANGED" == "1" ]; then
 #    ./egg-apaches-verify-up.sh

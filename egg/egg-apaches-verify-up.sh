@@ -82,9 +82,11 @@ do
 					fi
 					
 					#Apache Process Check
-					processcheck=`ssh $HOST "[! pgrep httpd -c >/dev/null] && echo 1"`
+                    #This line very finickey...
+                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep httpd\\\`\" ] && echo 1"`
+                    echo processcheck=$processcheck
 					if [ "$processcheck" != 1 ]; then
-						echo Apache process not found processcheck=$processcheck
+						echo Apache process not found
 						./egg-apache-stop.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST

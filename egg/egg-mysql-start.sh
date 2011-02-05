@@ -7,5 +7,5 @@ if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 
 HOST=$1
 
-ssh -t -t $HOST "sudo /sbin/service mysql start"
+ssh -t -t $HOST "sudo /sbin/service mysqld start"
 

@@ -69,21 +69,22 @@ do
 					echo CHECKING MYSQL $INSTANCESIZE http://$HOST/
 
 					#MySQL Existence Check
-					echo Start Apache Check
-					apachecheck=`ssh $HOST "[ -e /etc/my.cnf/ ] && echo 1"`
+					echo Start MySQL Check
+					apachecheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
 						./egg-log-status.sh "MySQL my.cnf not found, will create"
 						./egg-mysql-create.sh $HOST
 						./egg-mysql-configure.sh $MYSQLID
-						./egg-mysql-start.sh $HOST
 					else 
 						echo MySQL installation folder found
 					fi
 					
-					#Apache Process Check
-					processcheck=`ssh $HOST "[! pgrep mysql -c >/dev/null] && echo 1"`
+					#MySQL Process Check
+                    #This line very finickey...
+                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep mysql\\\`\" ] && echo 1"`
+                    echo processcheck=$processcheck
 					if [ "$processcheck" != 1 ]; then
-						./egg-log-status.sh "MySQL process not found processcheck=$processcheck"
+						./egg-log-status.sh "MySQL process not found"
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $MYSQLID
 						./egg-mysql-start.sh $HOST
