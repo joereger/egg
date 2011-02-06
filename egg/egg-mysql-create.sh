@@ -33,15 +33,8 @@ HOST=$1
 #sudo chown -R mysql:mysql /vol/mysqldata/*
 
 
-./egg-mysql-stop.sh $HOST
 ssh -t -t $HOST "sudo yum -y install mysql mysql-server"
 
-scp resources/my.cnf ec2-user@$HOST:my.cnf
-ssh -t -t $HOST "sudo cp my.cnf /etc/my.cnf"
-ssh -t -t $HOST "sudo rm my.cnf"
-
-ssh -t -t $HOST "sudo /sbin/chkconfig mysqld on"
-./egg-mysql-start.sh $HOST
 
 
 

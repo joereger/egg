@@ -7,7 +7,7 @@ source common.sh
 
 #APP=$1
 
-MYSQLSFILE=conf/mysqls.conf
+TERRACOTTASFILE=conf/terracottas.conf
 INSTANCESFILE=conf/instances.conf
 AMAZONIIDSFILE=data/amazoniids.conf
 
@@ -17,8 +17,8 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
 fi
 
 
-if [ ! -f "$MYSQLSFILE" ]; then
-  echo "Sorry, $MYSQLSFILE does not exist."
+if [ ! -f "$TERRACOTTASFILE" ]; then
+  echo "Sorry, $TERRACOTTASFILE does not exist."
   exit 1
 fi
 
@@ -28,13 +28,13 @@ if [ ! -f "$INSTANCESFILE" ]; then
 fi
 
 #Read APACHESFILE
-while read inmysqlsline;
+while read interraline;
 do
 	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$inmysqlsline" | cut -c1) != "#" ]; then
+	if [ $(echo "$interraline" | cut -c1) != "#" ]; then
 	
-		MYSQLID=$(echo "$inmysqlsline" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$inmysqlsline" | cut -d ":" -f2)
+		TERRACOTTAID=$(echo "$interraline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$interraline" | cut -d ":" -f2)
 
 		
 		#Read INSTANCESFILE    
@@ -66,32 +66,32 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 
-					echo CHECKING MYSQL $INSTANCESIZE http://$HOST/
+					echo CHECKING TERRACOTTA $INSTANCESIZE http://$HOST/
 
-					#MySQL Existence Check
-					echo Start MySQL Check
-					apachecheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
-					if [ "$apachecheck" != 1 ]; then
-						./egg-log-status.sh "MySQL my.cnf not found, will install"
-						./egg-mysql-create.sh $HOST
-						./egg-mysql-configure.sh $HOST
-						./egg-mysql-start.sh $HOST
+					#Terracotta Existence Check
+					echo Start Terracotta Check
+					check=`ssh $HOST "[ -d /home/ec2-user/terracotta-3.4.0_1/ ] && echo 1"`
+					if [ "$check" != 1 ]; then
+						echo Terracotta installation folder not found, will create
+						./egg-terracotta-create.sh $HOST
+						./egg-terracotta-configure.sh $HOST
+						./egg-terracotta-start.sh $HOST
 					else 
-						echo MySQL installation folder found
+						echo Terracotta installation folder found
 					fi
 					
-					#MySQL Process Check
+					#Terracotta Process Check
                     #This line very finickey...
-                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep mysql\\\`\" ] && echo 1"`
-                    echo processcheck=$processcheck
-					if [ "$processcheck" != 1 ]; then
-						./egg-log-status.sh "MySQL process not found, restarting"
-						./egg-mysql-stop.sh $HOST
-						./egg-mysql-configure.sh $HOST
-						./egg-mysql-start.sh $HOST
-					else
-						echo MySQL process found
-					fi
+#                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep httpd\\\`\" ] && echo 1"`
+#                    echo processcheck=$processcheck
+#					if [ "$processcheck" != 1 ]; then
+#						echo Apache process not found
+#						./egg-apache-stop.sh $HOST
+#						./egg-apache-configure.sh $TERRACOTTAID
+#						./egg-apache-start.sh $HOST
+#					else
+#						echo Apache process found
+#					fi
 
 
 
@@ -101,4 +101,4 @@ do
 		
 	
 	fi
-done < "$MYSQLSFILE"
+done < "$TERRACOTTASFILE"
