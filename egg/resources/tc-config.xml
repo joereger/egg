@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tc:tc-config xsi:schemaLocation="http://www.terracotta.org/schema/terracotta-5.xsd" xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<servers>
+   <server host="localhost">
+      <data>%(user.home)/terracotta/server-data</data>
+      <logs>%(user.home)/terracotta/server-logs</logs>
+   </server>
+</servers>
+
+<clients>
+   <logs>%(user.home)/terracotta/client/logs</logs>
+   <modules>
+   </modules>
+</clients>
+
+</tc:tc-config>
