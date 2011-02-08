@@ -27,7 +27,7 @@ if [ ! -f "$INSTANCESFILE" ]; then
   exit 1
 fi
 
-#Read APACHESFILE
+#Read Mysqls
 while read inmysqlsline;
 do
 	#Ignore lines that start with a comment hash mark
