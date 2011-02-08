@@ -112,7 +112,7 @@ do
 						./egg-log-status.sh "Tomcat not found, will create"
 						./egg-tomcat-create.sh $HOST $APPDIR
 						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
 					else 
 						echo Tomcat found
 					fi
@@ -132,7 +132,7 @@ do
 					propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
 					if [ "$propscheck" != 1 ]; then
 						./egg-log-status.sh "Instance.props not found, will send"
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
 					else 
 						echo Instance.props found
 					fi
