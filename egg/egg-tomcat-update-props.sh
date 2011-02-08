@@ -162,10 +162,10 @@ done < "$TERRACOTTASFILE"
 
 
 #Make sure /conf exists
-#ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
+ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
 
 #Copy combined.props to instance.props on remote Tomcat
-#scp conf/$APP/combined.props ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
+scp conf/$APP/combined.props ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
 
 #Delete combined.props
-#rm conf/$APP/combined.props
+rm conf/$APP/combined.props
