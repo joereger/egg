@@ -56,38 +56,21 @@ do
 			APPDIR=$APPNAME_A$TOMCATID_A
 			echo APPDIR=$APPDIR
 			
-			#Read INSTANCESFILE    
-			while read ininstancesline;
-			do
-				#Ignore lines that start with a comment hash mark
-				if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
-				
-					LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
-					SECURITYGROUP=$(echo "$ininstancesline" | cut -d ":" -f2)
-					INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f3)
-					AMIID=$(echo "$ininstancesline" | cut -d ":" -f4)
-					ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
-					
-					#Read AMAZONIIDSFILE
-					AMAZONINSTANCEID=""
-		            HOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
-						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
-							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
-							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
-								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
-							fi
-						fi
-					done < "$AMAZONIIDSFILE"
-					
-					if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID_A" ]; then
-						echo FOUND LOGICALINSTANCE $LOGICALINSTANCEID_B $INSTANCESIZE $HOST
-					fi
-				fi
-			done < "$INSTANCESFILE"
+			#Read AMAZONIIDSFILE
+            AMAZONINSTANCEID=""
+            HOST=""
+            while read amazoniidsline;
+            do
+                #Ignore lines that start with a comment hash mark
+                if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+                    LOGICALINSTANCEID_C=$(echo "$amazoniidsline" | cut -d ":" -f1)
+                    if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID_C" ]; then
+                        AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+                        HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
+                        echo "Found hostname for LOGICALINSTANCEID=$LOGICALINSTANCEID_A"
+                    fi
+                fi
+            done < "$AMAZONIIDSFILE"
 			
 			#Stop this instance
 			if [ "$HOST" != "" ]; then

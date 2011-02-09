@@ -18,18 +18,18 @@ fi
 SOMETHINGHASCHANGED="0"
 		
 #Read INSTANCESFILE   
-while read ininstancesline;
+while read line_instances_ivu;
 do
 	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
+	if [ $(echo "$line_instances_ivu" | cut -c1) != "#" ]; then
 	
-		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
-		SECURITYGROUP=$(echo "$ininstancesline" | cut -d ":" -f2)
-		INSTANCESIZE=$(echo "$ininstancesline" | cut -d ":" -f3)
-		AMIID=$(echo "$ininstancesline" | cut -d ":" -f4)
-		ELASTICIP=$(echo "$ininstancesline" | cut -d ":" -f5)
-		EBSVOLUME=$(echo "$ininstancesline" | cut -d ":" -f6)
-		EBSDEVICENAME=$(echo "$ininstancesline" | cut -d ":" -f7)
+		LOGICALINSTANCEID=$(echo "$line_instances_ivu" | cut -d ":" -f1)
+		SECURITYGROUP=$(echo "$line_instances_ivu" | cut -d ":" -f2)
+		INSTANCESIZE=$(echo "$line_instances_ivu" | cut -d ":" -f3)
+		AMIID=$(echo "$line_instances_ivu" | cut -d ":" -f4)
+		ELASTICIP=$(echo "$line_instances_ivu" | cut -d ":" -f5)
+		EBSVOLUME=$(echo "$line_instances_ivu" | cut -d ":" -f6)
+		EBSDEVICENAME=$(echo "$line_instances_ivu" | cut -d ":" -f7)
 		
 		#Default AMIID
 		if [ "$AMIID" == "" ]; then

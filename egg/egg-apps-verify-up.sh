@@ -123,6 +123,7 @@ do
 					if [ "$warcheck" != 1 ]; then
 						./egg-log-status.sh "WAR not found, will deploy"
 						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
 					else 
 						echo WAR found
 					fi
@@ -148,6 +149,7 @@ do
 					else
 						./egg-log-status.sh "HTTP 200 not found, will stop/start tomcat"
 						./egg-tomcat-stop.sh $HOST $APPDIR
+						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
 						./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
 					fi
 					

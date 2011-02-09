@@ -1,9 +1,9 @@
+dbDriverName=com.mysql.jdbc.Driver
+dbConnectionUrl=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/mythredz?autoReconnect\=true
+dbUsername=root
+dbPassword=catalyst
 dbMaxActive=20
 dbMaxIdle=20
-dbMaxWait=10000
-dbConnectionUrl=jdbc\:mysql\://localhost\:3306/mythredz?autoReconnect\=true
 dbMinIdle=12
-dbUsername=root
-dbDriverName=com.mysql.jdbc.Driver
-dbPassword=catalyst
-#terracottahost01=localhost
+dbMaxWait=10000
+#terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
