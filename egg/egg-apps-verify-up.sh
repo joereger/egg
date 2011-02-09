@@ -148,7 +148,7 @@ do
 					else
 						./egg-log-status.sh "HTTP 200 not found, will stop/start tomcat"
 						./egg-tomcat-stop.sh $HOST $APPDIR
-						./egg-tomcat-start.sh $HOST $APPDIR
+						./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
 					fi
 					
 				fi

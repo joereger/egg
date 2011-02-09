@@ -18,7 +18,7 @@ MAXTHREADS=$5
 JVMROUTE=$6
 
 if [ "$MAXTHREADS" == "" ]; then
-	$MAXTHREADS=500
+	MAXTHREADS=500
 fi
 
 #Build up the tags that need to be overwritten in server.xml
