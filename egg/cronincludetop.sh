@@ -78,10 +78,16 @@ do
         PAUSEENDSAT="$cronpauseallline"
         echo PAUSEENDSAT=$PAUSEENDSAT
 
+
+        if [ "${PAUSEENDSAT}" -eq "0"  ]; then
+            ./egg-log-status.sh "Cron jobs paused indefinitely, exiting"
+            exit
+        fi
+
         if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
             REMAININGSECONDS=$((PAUSEENDSAT-CURRENTTIME))
             REMAININGMINUTES=$((REMAININGSECONDS/60))
-            ./egg-log-status.sh "Cron jobs are paused another $REMAININGMINUTES min, exiting"
+            ./egg-log-status.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
             exit
         else
             ./egg-log-status.sh "Cron pause has expired, continuing"

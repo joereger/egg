@@ -2,7 +2,7 @@
 
 #--------------------------
 #Open cron job and create lock
-CRONNAME="CRONTEST"  #Only alphabetic, no spaces, no funky chars
+CRONNAME="CRONTEST"          #Only alphabetic, no spaces, no funky chars
 CRONLOCKTIMEOUTSECONDS=120   #Make this longer than you ever expect this cron job to take to run
 cd /home/ec2-user/egg
 source cronincludetop.sh

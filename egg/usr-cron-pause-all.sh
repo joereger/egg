@@ -3,7 +3,7 @@
 source common.sh
 
 
-echo "Pause for how many minutes? (Type num and hit enter)"
+echo "Pause for how many minutes? (Type num and hit enter, 0=forever)"
 
 CRONPAUSEALLFILE=data/cron.pause.all
 
@@ -15,6 +15,9 @@ if [ "$MINTOPAUSE" != "" ]; then
     CURRENTTIME=`date +%s`
     LENGTHOFPAUSEINSECONDS=$((MINTOPAUSE*60))
     PAUSEENDSAT=$((CURRENTTIME+LENGTHOFPAUSEINSECONDS))
+    if [ "${MINTOPAUSE}" -eq "0"  ]; then
+        PAUSEENDSAT="0"
+    fi
     #echo CURRENTTIME=$CURRENTTIME
     #echo PAUSEENDSAT=$PAUSEENDSAT
     #Write pause end time to cronpause file
