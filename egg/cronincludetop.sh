@@ -1,6 +1,13 @@
 #!/bin/bash
 
 
+#Cron HOWTO
+#sudo nano /etc/crontab (to create/remove jobs)
+#sudo tail -f /var/log/cron (to view cron log)
+#sudo crontab -e (to edit cronjobs)
+#sudo /etc/init.d/crond restart (to restart daemon and load new/changed cronjobs)
+
+
 
 if [ "${CRONNAME}" == "" ]; then
     echo "CRONNAME undefined, exiting"
@@ -22,7 +29,7 @@ if [ ! -f "$CRONLOCKSFILE" ]; then
   cp data/cron.locks.sample $CRONLOCKSFILE
 fi
 
-./egg-log-status.sh "Cron `date`: $0"
+./egg-log-status.sh "CRON `date`: $CRONNAME"
 
 while read cronlockline;
 do
@@ -36,30 +43,34 @@ do
         if [ "$CRONNAME_A" == "$CRONNAME" ]; then
             #There is a lock... let's see if it's valid
             echo "Cron lock exists for $CRONNAME"
-            ./egg-log-status.sh "Cron lock exists for $CRONNAME"
+            #./egg-log-status.sh "Cron lock exists for $CRONNAME"
 
             CURRENTTIME=`date +%s`
-            CURRENTTIMEPLUSTIMEOUT=$CURRENTTIME+$CRONLOCKTIMEOUTSECONDS
+            echo CURRENTTIME=$CURRENTTIME
+            RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+CRONLOCKTIMEOUTSECONDS))
+            echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
-
+            if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
+                ./egg-log-status.sh "Cron lock for $CRONNAME, exiting"
+                exit
+            else
+                ./egg-log-status.sh "Cron lock for $CRONNAME has expired, continuing"
+            fi
 
         fi
     fi
 done < "$CRONLOCKSFILE"
 
+#Delete any current line with this
+sed -i "
+/^${CRONNAME}:/ d\
+" $CRONLOCKSFILE
 
-
-
-#
-##Delete any current line with this logicalinstanceid
-#sed -i "
-#/^${CRONNAME}:/ d\
-#" $CRONLOCKSFILE
-#
-##Write a record to amazoniids.conf
-#sed -i "
-#/#BEGINDATA/ a\
-#$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST:$INTERNALHOSTNAME
-#" $CRONLOCKSFILE
+#Write a lock record
+CURRENTTIME=`date +%s`
+sed -i "
+/#BEGINDATA/ a\
+$CRONNAME:$CURRENTTIME
+" $CRONLOCKSFILE
 
 
