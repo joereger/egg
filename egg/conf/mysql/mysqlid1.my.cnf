@@ -4,7 +4,7 @@ socket=/var/lib/mysql/mysql.sock
 user=mysql
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links=0
-#Below added by joe (this is default my.cnf)
+#Below added by joe
 max_connections=600
 default-storage-engine=MyISAM
 thread_cache_size = 256

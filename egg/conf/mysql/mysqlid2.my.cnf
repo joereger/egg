@@ -4,12 +4,12 @@ socket=/var/lib/mysql/mysql.sock
 user=mysql
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links=0
-#Below added by joe (this is default my.cnf)
+#Below added by joe
 max_connections=600
 default-storage-engine=MyISAM
 thread_cache_size = 256
 table_cache = 1024
-key_buffer = 4000M
+key_buffer = 1000M
 sort_buffer_size = 256K
 read_buffer_size = 256K
 read_rnd_buffer_size = 256K
@@ -24,7 +24,7 @@ slow_query_log=1
 long_query_time=3
 log-error=/var/lib/mysql/error.log
 myisam_recover = force,backup
-myisam_sort_buffer_size=512M
+myisam_sort_buffer_size=256M
 #skip-innodb
 
 

@@ -74,7 +74,7 @@ do
 					if [ "$apachecheck" != 1 ]; then
 						./egg-log-status.sh "MySQL my.cnf not found, will install"
 						./egg-mysql-create.sh $HOST
-						./egg-mysql-configure.sh $HOST
+						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
 					else 
 						echo MySQL installation folder found
@@ -87,7 +87,7 @@ do
 					if [ "$processcheck" != 1 ]; then
 						./egg-log-status.sh "MySQL process not found, restarting"
 						./egg-mysql-stop.sh $HOST
-						./egg-mysql-configure.sh $HOST
+						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
 					else
 						echo MySQL process found
