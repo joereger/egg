@@ -9,9 +9,9 @@ source cronincludetop.sh
 #--------------------------
 
 echo "cron-test.sh"
-echo "sleeping for 180 seconds"
-sleep 180
-echo "done sleeping for 180 seconds"
+echo "sleeping for 10 seconds"
+sleep 10
+echo "done sleeping for 10 seconds"
 
 #--------------------------
 #Close and release lock

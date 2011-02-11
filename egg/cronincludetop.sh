@@ -31,14 +31,14 @@ fi
 
 ./egg-log-status.sh "CRON `date`: $CRONNAME"
 
-while read cronlockline;
+while read cronpauseallline;
 do
 
     #Ignore lines that start with a comment hash mark
-    if [ $(echo "$cronlockline" | cut -c1) != "#" ]; then
+    if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
 
-        CRONNAME_A=$(echo "$cronlockline" | cut -d ":" -f1)
-        RUNSTARTEDAT=$(echo "$cronlockline" | cut -d ":" -f2)
+        CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
+        RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
 
         if [ "$CRONNAME_A" == "$CRONNAME" ]; then
             #There is a lock... let's see if it's valid
@@ -60,6 +60,40 @@ do
         fi
     fi
 done < "$CRONLOCKSFILE"
+
+
+
+CRONPAUSEALLFILE=data/cron.pause.all
+
+
+
+while read cronpauseallline;
+do
+
+    #Ignore lines that start with a comment hash mark
+    if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
+        echo "Found a line in $CRONPAUSEALLFILE"
+        CURRENTTIME=`date +%s`
+        echo CURRENTTIME=$CURRENTTIME
+        PAUSEENDSAT="$cronpauseallline"
+        echo PAUSEENDSAT=$PAUSEENDSAT
+
+        if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
+            ./egg-log-status.sh "Cron jobs are paused, exiting"
+            exit
+        else
+            ./egg-log-status.sh "Cron pause has expired, continuing"
+            rm -f $CRONPAUSEALLFILE
+        fi
+
+
+    fi
+done < "$CRONPAUSEALLFILE"
+
+
+
+
+
 
 #Delete any current line with this
 sed -i "
