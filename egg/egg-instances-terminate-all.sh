@@ -17,6 +17,5 @@ while read line; do
 done
 
 #Empty the amazoniids.conf file by copying in an empty one
-AMAZONIIDSSAMPLEFILE=data/amazoniids-sample.conf
 AMAZONIIDSFILE=data/amazoniids.conf
-cp $AMAZONIIDSSAMPLEFILE $AMAZONIIDSFILE
+cp data/amazoniids.conf.sample $AMAZONIIDSFILE

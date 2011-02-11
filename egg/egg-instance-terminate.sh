@@ -17,7 +17,7 @@ fi
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids-sample.conf $AMAZONIIDSFILE
+  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
 fi
 		
 #Read INSTANCESFILE   
