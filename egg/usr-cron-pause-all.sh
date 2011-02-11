@@ -19,5 +19,5 @@ if [ "$MINTOPAUSE" != "" ]; then
     #echo PAUSEENDSAT=$PAUSEENDSAT
     #Write pause end time to cronpause file
     echo $PAUSEENDSAT >> $CRONPAUSEALLFILE
-    echo "Cron jobs paused"
+    echo "Cron jobs paused $MINTOPAUSE minutes"
 fi
