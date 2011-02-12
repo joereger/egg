@@ -234,20 +234,31 @@ do
 	fi
 done < "$APPSFILE"
 
+
+HTTPDCONFTOUSE=conf/apache/default.httpd.conf
+if [ -e conf/apache/apacheid$APACHEID.httpd.conf ]; then
+	echo "conf/apache/apacheid$APACHEID.httpd.conf exists"
+    HTTPDCONFTOUSE=conf/apache/apacheid$APACHEID.httpd.conf
+else
+	echo "conf/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
+fi
+
+
+
 #Append the VHOSTS entry to the end of the file
-cp resources/httpd.conf data/httpd.conf.$APACHEID.tmp
-echo -e ${VHOSTS} >> data/httpd.conf.$APACHEID.tmp
+cp $HTTPDCONFTOUSE data/apacheid$APACHEID.httpd.conf.tmp
+echo -e ${VHOSTS} >> apacheid$APACHEID.httpd.conf.tmp
 
 #Determine whether this new config is different than the latest
-if  diff data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest >/dev/null ; then
-    echo httpd.conf.$APACHEID.tmp is the same as httpd.conf.$APACHEID.latest
+if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest >/dev/null ; then
+    echo apacheid$APACHEID.httpd.conf.tmp is the same as apacheid$APACHEID.httpd.conf.latest
 else
-    echo httpd.conf.$APACHEID.tmp is different than httpd.conf.$APACHEID.tmp
+    echo apacheid$APACHEID.httpd.conf.tmp is different than apacheid$APACHEID.httpd.conf.tmp
     #Promote .tmp to .latest
-    cp data/httpd.conf.$APACHEID.tmp data/httpd.conf.$APACHEID.latest
+    cp data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest
 
     #Copy latest to the remote Apache host
-    scp data/httpd.conf.$APACHEID.latest ec2-user@$HOST:httpd.conf.tmp
+    scp data/apacheid$APACHEID.httpd.conf.latest ec2-user@$HOST:httpd.conf.tmp
     ssh -t -t $HOST "sudo cp httpd.conf.tmp /etc/httpd/conf/httpd.conf"
     ssh -t -t $HOST "rm -f httpd.conf.tmp"
 
@@ -256,7 +267,7 @@ else
     ./egg-apache-start.sh $HOST
 fi
 
-rm -f data/httpd.conf.$APACHEID.tmp
+rm -f data/apacheid$APACHEID.httpd.conf.tmp
 
 
 

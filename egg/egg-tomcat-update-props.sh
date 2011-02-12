@@ -41,24 +41,24 @@ fi
 
 
 #Delete combined.props, in case it exists and then create the output/combined file
-if [ -e conf/$APP/combined.props ]; then
-	rm conf/$APP/combined.props
+if [ -e conf/apps/$APP/combined.props ]; then
+	rm conf/apps/$APP/combined.props
 fi
-mkdir -p "conf/$APP"
-touch "conf/$APP/combined.props"
+mkdir -p "conf/apps/$APP"
+touch "conf/apps/$APP/combined.props"
 
 #Determine which of system.props and/or instance.props exist and combine them into combined.props
-if [ -e conf/$APP/system.props ] && [ -e conf/$APP/instance.tomcatid$TOMCATID.props ]; then
+if [ -e conf/apps/$APP/system.props ] && [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Both system.props and instance.props exist"
-	cat conf/$APP/system.props >> conf/$APP/combined.props
-	echo -e "\n" >> conf/$APP/combined.props
-	cat conf/$APP/instance.tomcatid$TOMCATID.props >> conf/$APP/combined.props
-elif [ -e conf/$APP/system.props ]; then
+	cat conf/apps/$APP/system.props >> conf/apps/$APP/combined.props
+	echo -e "\n" >> conf/apps/$APP/combined.props
+	cat conf/apps/$APP/tomcatid$TOMCATID.instance.props >> conf/apps/$APP/combined.props
+elif [ -e conf/apps/$APP/system.props ]; then
 	echo "Only system.props exists"
-	cp conf/$APP/system.props conf/$APP/combined.props
-elif [ -e conf/$APP/instance.tomcatid$TOMCATID.props ]; then
+	cp conf/apps/$APP/system.props conf/apps/$APP/combined.props
+elif [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Only instance.props exists"
-	cp conf/$APP/instance.tomcatid$TOMCATID.props conf/$APP/combined.props
+	cp conf/apps/$APP/tomcatid$TOMCATID.instance.props conf/apps/$APP/combined.props
 else
 	echo "Neither instance.props nor system.props exist"
 fi
@@ -100,7 +100,7 @@ do
 
 					#Now I have MYSQLINTERNALHOST and MYSQLID
 					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
-                    sed -i "s/\[MYSQLID.$MYSQLID.INTERNALHOSTNAME\]/$MYSQLINTERNALHOST/g" conf/$APP/combined.props
+                    sed -i "s/\[MYSQLID.$MYSQLID.INTERNALHOSTNAME\]/$MYSQLINTERNALHOST/g" conf/apps/$APP/combined.props
 
 				fi
 			fi
@@ -147,7 +147,7 @@ do
 
 					#Now I have TERRACOTTAINTERNALHOST and TERRACOTTAID
 					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
-                    sed -i "s/\[TERRACOTTAID.$TERRACOTTAID.INTERNALHOSTNAME\]/$TERRACOTTAINTERNALHOST/g" conf/$APP/combined.props
+                    sed -i "s/\[TERRACOTTAID.$TERRACOTTAID.INTERNALHOSTNAME\]/$TERRACOTTAINTERNALHOST/g" conf/apps/$APP/combined.props
 
 				fi
 			fi
@@ -165,7 +165,7 @@ done < "$TERRACOTTASFILE"
 ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
 
 #Copy combined.props to instance.props on remote Tomcat
-scp conf/$APP/combined.props ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
+scp conf/apps/$APP/combined.props ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
 
 #Delete combined.props
-rm conf/$APP/combined.props
+rm -f conf/apps/$APP/combined.props
