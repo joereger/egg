@@ -79,7 +79,7 @@ do
                 INSTANCESIZE="t1.micro"
             fi
 
-            ./egg-log-status.sh "Creating $INSTANCESIZE instance from AMI ${amiid} "
+            ./egg-log-status.sh "Creating $INSTANCESIZE instance from AMI ${AMIID} "
 #            ${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
 #            if [ $? != 0 ]; then
 #               ./egg-log-status.sh "Error starting instance for amazonimageid ${AMIID}"
@@ -152,8 +152,6 @@ do
             sendmailuninstall=`</dev/null ssh -n -t -t $HOST "sudo yum -y remove sendmail"`
             echo $sendmailuninstall
             echo "Done uninstalling sendmail"
-
-            #Works to Here
 
             #Attach EBS volumes if necessary
             if [ "$EBSVOLUME" != "" ]; then
