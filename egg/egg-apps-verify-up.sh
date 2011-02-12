@@ -111,7 +111,7 @@ do
 					if [ "$tomcatcheck" != 1 ]; then
 						./egg-log-status.sh "Tomcat not found, will create"
 						./egg-tomcat-create.sh $HOST $APPDIR
-						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE
+						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE $TOMCATID
 						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
 					else 
 						echo Tomcat found
