@@ -8,10 +8,10 @@ cd /home/ec2-user/egg
 source cronincludetop.sh
 #--------------------------
 
-echo "cron-test.sh"
-echo "sleeping for 10 seconds"
-sleep 10
-echo "done sleeping for 10 seconds"
+#echo "cron-test.sh"
+#echo "sleeping for 10 seconds"
+#sleep 10
+#echo "done sleeping for 10 seconds"
 
 #--------------------------
 #Close and release lock
