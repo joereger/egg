@@ -158,9 +158,6 @@ done < "$TERRACOTTASFILE"
 
 
 
-
-
-
 #Make sure /conf exists
 ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
 
