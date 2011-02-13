@@ -247,7 +247,8 @@ fi
 
 #Append the VHOSTS entry to the end of the file
 cp $HTTPDCONFTOUSE data/apacheid$APACHEID.httpd.conf.tmp
-echo -e ${VHOSTS} >> apacheid$APACHEID.httpd.conf.tmp
+echo -e "NameVirtualHost *:80" >> data/apacheid$APACHEID.httpd.conf.tmp
+echo -e ${VHOSTS} >> data/apacheid$APACHEID.httpd.conf.tmp
 
 #Determine whether this new config is different than the latest
 if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest >/dev/null ; then
