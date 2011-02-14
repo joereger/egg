@@ -1,0 +1,9 @@
+joeregermisc isn't an app per se.  It's an apache that serves static content, has ftp access, etc.
+
+Currently it's apacheid 2 running on instanceid 11
+
+I have a custom httpd.conf which sets web root to /vol/www
+
+/vol/www is an EBS volume vol-2a0a6542
+
+Static IP is:

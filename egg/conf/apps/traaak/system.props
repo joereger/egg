@@ -1,0 +1,9 @@
+dbDriverName=com.mysql.jdbc.Driver
+dbConnectionUrl=jdbc\:mysql\://[MYSQLID.2.INTERNALHOSTNAME]\:3306/fbdblog?autoReconnect\=true
+dbUsername=root
+dbPassword=catalyst
+dbMaxActive=20
+dbMaxIdle=20
+dbMinIdle=12
+dbMaxWait=10000
+#terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
