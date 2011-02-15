@@ -76,7 +76,7 @@ do
 				
 					echo "  "
 					echo CHECKING $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/
-					./egg-log-status.sh "Checking $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/"
+					./egg-log-status.sh "Checking app at $APPNAME $INSTANCESIZE http://$HOST:$HTTPPORT/"
 					
 					#Instance Check
 					echo Start Instance Check
@@ -84,75 +84,65 @@ do
 					export RUNNING="running"
 					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
 					if [ $status == ${RUNNING} ]; then
-						echo Instance found
+						echo "Instance running"
 						export thisinstanceisup=1  	
-					else 
-						./egg-log-status.sh "Instance not found, will create"
-						export thisinstanceisup=0 
-						#Create the instance
-						./egg-verify-instances-up.sh
-						#Read AMAZONIIDSFILE... again now that a new instance has been spun up
-						while read amazoniidsline;
-						do
-							#Ignore lines that start with a comment hash mark
-							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
-								LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
-								if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-									AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
-									HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
-								fi
-							fi
-						done < "$AMAZONIIDSFILE"
-					fi
-					
-					#Tomcat Check
-					echo Start Tomcat Check
-					tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
-					if [ "$tomcatcheck" != 1 ]; then
-						./egg-log-status.sh "Tomcat not found, will create"
-						./egg-tomcat-create.sh $HOST $APPDIR
-						./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE $TOMCATID
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
-					else 
-						echo Tomcat found
-					fi
-					
-					#WAR File Check
-					echo Start WAR File Check
-					warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
-					if [ "$warcheck" != 1 ]; then
-						./egg-log-status.sh "WAR not found, will deploy"
-						./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
-					else 
-						echo WAR found
-					fi
-					
-					#Instance.props File Check
-					echo Start Instance.props File Check
-					propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
-					if [ "$propscheck" != 1 ]; then
-						./egg-log-status.sh "Instance.props not found, will send"
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
-					else 
-						echo Instance.props found
-					fi
-					
-					#HTTP Check
-					echo Start HTTP Check
-					url="http://$HOST:$HTTPPORT/"
-					retries=1
-					timeout=60
-					status=`wget -t 1 -T 60 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
-					if [ "$status" == "200" ]; then
-						echo HTTP 200 found
+
+
+					    #Tomcat Check
+                        echo Start Tomcat Check
+                        tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
+                        if [ "$tomcatcheck" != 1 ]; then
+                            ./egg-log-status.sh "Tomcat not found, will create"
+                            ./egg-tomcat-create.sh $HOST $APPDIR
+                            ./egg-tomcat-update-serverxml.sh $HOST $APPNAME $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE $TOMCATID
+                            ./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
+                        else
+                            echo Tomcat found
+                        fi
+
+                        #WAR File Check
+                        echo Start WAR File Check
+                        warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
+                        if [ "$warcheck" != 1 ]; then
+                            ./egg-log-status.sh "WAR not found, will deploy"
+                            ./egg-tomcat-deploy-war.sh $HOST $APPNAME $APPDIR
+                            ./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
+                        else
+                            echo WAR found
+                        fi
+
+                        #Instance.props File Check
+                        echo Start Instance.props File Check
+                        propscheck=`ssh $HOST "[ -e ./egg/$APPDIR//tomcat/webapps/ROOT/conf/instance.props ] && echo 1"`
+                        if [ "$propscheck" != 1 ]; then
+                            ./egg-log-status.sh "Instance.props not found, will send"
+                            ./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
+                        else
+                            echo Instance.props found
+                        fi
+
+                        #HTTP Check
+                        echo Start HTTP Check
+                        url="http://$HOST:$HTTPPORT/"
+                        retries=1
+                        timeout=60
+                        status=`wget -t 1 -T 60 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
+                        if [ "$status" == "200" ]; then
+                            echo HTTP 200 found
+                        else
+                            ./egg-log-status.sh "HTTP 200 not found, will stop/start tomcat"
+                            ./egg-tomcat-stop.sh $HOST $APPDIR
+                            ./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
+                            ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+                        fi
+
+
 					else
-						./egg-log-status.sh "HTTP 200 not found, will stop/start tomcat"
-						./egg-tomcat-stop.sh $HOST $APPDIR
-						./egg-tomcat-update-props.sh $HOST $APPNAME $APPDIR $TOMCATID
-						./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+						./egg-log-status.sh "Instance not running"
+						export thisinstanceisup=0
 					fi
 					
+
 				fi
 			fi
 		done < "$INSTANCESFILE"

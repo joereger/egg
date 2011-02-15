@@ -34,6 +34,8 @@ HOST=$1
 
 
 ssh -t -t $HOST "sudo yum -y install mysql mysql-server"
+ssh -t -t $HOST "sudo chown -R mysql:mysql /vol/mysqldata"
+ssh -t -t $HOST "sudo chown -R mysql:mysql /vol/mysqldata/*"
 
 
 

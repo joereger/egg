@@ -73,13 +73,17 @@ do
 				
 				#TEMP BLOCK OUT
 				#if [ "1" == "0" ]; then
+
+
+				    #Try for some graceful shutdown of MySQL
+				    ./egg-mysql-stop.sh $HOST
 				
 					#Stop command
 					${EC2_HOME}/bin/ec2-stop-instances $AMAZONINSTANCEID
 		
-					# Loop until the status changes to .running.
+					# Loop until the status changes to .stopped.
 					sleep 30
-					echo Starting instance ${AMAZONINSTANCEID}
+					echo Stopping instance ${AMAZONINSTANCEID}
 					export STOPPED="stopped"
 					export done="false"
 					while [ $done == "false" ]

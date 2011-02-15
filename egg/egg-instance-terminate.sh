@@ -69,10 +69,9 @@ do
 			
 
 			if [ ${thisinstanceisup} == "1" ]; then
-				echo "Will stop amazon ec2 instance for logical instance $LOGICALINSTANCEID"
 
-				#Try for some graceful shutdown of MySQL
-				./egg-mysql-stop.sh $HOST
+				#Try for some graceful shutdown
+				./egg-instance-stop.sh $LOGICALINSTANCEID
 
                 #Terminate command
                 ${EC2_HOME}/bin/ec2-terminate-instances $AMAZONINSTANCEID
@@ -85,8 +84,4 @@ do
 		fi	
 	fi
 done < "$INSTANCESFILE"
-
-
-#Any time we change instances we have to update the apacheconfig
-./egg-apaches-configure-all.sh $HOST
 
