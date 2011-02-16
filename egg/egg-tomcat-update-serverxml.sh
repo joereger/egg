@@ -19,6 +19,45 @@ MAXTHREADS=$5
 JVMROUTE=$6
 TOMCATID=$7
 
+
+
+TOMCATSFILE=conf/tomcats.conf
+
+
+if [ ! -f "$TOMCATSFILE" ]; then
+  echo "Sorry, $TOMCATSFILE does not exist."
+  exit 1
+fi
+
+
+
+#Read TOMCATSFILE
+while read intomcatline;
+do
+	#Ignore lines that start with a comment hash mark
+	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
+
+	    TOMCATID_TMP=$(echo "$intomcatline" | cut -d ":" -f1)
+
+	    if [ "$TOMCATID_TMP" == "$TOMCATID" ]; then
+
+            #TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
+            LOGICALINSTANCEID=$(echo "$intomcatline" | cut -d ":" -f2)
+            APPNAME=$(echo "$intomcatline" | cut -d ":" -f3)
+            MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
+            MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
+            HTTPPORT=$(echo "$intomcatline" | cut -d ":" -f6)
+            MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
+            JVMROUTE=$APPNAME$TOMCATID
+
+		fi
+
+	fi
+done < "$TOMCATSFILE"
+
+
+
+
 #I can put tomcatid23.server.xml into /conf/apps/$APPNAME/ to override default base server.xml
 SERVERXMLTOUSE=conf/tomcat/default.server.xml
 if [ -e conf/apps/$APP/tomcatid$TOMCATID.server.xml ]; then
@@ -29,17 +68,45 @@ else
 fi
 
 #Make a copy of the base file to use
-cp $SERVERXMLTOUSE data/tomcatid$TOMCATID.server.xml.tmp
+cp $SERVERXMLTOUSE data/$APP.tomcatid$TOMCATID.server.xml.tmp
 
 #Replace key elements
-sed -i "s/\[MAXTHREADS\]/$MAXTHREADS/g" data/tomcatid$TOMCATID.server.xml.tmp
-sed -i "s/\[HTTPPORT\]/$HTTPPORT/g" data/tomcatid$TOMCATID.server.xml.tmp
-sed -i "s/\[JVMROUTE\]/$JVMROUTE/g" data/tomcatid$TOMCATID.server.xml.tmp
+sed -i "s/\[MAXTHREADS\]/$MAXTHREADS/g" data/$APP.tomcatid$TOMCATID.server.xml.tmp
+sed -i "s/\[HTTPPORT\]/$HTTPPORT/g" data/$APP.tomcatid$TOMCATID.server.xml.tmp
+sed -i "s/\[JVMROUTE\]/$JVMROUTE/g" data/$APP.tomcatid$TOMCATID.server.xml.tmp
 
 #Transfer to egg/$APPDIR/tomcat/conf/server.xml on $HOST
-scp data/tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:server.xml
-ssh -t -t $HOST "sudo cp server.xml egg/$APPDIR/tomcat/conf/server.xml"
-ssh -t -t $HOST "rm -f server.xml"
+#scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:server.xml
+#ssh -t -t $HOST "sudo cp server.xml egg/$APPDIR/tomcat/conf/server.xml"
+#ssh -t -t $HOST "rm -f server.xml"
+
+
+#Download the latest file
+rm -f data/$APP.tomcatid$TOMCATID.server.xml.remote
+scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml data/$APP.tomcatid$TOMCATID.server.xml.remote
+
+
+#Determine whether this new config is different than the latest
+if  diff data/$APP.tomcatid$TOMCATID.server.xml.tmp data/$APP.tomcatid$TOMCATID.server.xml.remote >/dev/null ; then
+    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is the same as data/$APP.tomcatid$TOMCATID.server.xml.remote"
+else
+    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is different than data/$APP.tomcatid$TOMCATID.server.xml.remote"
+
+    #Make sure /conf exists
+    ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
+
+    #Copy latest to remote Tomcat
+    ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
+    scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml
+
+    #Bounce Tomcat
+    ./egg-tomcat-stop.sh $HOST $APPDIR
+    ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+fi
+
+
+
+
 
 
 ##Build up the tags that need to be overwritten in server.xml

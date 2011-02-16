@@ -13,10 +13,17 @@ APP=$2
 APPDIR=$3
 TOMCATID=$4
 
+TOMCATSFILE=conf/tomcats.conf
 MYSQLSFILE=conf/mysqls.conf
 INSTANCESFILE=conf/instances.conf
 AMAZONIIDSFILE=data/amazoniids.conf
 TERRACOTTASFILE=conf/terracottas.conf
+
+
+if [ ! -f "$TOMCATSFILE" ]; then
+  echo "Sorry, $TOMCATSFILE does not exist."
+  exit 1
+fi
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
@@ -40,25 +47,57 @@ if [ ! -f "$TERRACOTTASFILE" ]; then
 fi
 
 
+
+
+
+
+#Read TOMCATSFILE
+while read intomcatline;
+do
+	#Ignore lines that start with a comment hash mark
+	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
+
+	    TOMCATID_TMP=$(echo "$intomcatline" | cut -d ":" -f1)
+
+	    if [ "$TOMCATID_TMP" == "$TOMCATID" ]; then
+
+            #TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
+            LOGICALINSTANCEID=$(echo "$intomcatline" | cut -d ":" -f2)
+            APPNAME=$(echo "$intomcatline" | cut -d ":" -f3)
+            MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
+            MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
+            HTTPPORT=$(echo "$intomcatline" | cut -d ":" -f6)
+            MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
+            JVMROUTE=$APPNAME$TOMCATID
+
+		fi
+
+	fi
+done < "$TOMCATSFILE"
+
+
+
+
+
 #Delete combined.props, in case it exists and then create the output/combined file
-if [ -e conf/apps/$APP/combined.props ]; then
-	rm conf/apps/$APP/combined.props
+if [ -e data/$APP.tomcatid$TOMCATID.instance.props.tmp ]; then
+	rm -f data/$APP.tomcatid$TOMCATID.instance.props.tmp
 fi
-mkdir -p "conf/apps/$APP"
-touch "conf/apps/$APP/combined.props"
+mkdir -p "data"
+touch "data/$APP.tomcatid$TOMCATID.instance.props.tmp"
 
 #Determine which of system.props and/or instance.props exist and combine them into combined.props
 if [ -e conf/apps/$APP/system.props ] && [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Both system.props and instance.props exist"
-	cat conf/apps/$APP/system.props >> conf/apps/$APP/combined.props
-	echo -e "\n" >> conf/apps/$APP/combined.props
-	cat conf/apps/$APP/tomcatid$TOMCATID.instance.props >> conf/apps/$APP/combined.props
+	cat conf/apps/$APP/system.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
+	echo -e "\n" >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
+	cat conf/apps/$APP/tomcatid$TOMCATID.instance.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
 elif [ -e conf/apps/$APP/system.props ]; then
 	echo "Only system.props exists"
-	cp conf/apps/$APP/system.props conf/apps/$APP/combined.props
+	cp conf/apps/$APP/system.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
 elif [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Only instance.props exists"
-	cp conf/apps/$APP/tomcatid$TOMCATID.instance.props conf/apps/$APP/combined.props
+	cp conf/apps/$APP/tomcatid$TOMCATID.instance.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
 else
 	echo "Neither instance.props nor system.props exist"
 fi
@@ -100,7 +139,7 @@ do
 
 					#Now I have MYSQLINTERNALHOST and MYSQLID
 					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
-                    sed -i "s/\[MYSQLID.$MYSQLID.INTERNALHOSTNAME\]/$MYSQLINTERNALHOST/g" conf/apps/$APP/combined.props
+                    sed -i "s/\[MYSQLID.$MYSQLID.INTERNALHOSTNAME\]/$MYSQLINTERNALHOST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
 
 				fi
 			fi
@@ -147,7 +186,7 @@ do
 
 					#Now I have TERRACOTTAINTERNALHOST and TERRACOTTAID
 					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
-                    sed -i "s/\[TERRACOTTAID.$TERRACOTTAID.INTERNALHOSTNAME\]/$TERRACOTTAINTERNALHOST/g" conf/apps/$APP/combined.props
+                    sed -i "s/\[TERRACOTTAID.$TERRACOTTAID.INTERNALHOSTNAME\]/$TERRACOTTAINTERNALHOST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
 
 				fi
 			fi
@@ -158,11 +197,8 @@ done < "$TERRACOTTASFILE"
 
 
 
-#Make sure /conf exists
-ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
 
-#Copy combined.props to instance.props on remote Tomcat
-scp conf/apps/$APP/combined.props ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
 
-#Delete combined.props
-rm -f conf/apps/$APP/combined.props
+
+
+

@@ -1,0 +1,5 @@
+#TOMCATID:LASTGOOD
+#Lastgood is time that app was last known good measured in seconds since the epoch
+#This is a sample file... app controls this in production.
+#BEGINDATA
+#Don't delete this trailing line

@@ -70,37 +70,32 @@ do
 			#Start an instance if necessary
 			if [ ${thisinstanceisup} == "1" ]; then
 				echo Will stop amazon ec2 instance for logical instance $LOGICALINSTANCEID
-				
-				#TEMP BLOCK OUT
-				#if [ "1" == "0" ]; then
 
 
-				    #Try for some graceful shutdown of MySQL
-				    ./egg-mysql-stop.sh $HOST
-				
-					#Stop command
-					${EC2_HOME}/bin/ec2-stop-instances $AMAZONINSTANCEID
-		
-					# Loop until the status changes to .stopped.
-					sleep 30
-					echo Stopping instance ${AMAZONINSTANCEID}
-					export STOPPED="stopped"
-					export done="false"
-					while [ $done == "false" ]
-					do
-					   export status=`${EC2_HOME}/bin/ec2-describe-instances ${AMAZONINSTANCEID} | grep INSTANCE | cut -f6`
-					   if [ $status == ${STOPPED} ]; then
-						  export done="true"
-					   else
-						  echo Waiting...
-						  sleep 10
-					   fi
-					done
-					echo Instance ${AMAZONINSTANCEID} is stopped
+                #Try for some graceful shutdown of MySQL
+                ./egg-mysql-stop.sh $HOST
+
+                #Stop command
+                ${EC2_HOME}/bin/ec2-stop-instances $AMAZONINSTANCEID
+
+                # Loop until the status changes to .stopped.
+                sleep 30
+                echo Stopping instance ${AMAZONINSTANCEID}
+                export STOPPED="stopped"
+                export done="false"
+                while [ $done == "false" ]
+                do
+                   export status=`${EC2_HOME}/bin/ec2-describe-instances ${AMAZONINSTANCEID} | grep INSTANCE | cut -f6`
+                   if [ $status == ${STOPPED} ]; then
+                      export done="true"
+                   else
+                      echo Waiting...
+                      sleep 10
+                   fi
+                done
+                echo Instance ${AMAZONINSTANCEID} is stopped
 					
-				
-				#TEMP BLOCK OUT
-				#fi
+
 			
 				
 			fi
