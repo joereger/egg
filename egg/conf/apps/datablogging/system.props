@@ -1,5 +1,5 @@
 dbDriverName=com.mysql.jdbc.Driver
-dbConnectionUrl=jdbc\:mysql\://[MYSQLID.2.INTERNALHOSTNAME]\:3306/qlogger?autoReconnect\=true
+dbConnectionUrl=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/qlogger?autoReconnect\=true
 dbUsername=root
 dbPassword=catalyst
 dbMaxActive=20

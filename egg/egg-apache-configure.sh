@@ -237,10 +237,10 @@ done < "$APPSFILE"
 
 HTTPDCONFTOUSE=conf/apache/default.httpd.conf
 if [ -e conf/apache/apacheid$APACHEID.httpd.conf ]; then
-	echo "conf/apache/apacheid$APACHEID.httpd.conf exists"
+	./log.sh "conf/apache/apacheid$APACHEID.httpd.conf exists"
     HTTPDCONFTOUSE=conf/apache/apacheid$APACHEID.httpd.conf
 else
-	echo "conf/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
+	./log.sh "conf/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
 fi
 
 
@@ -252,9 +252,9 @@ echo -e ${VHOSTS} >> data/apacheid$APACHEID.httpd.conf.tmp
 
 #Determine whether this new config is different than the latest
 if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest >/dev/null ; then
-    echo apacheid$APACHEID.httpd.conf.tmp is the same as apacheid$APACHEID.httpd.conf.latest
+    ./log.sh "apacheid$APACHEID.httpd.conf.tmp is the same as apacheid$APACHEID.httpd.conf.latest"
 else
-    echo apacheid$APACHEID.httpd.conf.tmp is different than apacheid$APACHEID.httpd.conf.tmp
+    ./log.sh "apacheid$APACHEID.httpd.conf.tmp is different than apacheid$APACHEID.httpd.conf.tmp"
     #Promote .tmp to .latest
     cp data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest
 

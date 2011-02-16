@@ -39,7 +39,7 @@ if [ "$APP" != "" ]; then
 
     if [ "$CHOSENAPP" != "" ]; then
         #echo "$CHOSENAPP will be stopped"
-        ./egg-log-status.sh "$CHOSENAPP will be started"
+        ./log-status-green.sh "$CHOSENAPP will be started"
         ./egg-app-start.sh $CHOSENAPP
     fi
 fi

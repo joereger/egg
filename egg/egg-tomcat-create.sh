@@ -19,6 +19,7 @@ APACHEZIP="apache-tomcat-7.0.6.zip"
 APACHEZIPLOCATION="resources"
 APACHEDIRINSIDEZIP="apache-tomcat-7.0.6"
 
+./log-status.sh "Creating Tomcat $APPDIR"
 ./egg-tomcat-stop.sh $HOST $APPDIR
 rm -f data/$APP.tomcatid$TOMCATID.instance.props.remote
 rm -f data/$APP.tomcatid$TOMCATID.instance.props.tmp

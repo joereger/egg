@@ -74,9 +74,8 @@ do
 					done < "$AMAZONIIDSFILE"
 				
 				
-					echo "  "
-					echo CHECKING $APP $INSTANCESIZE http://$HOST:$HTTPPORT/
-					./egg-log-status.sh "Checking app at $APP $INSTANCESIZE http://$HOST:$HTTPPORT/"
+
+					./log-info-blue.sh "CHECKING $APP $INSTANCESIZE http://$HOST:$HTTPPORT/"
 					
 					#Instance Check
 					echo Start Instance Check
@@ -84,29 +83,29 @@ do
 					export RUNNING="running"
 					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
 					if [ $status == ${RUNNING} ]; then
-						echo "Instance running"
+						./log.sh "Instance for $APPDIR running"
 						export thisinstanceisup=1  	
 
 
 					    #Tomcat Check
-                        echo "$APPDIR Start Tomcat Installation Check "
+                        ./log.sh "$APPDIR Start Tomcat Installation Check "
                         tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
                         if [ "$tomcatcheck" != 1 ]; then
-                            ./egg-log-status.sh "$APPDIR Tomcat not found, will create"
+                            ./log-status-green.sh "$APPDIR Tomcat not found, will create"
                             ./egg-tomcat-create.sh $HOST $APP $APPDIR $TOMCATID
                         else
-                            echo "Tomcat found"
+                            ./log.sh "Tomcat $APPDIR found"
                         fi
 
                         #WAR File Check
                         #@TODO WAR file date checking to see if instance has latest (although maybe not a good idea if i'm planning on uploading files because partial upload may trigger deploy)
-                        echo "$APPDIR Start WAR File Check"
+                        ./log.sh "$APPDIR Start WAR File Check"
                         warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
                         if [ "$warcheck" != 1 ]; then
-                            ./egg-log-status.sh "$APPDIR WAR not found, will deploy"
+                            ./log-status-green.sh "$APPDIR WAR not found, will deploy"
                             ./egg-tomcat-deploy-war.sh $HOST $APP $APPDIR
                         else
-                            echo "$APPDIR WAR found"
+                            ./log.sh "$APPDIR WAR found"
                         fi
 
 
@@ -122,10 +121,10 @@ do
                         scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props data/$APP.tomcatid$TOMCATID.instance.props.remote
                         #Compare server.xml local to remote and send if anything's changed
                         if  diff data/$APP.tomcatid$TOMCATID.server.xml.tmp data/$APP.tomcatid$TOMCATID.server.xml.remote >/dev/null ; then
-                            echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is the same as data/$APP.tomcatid$TOMCATID.server.xml.remote"
+                            ./log.sh "$APPDIR server.xml local is the SAME as remote"
                         else
                             NEEDTOBOUNCETOMCAT=1
-                            echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is different than data/$APP.tomcatid$TOMCATID.server.xml.remote"
+                            ./log.sh "$APPDIR server.xml local is the DIFFERENT than remote"
                             #Make sure /conf exists
                             ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
                             #Copy latest to remote Tomcat
@@ -134,10 +133,10 @@ do
                         fi
                         #Compare instance.props local to remote and send if anything's changed
                         if  diff data/$APP.tomcatid$TOMCATID.instance.props.tmp data/$APP.tomcatid$TOMCATID.instance.props.remote >/dev/null ; then
-                            echo "data/$APP.tomcatid$TOMCATID.instance.props.tmp is the same as data/$APP.tomcatid$TOMCATID.instance.props.remote"
+                            ./log.sh "$APPDIR instance.props local is the SAME as remote"
                         else
                             NEEDTOBOUNCETOMCAT=1
-                            echo "data/$APP.tomcatid$TOMCATID.instance.props.tmp is different than data/$APP.tomcatid$TOMCATID.instance.props.remote"
+                            ./log.sh "$APPDIR instance.props local is the DIFFERENT than remote"
                             #Make sure /conf exists
                             ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
                             #Copy latest to remote Tomcat
@@ -146,9 +145,10 @@ do
                         fi
                         #If anything's changed, bounce tomcat
                         if [ "$NEEDTOBOUNCETOMCAT" == "1" ]; then
+                            ./log.sh "Bouncing Tomcat $APPDIR"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./egg-log-status.sh "Sleeping 30 sec for $APP Tomcat$TOMCATID to come up"
+                            ./log-status.sh "Bounced Tomcat ${APPDIR}, sleeping 30 sec for it to come up"
                             sleep 30
                          fi
 
@@ -156,7 +156,7 @@ do
                         ./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
 
 					else
-						./egg-log-status.sh "$APPDIR Instance $AMAZONINSTANCEID not running"
+						./log-status-red.sh "Instance for $APPDIR not running"
 						export thisinstanceisup=0
 					fi
 					

@@ -66,32 +66,31 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 
-					echo CHECKING APACHE $INSTANCESIZE http://$HOST/
-
 					#Apache Existence Check
-					echo Start Apache Check
+					./log.sh "Start Apache$APACHEID Installation Check"
 					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
-						echo Apache installation folder not found, will create
+						./log-status-red.sh "Apache installation folder not found, will create"
 						./egg-apache-stop.sh $HOST
 						./egg-apache-create.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST
 					else 
-						echo Apache installation folder found
+						./log.sh "Apache$APACHEID installation folder found"
 					fi
 					
 					#Apache Process Check
+					./log.sh "Start Apache$APACHEID Process Check"
                     #This line very finickey...
                     processcheck=`ssh $HOST "[ -n \"\\\`pgrep httpd\\\`\" ] && echo 1"`
-                    echo processcheck=$processcheck
+                    ./log-sh "processcheck=$processcheck"
 					if [ "$processcheck" != 1 ]; then
-						echo Apache process not found
+						./log-status-red.sh "Apache$APACHEID process not found"
 						./egg-apache-stop.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST
 					else
-						echo Apache process found
+						./log.sh "Apache$APACHEID process found"
 					fi
 
 

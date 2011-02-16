@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source loginclude.sh
 
 #Cron HOWTO
 #sudo nano /etc/crontab (to create/remove jobs)
@@ -11,13 +12,13 @@
 
 if [ "${CRONNAME}" == "" ]; then
     echo "CRONNAME undefined, exiting"
-    echo "CRONNAME undefined, exiting" >> /home/ec2-user/egg/logs/debug.log
+    echo "CRONNAME undefined, exiting" >> $LOGFILEDEBUG
     exit
 fi
 
 if [ "${CRONLOCKTIMEOUTSECONDS}" == "" ]; then
     echo "CRONLOCKTIMEOUTSECONDS undefined, exiting"
-    echo "CRONLOCKTIMEOUTSECONDS undefined, exiting" >> /home/ec2-user/egg/logs/debug.log
+    echo "CRONLOCKTIMEOUTSECONDS undefined, exiting" >> $LOGFILEDEBUG
     exit
 fi
 
@@ -25,11 +26,11 @@ CRONLOCKSFILE=data/cron.locks
 
 if [ ! -f "$CRONLOCKSFILE" ]; then
   echo "$CRONLOCKSFILE does not exist so creating it."
-  echo "$CRONLOCKSFILE does not exist so creating it." >> /home/ec2-user/egg/logs/debug.log
+  echo "$CRONLOCKSFILE does not exist so creating it." >> $LOGFILEDEBUG
   cp data/cron.locks.sample $CRONLOCKSFILE
 fi
 
-./egg-log-status.sh "CRON `date`: $CRONNAME"
+./log-status.sh "CRON `date`: $CRONNAME"
 
 while read cronpauseallline;
 do
@@ -42,8 +43,8 @@ do
 
         if [ "$CRONNAME_A" == "$CRONNAME" ]; then
             #There is a lock... let's see if it's valid
-            echo "Cron lock exists for $CRONNAME"
-            #./egg-log-status.sh "Cron lock exists for $CRONNAME"
+            ./log.sh "Cron lock exists for $CRONNAME"
+            #./log-status.sh "Cron lock exists for $CRONNAME"
 
             CURRENTTIME=`date +%s`
             echo CURRENTTIME=$CURRENTTIME
@@ -51,10 +52,10 @@ do
             echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
             if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
-                ./egg-log-status.sh "Cron lock for $CRONNAME, exiting"
+                ./log-status.sh "Cron lock for $CRONNAME, exiting"
                 exit
             else
-                ./egg-log-status.sh "Cron lock for $CRONNAME has expired, continuing"
+                ./log.sh "Cron lock for $CRONNAME has expired, continuing"
             fi
 
         fi
@@ -72,25 +73,25 @@ do
 
     #Ignore lines that start with a comment hash mark
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
-        echo "Found a line in $CRONPAUSEALLFILE"
+        ./log.sh "Found a line in $CRONPAUSEALLFILE"
         CURRENTTIME=`date +%s`
-        echo CURRENTTIME=$CURRENTTIME
+        ./log.sh CURRENTTIME=$CURRENTTIME
         PAUSEENDSAT="$cronpauseallline"
-        echo PAUSEENDSAT=$PAUSEENDSAT
+        ./log.sh PAUSEENDSAT=$PAUSEENDSAT
 
 
         if [ "${PAUSEENDSAT}" -eq "0"  ]; then
-            ./egg-log-status.sh "Cron jobs paused indefinitely, exiting"
+            ./log-status.sh "Cron jobs paused indefinitely, exiting"
             exit
         fi
 
         if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
             REMAININGSECONDS=$((PAUSEENDSAT-CURRENTTIME))
             REMAININGMINUTES=$((REMAININGSECONDS/60))
-            ./egg-log-status.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
+            ./log-status.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
             exit
         else
-            ./egg-log-status.sh "Cron pause has expired, continuing"
+            ./log.sh "Cron pause has expired, continuing"
             rm -f $CRONPAUSEALLFILE
         fi
 

@@ -49,12 +49,12 @@ do
 			echo APPNAME=$APPNAME_A
 			echo MEMMIN=$MEMMIN_A
 			echo MEMMAX=$MEMMAX_A
-			echo HTTPPORT=$HTTPPORT_A	
-			echo MAXTHREADS=$MAXTHREADS_A	
+			echo HTTPPORT=$HTTPPORT_A
+			echo MAXTHREADS=$MAXTHREADS_A
 		
 			#Determine APPDIR
 			APPDIR=$APPNAME_A$TOMCATID_A
-			echo APPDIR=$APPDIR
+			#echo APPDIR=$APPDIR
 			
 			#Read AMAZONIIDSFILE
             AMAZONINSTANCEID=""
@@ -67,7 +67,7 @@ do
                     if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID_C" ]; then
                         AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
                         HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
-                        echo "Found hostname for LOGICALINSTANCEID=$LOGICALINSTANCEID_A"
+                        #echo "Found hostname for LOGICALINSTANCEID=$LOGICALINSTANCEID_A"
                     fi
                 fi
             done < "$AMAZONIIDSFILE"

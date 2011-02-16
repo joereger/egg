@@ -102,50 +102,42 @@ else
 	echo "Neither instance.props nor system.props exist"
 fi
 
+
+
+#Insert Tomcatid
+sed -i "s/\[TOMCATID\]/$TOMCATID/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
+
+echo "START READING MYSQL FILE"
 #Replace [MYSQLID.2.INTERNALHOSTNAME] with actual internal hostname
 #Read Mysqls
-while read interracottas;
+while read inmysqlline;
 do
 	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
+	if [ $(echo "$inmysqlline" | cut -c1) != "#" ]; then
 
-		MYSQLID=$(echo "$interracottas" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
+		MYSQLID=$(echo "$inmysqlline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$inmysqlline" | cut -d ":" -f2)
 
-		#Read INSTANCESFILE
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
-			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
+        #Read AMAZONIIDSFILE
+        while read amazoniidsline;
+        do
+            #Ignore lines that start with a comment hash mark
+            if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+                LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+                if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+                    AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+                    MYSQLINTERNALHOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
 
-				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
-
-				if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
-
-					#Read AMAZONIIDSFILE
-					AMAZONINSTANCEID=""
-					MYSQLINTERNALHOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
-						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
-							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
-							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
-								MYSQLINTERNALHOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
-							fi
-						fi
-					done < "$AMAZONIIDSFILE"
-
-					#Now I have MYSQLINTERNALHOST and MYSQLID
-					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
+                    #Now I have MYSQLINTERNALHOST and MYSQLID
+                    #Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
                     sed -i "s/\[MYSQLID.$MYSQLID.INTERNALHOSTNAME\]/$MYSQLINTERNALHOST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
 
-				fi
-			fi
-		done < "$INSTANCESFILE"
+                fi
+            fi
+        done < "$AMAZONIIDSFILE"
 	fi
 done < "$MYSQLSFILE"
+echo "END READING MYSQL FILE"
 
 
 
@@ -159,46 +151,22 @@ do
 		TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
 		LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
 
-		#Read INSTANCESFILE
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
-			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
+        #Read AMAZONIIDSFILE
+        while read amazoniidsline;
+        do
+            #Ignore lines that start with a comment hash mark
+            if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+                LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+                if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+                    AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+                    TERRACOTTAINTERNALHOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
 
-				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
-
-				if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
-
-					#Read AMAZONIIDSFILE
-					AMAZONINSTANCEID=""
-					TERRACOTTAINTERNALHOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
-						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
-							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
-							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
-								AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
-								TERRACOTTAINTERNALHOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
-							fi
-						fi
-					done < "$AMAZONIIDSFILE"
-
-					#Now I have TERRACOTTAINTERNALHOST and TERRACOTTAID
-					#Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
+                    #Now I have TERRACOTTAINTERNALHOST and TERRACOTTAID
+                    #Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
                     sed -i "s/\[TERRACOTTAID.$TERRACOTTAID.INTERNALHOSTNAME\]/$TERRACOTTAINTERNALHOST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
 
-				fi
-			fi
-		done < "$INSTANCESFILE"
+                fi
+            fi
+        done < "$AMAZONIIDSFILE"
 	fi
 done < "$TERRACOTTASFILE"
-
-
-
-
-
-
-
-
-

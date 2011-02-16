@@ -7,5 +7,6 @@ if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 
 HOST=$1
 
+./log-status.sh "Starting Apache $HOST"
 ssh -t -t $HOST "sudo /sbin/service httpd start"
 

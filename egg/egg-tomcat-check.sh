@@ -23,7 +23,7 @@ fi
 
 if [ ! -f "$CHECKTOMCATSFILE" ]; then
   echo "$CHECKTOMCATSFILE does not exist so creating it."
-  cp data/$CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
+  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
 fi
 
 #Read TOMCATSFILE
@@ -47,13 +47,13 @@ do
 
 
             #HTTP Check
-            echo Start HTTP Check
+            ./log.sh "Start HTTP Check $APPDIR"
             url="http://$HOST:$HTTPPORT/"
             retries=1
             timeout=60
             status=`wget -t 1 -T 60 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
             if [ "$status" == "200" ]; then
-                echo "HTTP 200 response from $url, recording LASTGOOD"
+                ./log.sh "HTTP 200 response from $APPDIR $url, recording LASTGOOD"
                 CURRENTTIME=`date +%s`
                 #Delete any current line with this tomcatid
                 sed -i "
@@ -65,7 +65,7 @@ do
                 $TOMCATID:$CURRENTTIME
                 " $CHECKTOMCATSFILE
             else
-                ./egg-log-status.sh "HTTP 200 fail"
+                ./log-status-red.sh "HTTP 200 fail $APPDIR"
             fi
 
             #This is max time that tomcat can be down before restart
@@ -73,6 +73,7 @@ do
 
             #Figure out how long since last good
             #Read CHECKTOMCATSFILE
+            foundtomcatidincheckfile=0
             while read incheckline;
             do
                 #Ignore lines that start with a comment hash mark
@@ -81,15 +82,16 @@ do
                     TOMCATID_CHK=$(echo "$incheckline" | cut -d ":" -f1)
 
                     if [ "$TOMCATID_CHK" == "$TOMCATID" ]; then
+                        foundtomcatidincheckfile=1
                         LASTGOOD=$(echo "$incheckline" | cut -d ":" -f2)
                         CURRENTTIME=`date +%s`
                         LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
-                        echo LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
+                        ./log.sh LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
                         if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
-                            ./egg-log-status.sh "$APP Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
+                            ./log-status-red.sh "$APP Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./egg-log-status.sh "Sleeping 30 sec for $APP Tomcat$TOMCATID to come up"
+                            ./log-status.sh "Sleeping 30 sec for $APP Tomcat$TOMCATID to come up"
                             sleep 30
                         fi
                     fi
@@ -97,6 +99,16 @@ do
                 fi
             done < "$CHECKTOMCATSFILE"
 
+            #If this tomcatid wasn't found in the check file then create a row for it.
+            #This sets a false lastgood time of now but this only happens once, the first time check system sees this tomcatid.
+            if [ "$foundtomcatidincheckfile" == "0"  ]; then
+                CURRENTTIME=`date +%s`
+                #Write a new record
+                sed -i "
+                /#BEGINDATA/ a\
+                $TOMCATID:$CURRENTTIME
+                " $CHECKTOMCATSFILE
+            fi
 
 		fi
 

@@ -9,8 +9,9 @@ HOST=$1
 
 #TODO Only make this call if $HOST is actually listed as a MySQL instance... i call this script from egg-instance-terminate.sh
 
+./log-status.sh "Stopping MySQL on $HOST"
 ssh -t -t $HOST "sudo /sbin/service mysqld stop"
-echo "Sleeping 10 while MySQL shuts down"
+./log-status.sh "Sleeping 10 while MySQL shuts down"
 sleep 10
 
 

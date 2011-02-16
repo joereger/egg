@@ -7,5 +7,6 @@ if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 
 HOST=$1
 
+./log-status.sh "Stopping Terracotta on $HOST"
 ssh $HOST "export JAVA_HOME=/usr/lib/jvm/jre; terracotta-3.4.0_1/bin/stop-tc-server.sh"
 

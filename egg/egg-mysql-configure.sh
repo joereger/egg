@@ -13,10 +13,10 @@ MYSQLID=$2
 #Check for /conf/mysql/mysqlid$MYSQLID.my.cnf to see if I have unique settings for this one instance
 MYCNFTOSEND=conf/mysql/default.my.cnf
 if [ -e conf/mysql/mysqlid${MYSQLID}.my.cnf ]; then
-	echo "conf/mysql/mysqlid${MYSQLID}.my.cnf exists"
+	./log.sh "conf/mysql/mysqlid${MYSQLID}.my.cnf exists"
     MYCNFTOSEND=conf/mysql/mysqlid${MYSQLID}.my.cnf
 else
-	echo "conf/mysql/mysqlid${MYSQLID}.my.cnf not found, using default my.cnf"
+	./log.sh "conf/mysql/mysqlid${MYSQLID}.my.cnf not found, using default my.cnf"
 fi
 
 

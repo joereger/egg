@@ -53,7 +53,7 @@ do
 		done < "$AMAZONIIDSFILE"
 		
 		echo " "
-		echo -e ${cf_blue}LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE IID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=${ELASTICIP}${c_reset}
+		./log-blue.sh "LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE IID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=${ELASTICIP}"
 		
 		#Determine whether this instance is running
 		thisinstanceisup=0
@@ -62,11 +62,11 @@ do
 		if [ "$status" == "$RUNNING" ]; then
 			export thisinstanceisup=1  	
 		fi
-		echo "Thisinstanceisup=$thisinstanceisup"
+		./log.sh "Thisinstanceisup=$thisinstanceisup"
 		
 		#Start an instance if necessary
 		if [ "${thisinstanceisup}" == "0" ]; then
-			echo "Will create ec2 instance for logical instance $LOGICALINSTANCEID"
+			./log-status-red.sh "Instance $LOGICALINSTANCEID not found, will create"
 
             export key="joekey"
             export id_file="/home/ec2-user/.ssh/joekey.pem"
@@ -79,19 +79,19 @@ do
                 INSTANCESIZE="t1.micro"
             fi
 
-            ./egg-log-status.sh "Creating $INSTANCESIZE instance from AMI ${AMIID} "
+            ./log-status-green.sh "Creating $INSTANCESIZE instance from AMI ${AMIID} "
 #            ${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${key} -g ${securitygroup1} -g ${securitygroup2} > /tmp/origin.ec2
 #            if [ $? != 0 ]; then
-#               ./egg-log-status.sh "Error starting instance for amazonimageid ${AMIID}"
+#               ./log-status-green.sh "Error starting instance for amazonimageid ${AMIID}"
 #               continue
 #            fi
 #            export iid=`cat /tmp/origin.ec2 | grep INSTANCE | cut -f2`
             export iid=`${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${key} -g ${securitygroup1} -g ${securitygroup2} | grep INSTANCE | cut -f2`
             if [ $? != 0 ]; then
-               ./egg-log-status.sh "Error starting instance for amazonimageid ${AMIID}"
+               ./log-status-green.sh "Error starting instance for amazonimageid ${AMIID}"
                continue
             fi
-            echo "Amazon iid=$iid created, waiting for it to be RUNNING"
+            ./log.sh "Amazon iid=$iid created, waiting for it to be RUNNING"
 
             # Loop until the status changes to .running.
             export RUNNING="running"
@@ -102,31 +102,32 @@ do
                if [ $status == ${RUNNING} ]; then
                   export done="true"
                else
-                  echo "Sleeping 10 seconds for instance to be RUNNING"
+                  ./log.sh "Sleeping 10 seconds for instance to be RUNNING"
                   sleep 10
                fi
             done
-            echo "Instance ${iid} is RUNNING"
+            ./log.sh "Instance ${iid} is RUNNING"
 
             #Add Tag(s)
+            ./log.sh "Starting to add tag"
             ec2-create-tags ${iid} --tag Name="${EC2NAMETAG}"
-            echo "Tag ${EC2NAMETAG} added to Instance ${iid}"
+            ./log.sh "Tag ${EC2NAMETAG} added to Instance ${iid}"
 
             # Associate the Elastic IP with the instance
             if [ "$ELASTICIP" != "" ]; then
-                echo "Associating elastic IP address $ELASTICIP"
+                ./log.sh "Associating elastic IP address $ELASTICIP"
                 ${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
-                echo "Waiting 30 seconds for elasticip to be assigned"
+                ./log.sh "Waiting 30 seconds for elasticip to be assigned"
                 sleep 30
             fi
 
             #Get the IP address
             export ipaddress=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f18`
-            ./egg-log-status.sh "Internal IP Address of ${iid} is ${ipaddress}"
+            ./log.sh "Internal IP Address of ${iid} is ${ipaddress}"
 
             #Get the internalhost address
             export INTERNALHOSTNAME=`${EC2_HOME}/bin/ec2-describe-instances ${iid} | grep INSTANCE | cut -f5`
-            ./egg-log-status.sh "Internal Host of ${iid} is ${INTERNALHOSTNAME}"
+            ./log.sh "Internal Host of ${iid} is ${INTERNALHOSTNAME}"
 
             AMAZONINSTANCEID=${iid}
             HOST=${ipaddress}
@@ -140,18 +141,17 @@ do
                 if [ "$sshcheck" == "$sshtest" ]; then
                     export sshdone="true"
                 else
-                    echo sshcheck=${sshcheck}
-                    echo "SSH not up yet, sleeping 10 seconds."
+                    ./log.sh "SSH not up yet, sleeping 10 seconds."
                     sleep 10
                 fi
             done
-            echo "SSH is running"
+            ./log.sh "SSH is running"
 
             #Uninstall sendmail
-            echo "Uninstalling sendmail"
+            ./log.sh "Uninstalling sendmail"
             sendmailuninstall=`</dev/null ssh -n -t -t $HOST "sudo yum -y remove sendmail"`
-            echo $sendmailuninstall
-            echo "Done uninstalling sendmail"
+            #echo $sendmailuninstall
+            ./log.sh "Done uninstalling sendmail"
 
             #Attach EBS volumes if necessary
             if [ "$EBSVOLUME" != "" ]; then
@@ -161,9 +161,9 @@ do
                 #grep -q xfs /proc/filesystems || sudo modprobe xfs
                 #sudo mkfs.xfs /dev/sdh
                 #Note that this filesystem creation is done manually and only once to make the EBS volume usable
-                echo "Attaching volume ${EBSVOLUME}"
+                ./log.sh "Attaching volume ${EBSVOLUME}"
                 ${EC2_HOME}/bin/ec2-attach-volume ${EBSVOLUME} -i ${iid} -d ${EBSDEVICENAME}
-                echo "Sleeping 10 sec for volume to attach"
+                ./log.sh "Sleeping 10 sec for volume to attach"
                 sleep 10
                 # Loop until the volume status changes to "attached"
                 export ATTACHED="attached"
@@ -174,11 +174,11 @@ do
                    if [ "$status" == "${ATTACHED}" ]; then
                       export done="true"
                    else
-                      echo "Sleeping 10 sec for volume to attach"
+                      ./log.sh "Sleeping 10 sec for volume to attach"
                       sleep 10
                    fi
                 done
-                echo "Volume ${EBSVOLUME} is attached"
+                ./log.sh "Volume ${EBSVOLUME} is attached"
                 #Configure the instance to have the drive on reboot and to have it mounted as /vol
                 sshtmp1=`</dev/null ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"`
                 echo $sshtmp1
@@ -212,8 +212,7 @@ done < "$INSTANCESFILEIVU"
 
 
 #Any time we change instances we have to update the apacheconfig
-#if [ "$SOMETHINGHASCHANGED" == "1" ]; then
-#    ./egg-apaches-verify-up.sh
-#	./egg-apaches-configure-all.sh
-#fi
+if [ "$SOMETHINGHASCHANGED" == "1" ]; then
+    ./log-status-blue.sh "An instance has changed, services may need to be updated"
+fi
 

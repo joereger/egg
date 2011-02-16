@@ -32,7 +32,7 @@ HOST=$1
 #sudo cp -r /var/lib/mysql/* /vol/mysqldata
 #sudo chown -R mysql:mysql /vol/mysqldata/*
 
-
+./log.sh "Installing MySQL on $HOST"
 ssh -t -t $HOST "sudo yum -y install mysql mysql-server"
 ssh -t -t $HOST "sudo chown -R mysql:mysql /vol/mysqldata"
 ssh -t -t $HOST "sudo chown -R mysql:mysql /vol/mysqldata/*"

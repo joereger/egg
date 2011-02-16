@@ -1,17 +1,18 @@
 #!/bin/bash
 
 source colors.sh
+source loginclude.sh
 
-#Redirect stdout to debug.log
-exec > >(tee -a logs/debug.log)
+#Redirect stdout to LOGFILEDEBUG
+exec > >(tee -a $LOGFILEDEBUG)
 exec 2>&1
 
 #Log script execution yo yo yo
 #echo -e ${cc_black_cyan}
 WHATTOLOG="$0 $@"
-echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> /home/ec2-user/egg/logs/debug.log
-echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> /home/ec2-user/egg/logs/status.log
-#./egg-log-status.sh "$0 $@"
+echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> $LOGFILEDEBUG
+echo -e ${cc_black_cyan}`date +"%b%d"`" "`date +"%r"`" "$WHATTOLOG${c_reset} >> $LOGFILEINFO
+#./log-status-green.sh "$0 $@"
 #echo -e ${c_reset}
 
 #Set up EC2 vars

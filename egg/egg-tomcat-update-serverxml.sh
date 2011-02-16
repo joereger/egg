@@ -61,10 +61,10 @@ done < "$TOMCATSFILE"
 #I can put tomcatid23.server.xml into /conf/apps/$APPNAME/ to override default base server.xml
 SERVERXMLTOUSE=conf/tomcat/default.server.xml
 if [ -e conf/apps/$APP/tomcatid$TOMCATID.server.xml ]; then
-	echo "conf/apps/$APP/tomcatid$TOMCATID.server.xml exists"
+	./log.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml exists"
     SERVERXMLTOUSE=conf/apps/$APP/tomcatid$TOMCATID.server.xml
 else
-	echo "conf/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
+	./log.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
 fi
 
 #Make a copy of the base file to use
@@ -86,23 +86,23 @@ rm -f data/$APP.tomcatid$TOMCATID.server.xml.remote
 scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml data/$APP.tomcatid$TOMCATID.server.xml.remote
 
 
-#Determine whether this new config is different than the latest
-if  diff data/$APP.tomcatid$TOMCATID.server.xml.tmp data/$APP.tomcatid$TOMCATID.server.xml.remote >/dev/null ; then
-    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is the same as data/$APP.tomcatid$TOMCATID.server.xml.remote"
-else
-    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is different than data/$APP.tomcatid$TOMCATID.server.xml.remote"
-
-    #Make sure /conf exists
-    ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
-
-    #Copy latest to remote Tomcat
-    ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
-    scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml
-
-    #Bounce Tomcat
-    ./egg-tomcat-stop.sh $HOST $APPDIR
-    ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-fi
+##Determine whether this new config is different than the latest
+#if  diff data/$APP.tomcatid$TOMCATID.server.xml.tmp data/$APP.tomcatid$TOMCATID.server.xml.remote >/dev/null ; then
+#    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is the same as data/$APP.tomcatid$TOMCATID.server.xml.remote"
+#else
+#    echo "data/$APP.tomcatid$TOMCATID.server.xml.tmp is different than data/$APP.tomcatid$TOMCATID.server.xml.remote"
+#
+#    #Make sure /conf exists
+#    ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
+#
+#    #Copy latest to remote Tomcat
+#    ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
+#    scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml
+#
+#    #Bounce Tomcat
+#    ./egg-tomcat-stop.sh $HOST $APPDIR
+#    ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+#fi
 
 
 
