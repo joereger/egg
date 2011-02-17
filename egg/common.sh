@@ -4,8 +4,11 @@ source colors.sh
 source loginclude.sh
 
 #Redirect stdout to LOGFILEDEBUG
-exec > >(tee -a $LOGFILEDEBUG)
-exec 2>&1
+#$DONTREDITSTDOUTTOLOGFILE allows me to turn this off for certain scripts
+if [ "$DONTREDITSTDOUTTOLOGFILE" == "" ]; then
+    exec > >(tee -a $LOGFILEDEBUG)
+    exec 2>&1
+fi
 
 #Log script execution yo yo yo
 #echo -e ${cc_black_cyan}

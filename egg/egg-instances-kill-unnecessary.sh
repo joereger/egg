@@ -64,7 +64,7 @@ while read line; do
 	done < "$INSTANCESFILE"
   
   	if [ $ISVALIDINSTANCE == 0 ]; then
-		echo Terminating unnecessary instance
+		./log-status.sh "Terminating unnecessary instance $IID $INSTANCESIZE"
 		./egg-instance-terminate.sh $LOGICALINSTANCEID
 	else 
 		echo Not terminating instance $IID

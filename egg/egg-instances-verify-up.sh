@@ -16,6 +16,7 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
 fi
 
 SOMETHINGHASCHANGED="0"
+ALLISWELL=1
 		
 #Read INSTANCESFILE   
 while read line_instances_ivu;
@@ -66,6 +67,7 @@ do
 		
 		#Start an instance if necessary
 		if [ "${thisinstanceisup}" == "0" ]; then
+		    ALLISWELL=0
 			./log-status-red.sh "Instance $LOGICALINSTANCEID not found, will create"
 
             export key="joekey"
@@ -214,5 +216,9 @@ done < "$INSTANCESFILEIVU"
 #Any time we change instances we have to update the apacheconfig
 if [ "$SOMETHINGHASCHANGED" == "1" ]; then
     ./log-status-blue.sh "An instance has changed, services may need to be updated"
+fi
+
+if [ "$ALLISWELL" == "1" ]; then
+    ./log-status.sh "Instances AllIsWell `date`"
 fi
 

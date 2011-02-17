@@ -30,7 +30,7 @@ if [ ! -f "$CRONLOCKSFILE" ]; then
   cp data/cron.locks.sample $CRONLOCKSFILE
 fi
 
-./log-status.sh "CRON `date`: $CRONNAME"
+./log.sh "CRON `date`: $CRONNAME"
 
 while read cronpauseallline;
 do
@@ -52,7 +52,7 @@ do
             echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
             if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
-                ./log-status.sh "Cron lock for $CRONNAME, exiting"
+                ./log.sh "Cron lock for $CRONNAME, exiting"
                 exit
             else
                 ./log.sh "Cron lock for $CRONNAME has expired, continuing"
@@ -81,14 +81,14 @@ do
 
 
         if [ "${PAUSEENDSAT}" -eq "0"  ]; then
-            ./log-status.sh "Cron jobs paused indefinitely, exiting"
+            ./log.sh "Cron jobs paused indefinitely, exiting"
             exit
         fi
 
         if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
             REMAININGSECONDS=$((PAUSEENDSAT-CURRENTTIME))
             REMAININGMINUTES=$((REMAININGSECONDS/60))
-            ./log-status.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
+            ./log.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
             exit
         else
             ./log.sh "Cron pause has expired, continuing"

@@ -1,29 +1,24 @@
-dbDriverName=com.mysql.jdbc.Driver
+#GENERAL DATABASE CONFIG
+dbMaxIdle=20
+dbMaxWait=10000
+dbMinIdle=10
+dbMaxActive=100
+hibernateShowSql=1
+
+#STANDARD MYSQL CONFIG FOR MAIN DB
 dbConnectionUrl=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/dneeropolitical?autoReconnect\=true
+dbDriverName=com.mysql.jdbc.Driver
 dbUsername=root
 dbPassword=catalyst
 
-dbDriverNameDbcache=com.mysql.jdbc.Driver
+#STANDARD MYSQL CONFIG FOR DBCACHE DB
 dbConnectionUrlDbcache=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/dneeropoliticaldbcache?autoReconnect\=true
+dbDriverNameDbcache=com.mysql.jdbc.Driver
 dbUsernameDbcache=root
 dbPasswordDbcache=catalyst
 
-dbDriverName=com.mysql.jdbc.Driver
-dbConnectionUrl=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/dneeropoliticalimpressions?autoReconnect\=true
-dbUsername=root
-dbPassword=catalyst
-
-
-dbMaxActive=20
-dbMaxIdle=20
-dbMinIdle=12
-dbMaxWait=10000
-#terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
-hibernateShowSql=1
-
-#I think these are dead config options
-dbIsActive4=0
-dbIsActive3=0
-dbIsActive2=0
-dbIsActive1=0
-ishajdbcon=0
+#STANDARD MYSQL CONFIG FOR IMPRESSIONS DB
+dbConnectionUrlImpressions=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/dneeropoliticalimpressions?autoReconnect\=true
+dbDriverNameImpressions=com.mysql.jdbc.Driver
+dbUsernameImpressions=root
+dbPasswordImpressions=catalyst

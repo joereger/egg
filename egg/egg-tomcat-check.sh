@@ -45,13 +45,12 @@ do
             MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
             JVMROUTE=$APPNAME$TOMCATID
 
-
             #HTTP Check
             ./log.sh "Start HTTP Check $APPDIR"
             url="http://$HOST:$HTTPPORT/"
-            retries=1
-            timeout=60
-            status=`wget -t 1 -T 60 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
+            retries=0
+            timeout=120
+            status=`wget -t 0 -T 120 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
             if [ "$status" == "200" ]; then
                 ./log.sh "HTTP 200 response from $APPDIR $url, recording LASTGOOD"
                 CURRENTTIME=`date +%s`
@@ -69,7 +68,7 @@ do
             fi
 
             #This is max time that tomcat can be down before restart
-            MAXLASTGOOD=180
+            MAXLASTGOOD=360
 
             #Figure out how long since last good
             #Read CHECKTOMCATSFILE
@@ -91,7 +90,7 @@ do
                             ./log-status-red.sh "$APP Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./log-status.sh "Sleeping 30 sec for $APP Tomcat$TOMCATID to come up"
+                            ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
                             sleep 30
                         fi
                     fi

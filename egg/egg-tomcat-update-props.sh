@@ -107,7 +107,7 @@ fi
 #Insert Tomcatid
 sed -i "s/\[TOMCATID\]/$TOMCATID/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
 
-echo "START READING MYSQL FILE"
+
 #Replace [MYSQLID.2.INTERNALHOSTNAME] with actual internal hostname
 #Read Mysqls
 while read inmysqlline;
@@ -137,7 +137,7 @@ do
         done < "$AMAZONIIDSFILE"
 	fi
 done < "$MYSQLSFILE"
-echo "END READING MYSQL FILE"
+
 
 
 

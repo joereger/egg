@@ -10,6 +10,13 @@ source common.sh
 TOMCATSFILE=conf/tomcats.conf
 INSTANCESFILE=conf/instances.conf
 AMAZONIIDSFILE=data/amazoniids.conf
+CHECKTOMCATSFILE=data/check.tomcats
+
+
+if [ ! -f "$CHECKTOMCATSFILE" ]; then
+  echo "$CHECKTOMCATSFILE does not exist so creating it."
+  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
+fi
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
@@ -25,6 +32,9 @@ if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
   exit 1
 fi
+
+#Used to determine if all is well
+ALLISWELL=1
 
 #Read TOMCATSFILE
 while read intomcatline;
@@ -75,10 +85,10 @@ do
 				
 				
 
-					./log-info-blue.sh "CHECKING $APP $INSTANCESIZE http://$HOST:$HTTPPORT/"
+					./log-blue.sh "CHECKING $APP $INSTANCESIZE http://$HOST:$HTTPPORT/"
 					
 					#Instance Check
-					echo Start Instance Check
+					./log.sh "Start $APPDIR Instance Check"
 					export thisinstanceisup=0
 					export RUNNING="running"
 					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
@@ -86,13 +96,17 @@ do
 						./log.sh "Instance for $APPDIR running"
 						export thisinstanceisup=1  	
 
-
 					    #Tomcat Check
                         ./log.sh "$APPDIR Start Tomcat Installation Check "
                         tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
                         if [ "$tomcatcheck" != 1 ]; then
+                            ALLISWELL=0
                             ./log-status-green.sh "$APPDIR Tomcat not found, will create"
                             ./egg-tomcat-create.sh $HOST $APP $APPDIR $TOMCATID
+                            #Reset Check status by deleting any line for this tomcatid
+                            sed -i "
+                            /^${TOMCATID}:/ d\
+                            " $CHECKTOMCATSFILE
                         else
                             ./log.sh "Tomcat $APPDIR found"
                         fi
@@ -102,8 +116,13 @@ do
                         ./log.sh "$APPDIR Start WAR File Check"
                         warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
                         if [ "$warcheck" != 1 ]; then
+                            ALLISWELL=0
                             ./log-status-green.sh "$APPDIR WAR not found, will deploy"
                             ./egg-tomcat-deploy-war.sh $HOST $APP $APPDIR
+                            #Reset Check status by deleting any line for this tomcatid
+                            sed -i "
+                            /^${TOMCATID}:/ d\
+                            " $CHECKTOMCATSFILE
                         else
                             ./log.sh "$APPDIR WAR found"
                         fi
@@ -145,10 +164,16 @@ do
                         fi
                         #If anything's changed, bounce tomcat
                         if [ "$NEEDTOBOUNCETOMCAT" == "1" ]; then
+                            ALLISWELL=0
                             ./log.sh "Bouncing Tomcat $APPDIR"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
                             ./log-status.sh "Bounced Tomcat ${APPDIR}, sleeping 30 sec for it to come up"
+                            #Reset Check status by deleting any line for this tomcatid
+                            sed -i "
+                            /^${TOMCATID}:/ d\
+                            " $CHECKTOMCATSFILE
+                            #Sleep for app to come up
                             sleep 30
                          fi
 
@@ -158,8 +183,8 @@ do
 					else
 						./log-status-red.sh "Instance for $APPDIR not running"
 						export thisinstanceisup=0
+						export ALLISWELL=0
 					fi
-					
 
 				fi
 			fi
@@ -168,3 +193,10 @@ do
 	
 	fi
 done < "$TOMCATSFILE"
+
+./log.sh "Done processing Tomcats"
+
+
+if [ "$ALLISWELL" == "1" ]; then
+    ./log-status.sh "Tomcats AllIsWell `date`"
+fi

@@ -27,6 +27,8 @@ if [ ! -f "$INSTANCESFILE" ]; then
   exit 1
 fi
 
+ALLISWELL=1
+
 #Read Mysqls
 while read inmysqlsline;
 do
@@ -66,13 +68,14 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 
-					echo CHECKING MYSQL $INSTANCESIZE http://$HOST/
+					./log.sh "CHECKING MYSQL$MYSQLID $INSTANCESIZE http://$HOST/"
 
 					#MySQL Existence Check
 					echo Start MySQL Check
 					apachecheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
-						./log-status-green.sh "MySQL my.cnf not found, will install"
+					    ALLISWELL=0
+						./log-status-red.sh "MySQL$MYSQLID my.cnf not found, installing"
 						./egg-mysql-create.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
@@ -85,12 +88,13 @@ do
                     processcheck=`ssh $HOST "[ -n \"\\\`pgrep mysql\\\`\" ] && echo 1"`
                     echo processcheck=$processcheck
 					if [ "$processcheck" != 1 ]; then
-						./log-status-green.sh "MySQL process not found, restarting"
+					    ALLISWELL=0
+						./log-status-red.sh "MySQL$MYSQLID process not found, restarting"
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
 					else
-						echo MySQL process found
+						./log.sh "MySQL process found"
 					fi
 
 
@@ -102,3 +106,7 @@ do
 	
 	fi
 done < "$MYSQLSFILE"
+
+if [ "$ALLISWELL" == "1"  ]; then
+    ./log-status.sh "MySQLs AllIsWell `date`"
+fi
