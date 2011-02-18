@@ -47,9 +47,9 @@ do
             #./log-status.sh "Cron lock exists for $CRONNAME"
 
             CURRENTTIME=`date +%s`
-            echo CURRENTTIME=$CURRENTTIME
+            #echo CURRENTTIME=$CURRENTTIME
             RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+CRONLOCKTIMEOUTSECONDS))
-            echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
+            #echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
             if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
                 ./log.sh "Cron lock for $CRONNAME, exiting"
@@ -75,9 +75,9 @@ do
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
         ./log.sh "Found a line in $CRONPAUSEALLFILE"
         CURRENTTIME=`date +%s`
-        ./log.sh CURRENTTIME=$CURRENTTIME
+        #./log.sh CURRENTTIME=$CURRENTTIME
         PAUSEENDSAT="$cronpauseallline"
-        ./log.sh PAUSEENDSAT=$PAUSEENDSAT
+        #./log.sh PAUSEENDSAT=$PAUSEENDSAT
 
 
         if [ "${PAUSEENDSAT}" -eq "0"  ]; then

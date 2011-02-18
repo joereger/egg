@@ -45,12 +45,19 @@ do
             MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
             JVMROUTE=$APPNAME$TOMCATID
 
+
+
+#url='http://localhost:8080/'
+#status=$(r=(IFS=' ';$(curl -Is --connect-timeout 5 "${url}" || echo 1 500));echo ${r[1]})
+#[ status -eq 500 ] && bounce # assuming the bounce script is called 'bounce'
+
+
             #HTTP Check
             ./log.sh "Start HTTP Check $APPDIR"
             url="http://$HOST:$HTTPPORT/"
             retries=0
             timeout=120
-            status=`wget -t 0 -T 120 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
+            status=`wget --tries 1 --timeout 120 --no-verbose $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
             if [ "$status" == "200" ]; then
                 ./log.sh "HTTP 200 response from $APPDIR $url, recording LASTGOOD"
                 CURRENTTIME=`date +%s`
