@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source common.sh
 source loginclude.sh
 
 #Cron HOWTO
@@ -30,7 +31,7 @@ if [ ! -f "$CRONLOCKSFILE" ]; then
   cp data/cron.locks.sample $CRONLOCKSFILE
 fi
 
-./log.sh "CRON `date`: $CRONNAME"
+./log-debug.sh "CRON `date`: $CRONNAME"
 
 while read cronpauseallline;
 do
@@ -43,7 +44,7 @@ do
 
         if [ "$CRONNAME_A" == "$CRONNAME" ]; then
             #There is a lock... let's see if it's valid
-            ./log.sh "Cron lock exists for $CRONNAME"
+            ./log-debug.sh "Cron lock exists for $CRONNAME"
             #./log-status.sh "Cron lock exists for $CRONNAME"
 
             CURRENTTIME=`date +%s`
@@ -52,10 +53,10 @@ do
             #echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
             if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
-                ./log.sh "Cron lock for $CRONNAME, exiting"
+                ./log-debug.sh "Cron lock for $CRONNAME, exiting"
                 exit
             else
-                ./log.sh "Cron lock for $CRONNAME has expired, continuing"
+                ./log-debug.sh "Cron lock for $CRONNAME has expired, continuing"
             fi
 
         fi
@@ -65,7 +66,11 @@ done < "$CRONLOCKSFILE"
 
 
 CRONPAUSEALLFILE=data/cron.pause.all
-
+#if [ ! -f "$CRONPAUSEALLFILE" ]; then
+#  echo "$CRONPAUSEALLFILE does not exist so creating it."
+#  echo "$CRONPAUSEALLFILE does not exist so creating it." >> $LOGFILEDEBUG
+#  echo "#Cron locks file" >> $CRONPAUSEALLFILE
+#fi
 
 
 while read cronpauseallline;
@@ -73,7 +78,6 @@ do
 
     #Ignore lines that start with a comment hash mark
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
-        ./log.sh "Found a line in $CRONPAUSEALLFILE"
         CURRENTTIME=`date +%s`
         #./log.sh CURRENTTIME=$CURRENTTIME
         PAUSEENDSAT="$cronpauseallline"
@@ -81,17 +85,17 @@ do
 
 
         if [ "${PAUSEENDSAT}" -eq "0"  ]; then
-            ./log.sh "Cron jobs paused indefinitely, exiting"
+            ./log-debug.sh "Cron jobs paused indefinitely, exiting"
             exit
         fi
 
         if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
             REMAININGSECONDS=$((PAUSEENDSAT-CURRENTTIME))
             REMAININGMINUTES=$((REMAININGSECONDS/60))
-            ./log.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
+            ./log-debug.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
             exit
         else
-            ./log.sh "Cron pause has expired, continuing"
+            ./log-debug.sh "Cron pause has expired, continuing"
             rm -f $CRONPAUSEALLFILE
         fi
 
@@ -115,5 +119,9 @@ sed -i "
 /#BEGINDATA/ a\
 $CRONNAME:$CURRENTTIME
 " $CRONLOCKSFILE
+
+
+#Start time counter
+CRONSTARTTIME=`date +%s`
 
 

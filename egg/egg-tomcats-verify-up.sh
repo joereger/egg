@@ -165,10 +165,10 @@ do
                         #If anything's changed, bounce tomcat
                         if [ "$NEEDTOBOUNCETOMCAT" == "1" ]; then
                             ALLISWELL=0
-                            ./log.sh "Bouncing Tomcat $APPDIR"
+                            ./log.sh "Bouncing Tomcat $APPDIR to update props"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./log-status.sh "Bounced Tomcat ${APPDIR}, sleeping 30 sec for it to come up"
+                            ./log-status.sh "Bounced Tomcat ${APPDIR} to update props, sleeping 30 sec for it to come up"
                             #Reset Check status by deleting any line for this tomcatid
                             sed -i "
                             /^${TOMCATID}:/ d\
@@ -178,7 +178,7 @@ do
                          fi
 
                         #HTTP Check which will restart tomcat instance if necessary
-                        ./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
+                        #./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
 
 					else
 						./log-status-red.sh "Instance for $APPDIR not running"

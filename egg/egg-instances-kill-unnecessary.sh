@@ -18,7 +18,6 @@ fi
 ${EC2_HOME}/bin/ec2-describe-tags --filter key=Name --filter value=${EC2NAMETAG} |
 while read line; do
   	IID=$(echo "$line" | cut -f3)
-  	echo Found instance ${IID}
 	
 	#Default to this being a rogue instance
 	ISVALIDINSTANCE=0
@@ -67,7 +66,7 @@ while read line; do
 		./log-status.sh "Terminating unnecessary instance $IID $INSTANCESIZE"
 		./egg-instance-terminate.sh $LOGICALINSTANCEID
 	else 
-		echo Not terminating instance $IID
+		./log.sh Not terminating instance $IID
 	fi
   
 done 

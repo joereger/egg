@@ -15,3 +15,12 @@ sed -i "
 /^${CRONNAME}:/ d\
 " $CRONLOCKSFILE
 
+
+#End time counter
+CRONENDTIME=`date +%s`
+CRONEXECUTIONTIMEINSECONDS=$((CRONENDTIME-CRONSTARTTIME))
+./log.sh "Cron $CRONNAME execution time: $CRONEXECUTIONTIMEINSECONDS seconds"
+
+
+
+

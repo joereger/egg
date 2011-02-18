@@ -7,18 +7,24 @@ source common.sh
 
 #APP=$1
 
-APACHESFILE=conf/apaches.conf
+TOMCATSFILE=conf/tomcats.conf
 INSTANCESFILE=conf/instances.conf
 AMAZONIIDSFILE=data/amazoniids.conf
+CHECKTOMCATSFILE=data/check.tomcats
+
+
+if [ ! -f "$CHECKTOMCATSFILE" ]; then
+  echo "$CHECKTOMCATSFILE does not exist so creating it."
+  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
+fi
 
 if [ ! -f "$AMAZONIIDSFILE" ]; then
   echo "$AMAZONIIDSFILE does not exist so creating it."
   cp data/amazoniids.conf.sample $AMAZONIIDSFILE
 fi
 
-
-if [ ! -f "$APACHESFILE" ]; then
-  echo "Sorry, $APACHESFILE does not exist."
+if [ ! -f "$TOMCATSFILE" ]; then
+  echo "Sorry, $TOMCATSFILE does not exist."
   exit 1
 fi
 
@@ -27,18 +33,26 @@ if [ ! -f "$INSTANCESFILE" ]; then
   exit 1
 fi
 
-
+#Used to determine if all is well
 ALLISWELL=1
 
-#Read APACHESFILE
-while read inapachesline;
+#Read TOMCATSFILE
+while read intomcatline;
 do
 	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$inapachesline" | cut -c1) != "#" ]; then
+	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	
-		APACHEID=$(echo "$inapachesline" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$inapachesline" | cut -d ":" -f2)
-
+		TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$intomcatline" | cut -d ":" -f2)
+		APP=$(echo "$intomcatline" | cut -d ":" -f3)
+		MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
+		MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
+		HTTPPORT=$(echo "$intomcatline" | cut -d ":" -f6)
+		MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
+	
+		#Determine APPDIR
+		APPDIR=$APP$TOMCATID
+		JVMROUTE=$APP$TOMCATID
 		
 		#Read INSTANCESFILE    
 		while read ininstancesline;
@@ -56,7 +70,7 @@ do
 				
 					#Read AMAZONIIDSFILE
 					AMAZONINSTANCEID=""
-					HOST=""
+		            HOST=""
 					while read amazoniidsline;
 					do
 						#Ignore lines that start with a comment hash mark
@@ -68,40 +82,11 @@ do
 							fi
 						fi
 					done < "$AMAZONIIDSFILE"
+				
+				
 
-					#Apache Existence Check
-					./log.sh "Start Apache$APACHEID Installation Check"
-					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
-					if [ "$apachecheck" != 1 ]; then
-					    ALLISWELL=0
-						./log-status-red.sh "Apache$APACHEID installation folder not found, will create"
-						./egg-apache-stop.sh $HOST
-						./egg-apache-create.sh $HOST
-						./egg-apache-configure.sh $APACHEID
-						./egg-apache-start.sh $HOST
-					else 
-						./log.sh "Apache$APACHEID installation folder found"
-					fi
-					
-					#Apache Process Check
-					./log.sh "Start Apache$APACHEID Process Check"
-                    #This line very finickey...
-                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep httpd\\\`\" ] && echo 1"`
-                    ./log.sh "processcheck=$processcheck"
-					if [ "$processcheck" != 1 ]; then
-					    ALLISWELL=0
-						./log-status-red.sh "Apache$APACHEID process not found"
-						./egg-apache-stop.sh $HOST
-						./egg-apache-configure.sh $APACHEID
-						./egg-apache-start.sh $HOST
-					else
-						./log.sh "Apache$APACHEID process found"
-					fi
-
-					#Check the configuration... will only adjust/bounce if something's changed
-					./egg-apache-configure.sh $APACHEID
-
-
+					#HTTP Check which will restart tomcat instance if necessary
+                    ./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
 
 				fi
 			fi
@@ -109,8 +94,6 @@ do
 		
 	
 	fi
-done < "$APACHESFILE"
+done < "$TOMCATSFILE"
 
-if [ "$ALLISWELL" == "1"  ]; then
-    ./log-status.sh "Apaches AllIsWell `date`"
-fi
+
