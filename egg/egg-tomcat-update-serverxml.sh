@@ -101,7 +101,7 @@ scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml data/$APP.tomcatid$TOMCA
 #
 #    #Bounce Tomcat
 #    ./egg-tomcat-stop.sh $HOST $APPDIR
-#    ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+#    ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
 #fi
 
 

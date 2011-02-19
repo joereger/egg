@@ -83,7 +83,6 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 				
-				
 
 					#HTTP Check which will restart tomcat instance if necessary
                     ./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID

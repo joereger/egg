@@ -127,55 +127,9 @@ do
                             ./log.sh "$APPDIR WAR found"
                         fi
 
-
-                        #Need to bounce flag
-                        NEEDTOBOUNCETOMCAT=0
-                        #Update server.xml and instanceprops in data/ dir
-                        ./egg-tomcat-update-serverxml.sh $HOST $APP $APPDIR $HTTPPORT $MAXTHREADS $JVMROUTE $TOMCATID
-                        ./egg-tomcat-update-props.sh $HOST $APP $APPDIR $TOMCATID
-                        #Download the latest server.xml and instance.props
-                        rm -f data/$APP.tomcatid$TOMCATID.server.xml.remote
-                        rm -f data/$APP.tomcatid$TOMCATID.instance.props.remote
-                        scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml data/$APP.tomcatid$TOMCATID.server.xml.remote
-                        scp ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props data/$APP.tomcatid$TOMCATID.instance.props.remote
-                        #Compare server.xml local to remote and send if anything's changed
-                        if  diff data/$APP.tomcatid$TOMCATID.server.xml.tmp data/$APP.tomcatid$TOMCATID.server.xml.remote >/dev/null ; then
-                            ./log.sh "$APPDIR server.xml local is the SAME as remote"
-                        else
-                            NEEDTOBOUNCETOMCAT=1
-                            ./log.sh "$APPDIR server.xml local is the DIFFERENT than remote"
-                            #Make sure /conf exists
-                            ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
-                            #Copy latest to remote Tomcat
-                            ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
-                            scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml
-                        fi
-                        #Compare instance.props local to remote and send if anything's changed
-                        if  diff data/$APP.tomcatid$TOMCATID.instance.props.tmp data/$APP.tomcatid$TOMCATID.instance.props.remote >/dev/null ; then
-                            ./log.sh "$APPDIR instance.props local is the SAME as remote"
-                        else
-                            NEEDTOBOUNCETOMCAT=1
-                            ./log.sh "$APPDIR instance.props local is the DIFFERENT than remote"
-                            #Make sure /conf exists
-                            ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
-                            #Copy latest to remote Tomcat
-                            ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props"
-                            scp data/$APP.tomcatid$TOMCATID.instance.props.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
-                        fi
-                        #If anything's changed, bounce tomcat
-                        if [ "$NEEDTOBOUNCETOMCAT" == "1" ]; then
-                            ALLISWELL=0
-                            ./log.sh "Bouncing Tomcat $APPDIR to update props"
-                            ./egg-tomcat-stop.sh $HOST $APPDIR
-                            ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./log-status.sh "Bounced Tomcat ${APPDIR} to update props, sleeping 30 sec for it to come up"
-                            #Reset Check status by deleting any line for this tomcatid
-                            sed -i "
-                            /^${TOMCATID}:/ d\
-                            " $CHECKTOMCATSFILE
-                            #Sleep for app to come up
-                            sleep 30
-                         fi
+                        #Check instance.props and server.xml, force restart if they've changed
+                        export RESTARTIFCONFIGHASCHANGED="RESTARTIFCONFIGHASCHANGED"
+                        ./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
 
                         #HTTP Check which will restart tomcat instance if necessary
                         #./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID

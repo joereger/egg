@@ -2,14 +2,16 @@
 
 source common.sh
 
-if [ "$#" == "0" ]; then echo "!USAGE: HOST APPDIR MEMMIN MEMMAX"; exit; fi
-if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
-if [ "$2" == "" ]; then echo "Must provide an APPDIR"; exit; fi
+if [ "$#" == "0" ]; then echo "!USAGE: TOMCATID HOST APPDIR MEMMIN MEMMAX"; exit; fi
+if [ "$1" == "" ]; then echo "Must provide a TOMCATID"; exit; fi
+if [ "$2" == "" ]; then echo "Must provide a HOST"; exit; fi
+if [ "$3" == "" ]; then echo "Must provide an APPDIR"; exit; fi
 
-HOST=$1
-APPDIR=$2
-MEMMIN=$3
-MEMMAX=$4
+TOMCATID=$1
+HOST=$2
+APPDIR=$3
+MEMMIN=$4
+MEMMAX=$5
 
 
 if [ "$MEMMIN" == "" ]; then
@@ -20,6 +22,11 @@ if [ "$MEMMAX" == "" ]; then
     MEMMAX="256"
 fi
 
+
+#Check instance.props and server.xml, force restart if they've changed
+export RESTARTIFCONFIGHASCHANGED="NORESTART"
+./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
+#Do the restart
 ./log-status.sh "Starting Tomcat $APPDIR"
 ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
 ssh -t -t $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"

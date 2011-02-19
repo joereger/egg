@@ -246,22 +246,30 @@ fi
 
 
 #Append the VHOSTS entry to the end of the file
+rm -f data/apacheid$APACHEID.httpd.conf.tmp
 cp $HTTPDCONFTOUSE data/apacheid$APACHEID.httpd.conf.tmp
 echo -e "NameVirtualHost *:80" >> data/apacheid$APACHEID.httpd.conf.tmp
 echo -e ${VHOSTS} >> data/apacheid$APACHEID.httpd.conf.tmp
 
+
+#Download the latest remote file
+rm -f data/apacheid$APACHEID.httpd.conf.remote
+scp ec2-user@$HOST:/etc/httpd/conf/httpd.conf data/apacheid$APACHEID.httpd.conf.remote
+
+
 #Determine whether this new config is different than the latest
-if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest >/dev/null ; then
-    ./log.sh "apacheid$APACHEID.httpd.conf.tmp is the same as apacheid$APACHEID.httpd.conf.latest"
+if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.remote >/dev/null ; then
+    ./log.sh "apacheid$APACHEID httpd.conf remote is SAME as local"
 else
-    ./log.sh "apacheid$APACHEID.httpd.conf.tmp is different than apacheid$APACHEID.httpd.conf.tmp"
-    #Promote .tmp to .latest
-    cp data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf.latest
+    ./log.sh "apacheid$APACHEID httpd.conf remote is DIFFERENT than local"
 
     #Copy latest to the remote Apache host
-    scp data/apacheid$APACHEID.httpd.conf.latest ec2-user@$HOST:httpd.conf.tmp
+    scp data/apacheid$APACHEID.httpd.conf.tmp ec2-user@$HOST:httpd.conf.tmp
     ssh -t -t $HOST "sudo cp httpd.conf.tmp /etc/httpd/conf/httpd.conf"
     ssh -t -t $HOST "rm -f httpd.conf.tmp"
+
+    #Make sure we have the latest locally
+    scp ec2-user@$HOST:/etc/httpd/conf/httpd.conf data/apacheid$APACHEID.httpd.conf.remote
 
     #Bounce Apache
     ./egg-apache-stop.sh $HOST
@@ -269,6 +277,7 @@ else
 fi
 
 rm -f data/apacheid$APACHEID.httpd.conf.tmp
+
 
 
 

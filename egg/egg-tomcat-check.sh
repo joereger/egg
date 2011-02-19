@@ -120,11 +120,11 @@ do
                         LASTGOOD=$(echo "$incheckline" | cut -d ":" -f2)
                         CURRENTTIME=`date +%s`
                         LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
-                        ./log.sh LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
+                        ./log.sh $APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
                         if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
-                            ./log-status-red.sh "$APP Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
+                            ./log-status-red.sh "$APPDIR Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
-                            ./egg-tomcat-start.sh $HOST $APPDIR $MEMMIN $MEMMAX
+                            ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
                             ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
                             sleep 30
                             #Delete any current line with this tomcatid

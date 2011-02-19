@@ -33,27 +33,27 @@ do
 	#Ignore lines that start with a comment hash mark
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	
-		TOMCATID_A=$(echo "$intomcatline" | cut -d ":" -f1)
+		TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
 		LOGICALINSTANCEID_A=$(echo "$intomcatline" | cut -d ":" -f2)
 		APPNAME_A=$(echo "$intomcatline" | cut -d ":" -f3)
-		MEMMIN_A=$(echo "$intomcatline" | cut -d ":" -f4)
-		MEMMAX_A=$(echo "$intomcatline" | cut -d ":" -f5)
+		MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
+		MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
 		HTTPPORT_A=$(echo "$intomcatline" | cut -d ":" -f6)
 		MAXTHREADS_A=$(echo "$intomcatline" | cut -d ":" -f7)
 	
 		if [ "$APPNAME_A" == "$APP" ]; then
 		
 			echo --FOUND $APP TOMCAT INSTANCE--
-			echo TOMCATID=$TOMCATID_A
+			echo TOMCATID=$TOMCATID
 			echo LOGICALINSTANCEID=$LOGICALINSTANCEID_A
 			echo APPNAME=$APPNAME_A
-			echo MEMMIN=$MEMMIN_A
-			echo MEMMAX=$MEMMAX_A
+			echo MEMMIN=$MEMMIN
+			echo MEMMAX=$MEMMAX
 			echo HTTPPORT=$HTTPPORT_A
 			echo MAXTHREADS=$MAXTHREADS_A
 		
 			#Determine APPDIR
-			APPDIR=$APPNAME_A$TOMCATID_A
+			APPDIR=$APPNAME_A$TOMCATID
 			#echo APPDIR=$APPDIR
 			
 			#Read AMAZONIIDSFILE
@@ -74,7 +74,7 @@ do
 			
 			#Start this instance
 			if [ "$HOST" != "" ]; then
-				./egg-tomcat-start.sh $HOST $APPDIR
+				./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
 			fi
 		
 		fi
