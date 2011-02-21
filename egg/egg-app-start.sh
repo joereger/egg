@@ -38,8 +38,8 @@ do
 		APPNAME_A=$(echo "$intomcatline" | cut -d ":" -f3)
 		MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
 		MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
-		HTTPPORT_A=$(echo "$intomcatline" | cut -d ":" -f6)
-		MAXTHREADS_A=$(echo "$intomcatline" | cut -d ":" -f7)
+		MAXTHREADS_A=$(echo "$intomcatline" | cut -d ":" -f6)
+		HTTPPORT_A=$((8100+$TOMCATID))
 	
 		if [ "$APPNAME_A" == "$APP" ]; then
 		

@@ -47,8 +47,8 @@ do
 		APP=$(echo "$intomcatline" | cut -d ":" -f3)
 		MEMMIN=$(echo "$intomcatline" | cut -d ":" -f4)
 		MEMMAX=$(echo "$intomcatline" | cut -d ":" -f5)
-		HTTPPORT=$(echo "$intomcatline" | cut -d ":" -f6)
-		MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f7)
+		MAXTHREADS=$(echo "$intomcatline" | cut -d ":" -f6)
+		HTTPPORT=$((8100+$TOMCATID))
 	
 		#Determine APPDIR
 		APPDIR=$APP$TOMCATID
