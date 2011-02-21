@@ -66,7 +66,7 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 
-					echo CHECKING TERRACOTTA $INSTANCESIZE http://$HOST/
+					echo "CHECKING TERRACOTTA $INSTANCESIZE http://$HOST/"
 
 					#Terracotta Existence Check
 					./log.sh "Start Terracotta Installation Check"

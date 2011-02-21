@@ -68,7 +68,6 @@ do
 						fi
 					done < "$AMAZONIIDSFILE"
 
-					./log.sh "CHECKING MYSQL$MYSQLID $INSTANCESIZE http://$HOST/"
 
 					#MySQL Existence Check
 					echo Start MySQL Check
@@ -79,8 +78,10 @@ do
 						./egg-mysql-create.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
+						./log.sh "MySQL$MYSQLID Sleeping 10 seconds for startup"
+                        sleep 10
 					else 
-						echo MySQL installation folder found
+						echo "MySQL$MYSQLID installation folder found"
 					fi
 					
 					#MySQL Process Check
@@ -93,10 +94,42 @@ do
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST
+                       ./log.sh "MySQL$MYSQLID Sleeping 10 seconds for startup"
+                       sleep 10
 					else
-						./log.sh "MySQL process found"
+						./log.sh "MySQL$MYSQLID process found"
 					fi
 
+
+
+                    #MySQL Select Check
+                    #This line very finickey...
+                    selectcheck=`ssh $HOST "mysql -uroot -pcatalyst --silent --silent --execute='select 1+1;'"`
+                    echo selectcheck=$selectcheck
+					if [ "$selectcheck" != "2" ]; then
+					    ALLISWELL=0
+						./log-status-red.sh "MySQL$MYSQLID process not found, restarting"
+						./egg-mysql-stop.sh $HOST
+						./egg-mysql-configure.sh $HOST $MYSQLID
+						./egg-mysql-start.sh $HOST
+						./log.sh "MySQL$MYSQLID Sleeping 10 seconds for startup"
+                        sleep 10
+					else
+						./log.sh "MySQL$MYSQLID select check passes"
+					fi
+
+
+
+					#mysql -uroot -pcatalyst --silent --silent --database=whocelebstweet --execute='select count(*) from error;'
+
+
+
+
+                    #DBS=`mysql -uroot  -e"show databases"`
+                    #for b in $DBS ;
+                    #do
+                    #        mysql -uroot -e"show tables from $b"
+                    #done
 
 
 				fi
