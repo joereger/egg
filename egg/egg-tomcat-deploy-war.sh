@@ -11,10 +11,13 @@ HOST=$1
 APP=$2
 APPDIR=$3
 
-
-#Stop tomcat if it's running (it prolly is)
-./log-status.sh "Deploy: Stopping Tomcat $APPDIR"
-./egg-tomcat-stop.sh $HOST $APPDIR
+#Clear any existing locks, create new ones
+TOMCATSTOPLOCKTIMEOUTSECONDS=360
+source egg-tomcat-stop-unlock.sh
+source egg-tomcat-stop-lock.sh
+TOMCATSTARTLOCKTIMEOUTSECONDS=360
+source egg-tomcat-start-unlock.sh
+source egg-tomcat-start-lock.sh
 
 #Delete ROOT dir, recreate it
 ./log-status.sh "Deploy: Delete root dirs $APPDIR"
@@ -31,3 +34,8 @@ ssh -t -t $HOST "rm -f ROOT.war"
 ./log-status.sh "Deploy: Unzip WAR file $APPDIR"
 ssh -t -t $HOST "unzip egg/$APPDIR/ROOT.war -d egg/$APPDIR/tomcat/webapps/ROOT"
 ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
+
+#Clear the locks
+source egg-tomcat-stop-unlock.sh
+source egg-tomcat-start-unlock.sh
+

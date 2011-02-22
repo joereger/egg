@@ -23,14 +23,39 @@ if [ "$MEMMAX" == "" ]; then
 fi
 
 
-#Check instance.props and server.xml, force restart if they've changed
-export RESTARTIFCONFIGHASCHANGED="NORESTART"
-./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
-#Do the restart
-./log-status.sh "Starting Tomcat $APPDIR"
-ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
-ssh -t -t $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"
-#ssh -t -t $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=$JAVA_HOME; bash egg/$APPDIR/tomcat/bin/catalina.sh start"
-#ssh -t -t $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; bash egg/$APPDIR/tomcat/bin/catalina.sh start"
-./log.sh "Calling $APPDIR Catalina startup.sh"
-ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; export CATALINA_OPTS=\"-server -Xms${MEMMIN}m -Xmx${MEMMAX}m\"; bash egg/$APPDIR/tomcat/bin/startup.sh"
+#Check for Existing Lock
+TOMCATSTARTLOCKTIMEOUTSECONDS=120
+source egg-tomcat-start-lock.sh
+
+
+if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then
+    #Do the start
+    export RESTARTIFCONFIGHASCHANGED="NORESTART"
+    ./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
+    ./log-status.sh "Starting Tomcat $APPDIR"
+    ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
+    ssh -t -t $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"
+    ./log.sh "Calling $APPDIR Catalina startup.sh"
+    ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; export CATALINA_OPTS=\"-server -Xms${MEMMIN}m -Xmx${MEMMAX}m\"; bash egg/$APPDIR/tomcat/bin/startup.sh"
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
