@@ -39,23 +39,3 @@ if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then
     ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; export CATALINA_OPTS=\"-server -Xms${MEMMIN}m -Xmx${MEMMAX}m\"; bash egg/$APPDIR/tomcat/bin/startup.sh"
 fi
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -27,5 +27,5 @@ export PATH=/home/ec2-user/.ec2/ec2-api-tools-1.3-62308/bin:$PATH
 export JAVA_HOME=/usr/lib/jvm/jre
 
 #EC2 Name Tag for all instances
-export EC2NAMETAG="eggcontrolled"
+export EC2NAMETAG="eggpuppet"
 
