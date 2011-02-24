@@ -69,27 +69,27 @@ do
 					echo "CHECKING TERRACOTTA $INSTANCESIZE http://$HOST/"
 
 					#Terracotta Existence Check
-					./log.sh "Start Terracotta Installation Check"
+					./log.sh "Start Terracotta$TERRACOTTAID Installation Check"
 					check=`ssh $HOST "[ -d /home/ec2-user/terracotta-3.4.0_1/ ] && echo 1"`
 					if [ "$check" != 1 ]; then
-						./log-status-red.sh "Terracotta installation folder not found, will create"
+						./log-status-red.sh "Terracotta$TERRACOTTAID installation folder not found, will create"
 						./egg-terracotta-create.sh $HOST
 						./egg-terracotta-configure.sh $HOST
 					else 
-						./log.sh "Terracotta installation folder found"
+						./log.sh "Terracotta$TERRACOTTAID installation folder found"
 					fi
 					
 					#Terracotta Status Check
-					./log.sh "Start Terracotta Status Check"
+					./log.sh "Start Terracotta$TERRACOTTAID Status Check"
                     processcheck=`ssh $HOST "export JAVA_HOME=/usr/lib/jvm/jre; /home/ec2-user/terracotta-3.4.0_1/platform/bin/server-stat.sh"`
                     ./log.sh "processcheck=$processcheck"
                     if `echo ${processcheck} | grep "localhost.health: OK" 1>/dev/null 2>&1`
                     then
-                        ./log.sh "Terracotta health appears OK"
+                        ./log.sh "Terracotta$TERRACOTTAID health appears OK"
                     else
-                        ./log-status-red.sh "Terracotta health appears FAIL"
+                        ./log-status-red.sh "Terracotta$TERRACOTTAID health appears FAIL"
                         ./egg-terracotta-stop.sh $HOST
-                        ./egg-terracotta-start.sh $HOST
+                        ./egg-terracotta-start.sh $HOST $TERRACOTTAID
                     fi
 
 				fi
