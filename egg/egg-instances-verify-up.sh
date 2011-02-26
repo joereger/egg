@@ -172,26 +172,32 @@ do
                 ./log.sh "Sleeping 10 sec for volume to attach"
                 sleep 10
                 # Loop until the volume status changes to "attached"
+                export COUNTMOUNTATTEMPTS=0
                 export ATTACHED="attached"
                 export done="false"
                 while [ $done == "false" ]
                 do
                    export status=`${EC2_HOME}/bin/ec2-describe-volumes | grep ATTACHMENT | grep ${EBSVOLUME} | cut -f5`
                    if [ "$status" == "${ATTACHED}" ]; then
-                      export done="true"
+                       export done="true"
+                       ./log.sh "EBS volume mount success ${iid} ${EBSVOLUME} ${EBSDEVICENAME}"
+                       #Configure the instance to have the drive on reboot and to have it mounted as /vol
+                       sshtmp1=`</dev/null ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"`
+                       echo $sshtmp1
+                       sshtmp2=`</dev/null ssh -t -t $HOST "sudo mkdir -m 000 /vol"`
+                       echo $sshtmp2
+                       sshtmp3=`</dev/null ssh -t -t $HOST "sudo mount /vol"`
+                       echo $sshtmp3
                    else
                       ./log.sh "Sleeping 10 sec for volume to attach"
                       sleep 10
                    fi
+                   COUNTMOUNTATTEMPTS=$(( $COUNTMOUNTATTEMPTS + 1 ))
+                   if [ "$COUNTMOUNTATTEMPTS" == "10" ]; then
+                      export done="true"
+                      ./log-status-red.sh "EBS volume mount fail ${iid} ${EBSVOLUME} ${EBSDEVICENAME}"
+                   fi
                 done
-                ./log.sh "Volume ${EBSVOLUME} is attached"
-                #Configure the instance to have the drive on reboot and to have it mounted as /vol
-                sshtmp1=`</dev/null ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"`
-                echo $sshtmp1
-                sshtmp2=`</dev/null ssh -t -t $HOST "sudo mkdir -m 000 /vol"`
-                echo $sshtmp2
-                sshtmp3=`</dev/null ssh -t -t $HOST "sudo mount /vol"`
-                echo $sshtmp3
             fi
 
 			

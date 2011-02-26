@@ -43,6 +43,16 @@ done < "$APPSFILE"
 
 #Read apps file
 read APPNUM
+
+
+echo "Which type of log? (Type the number and hit enter)"
+echo "1 - access log (default, hit enter)"
+echo "2 - referer log"
+echo "3 - user agent log"
+echo "4 - instance performance log"
+read LOGTYPE
+
+
 if [ "$APPNUM" != "" ]; then
     COUNTDEUX=0
     while read inappsline;
@@ -74,9 +84,17 @@ if [ "$APPNUM" != "" ]; then
                                         AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
                                         HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 
-
-                                        #Now I finally have enough to tail
-                                        ssh -t -t $HOST "sudo tail -f /var/log/httpd/logs/$APPNAME-access_log"
+                                        if [ "$LOGTYPE" == "1" ]; then
+                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-access_log"
+                                        elif [ "$LOGTYPE" == "2" ]; then
+                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-referer_log"
+                                        elif [ "$LOGTYPE" == "3" ]; then
+                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-agent_log"
+                                        elif [ "$LOGTYPE" == "4" ]; then
+                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-instanceperformance_log"
+                                        else
+                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-access_log"
+                                        fi
 
 
 

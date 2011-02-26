@@ -225,7 +225,13 @@ do
 			
 			VHOSTS=$VHOSTS"ErrorLog logs/$APPNAME-error_log"
 			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"TransferLog logs/$APPNAME-access_log"
+			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-access_log combinedshort"
+			VHOSTS=$VHOSTS$NEWLINE
+			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-referer_log referer"
+			VHOSTS=$VHOSTS$NEWLINE
+			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-agent_log agent"
+			VHOSTS=$VHOSTS$NEWLINE
+			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-instanceperformance_log instanceperformance"
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"</VirtualHost>"
 			VHOSTS=$VHOSTS$NEWLINE

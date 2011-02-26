@@ -44,5 +44,6 @@ if [ "$APP" != "" ]; then
         ./log.sh "$CHOSENAPP sleeping 10 seconds before start"
         sleep 10
         ./egg-app-start.sh $CHOSENAPP
+        ./log-status-green.sh "$CHOSENAPP has been restarted"
     fi
 fi
