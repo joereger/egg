@@ -155,6 +155,20 @@ do
             #echo $sendmailuninstall
             ./log.sh "Done uninstalling sendmail"
 
+
+
+#            #Uninstall OpenJDK
+#            ./log.sh "Uninstalling OpenJDK"
+#            openjdkuninstall=`</dev/null ssh -n -t -t $HOST "sudo yum -y remove java-1.6.0-openjdk.i686"`
+#            echo $openjdkuninstall
+#            ./log.sh "Done uninstalling OpenJDK"
+#
+#            #Install Sun Java
+#            ./log.sh "Install Sun Java"
+#            openjdkuninstall=`</dev/null ssh -n -t -t $HOST "sudo yum -y remove java-1.6.0-openjdk.i686"`
+#            echo $openjdkuninstall
+#            ./log.sh "Done installing Sun Java"
+
             #Remap port 25 to port 8025 so that Java can bind to it when running as non-root user
             iptablesremap=`</dev/null ssh -n -t -t $HOST "sudo iptables -t nat -A PREROUTING -p tcp --dport 25 -j REDIRECT --to-port 8025"`
             ./log.sh "Done remapping port 25 to post 8025"

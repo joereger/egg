@@ -19,6 +19,7 @@ APACHEZIP="apache-tomcat-7.0.6.zip"
 APACHEZIPLOCATION="resources"
 APACHEDIRINSIDEZIP="apache-tomcat-7.0.6"
 
+
 ./log-status.sh "Creating Tomcat $APPDIR"
 ./egg-tomcat-stop.sh $HOST $APPDIR
 rm -f data/$APP.tomcatid$TOMCATID.instance.props.remote
@@ -36,6 +37,21 @@ ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/docs"
 ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/examples"
 ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/host-manager"
 ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/manager"
+
+
+#Install X-11 fonts sendmail
+./log.sh "Installing x11 fonts"
+fontinstalla=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-fonts-base.noarch"`
+fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi.noarch"`
+fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-xbitmaps.i686"`
+fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install liberation-fonts"`
+fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install freetype freetype-devel"`
+
+
+./log-status.sh "Done creating Tomcat $APPDIR"
+
+
+
 
 
 

@@ -32,7 +32,7 @@ do
             CURRENTTIME=`date +%s`
             LASTRUNPLUSTIMEOUT=$((LASTRUN+TOMCATSTOPLOCKTIMEOUTSECONDS))
             if [ "${CURRENTTIME}" -lt "${LASTRUNPLUSTIMEOUT}"  ]; then
-                ./log-red.sh "Not stopping, Tomcat Stop Lock for $APPDIR exists"
+                ./log.sh "Not stopping, Tomcat Stop Lock for $APPDIR exists"
                 ISTOMCATSTOPLOCK=1
             else
                 ./log.sh "Running stop, Tomcat Stop Lock for $APPDIR has expired"
