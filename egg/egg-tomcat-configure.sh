@@ -106,9 +106,11 @@ do
                                 NEEDTOBOUNCETOMCAT=1
                                 ./log.sh "$APPDIR server.xml local is the DIFFERENT than remote"
                                 #Make sure /conf exists
-                                ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
+                                #ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
+                                uselessjibberishvar=`</dev/null ssh -n $HOST "mkdir -p egg/$APPDIR/tomcat/conf"`
                                 #Copy latest to remote Tomcat
-                                ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
+                                #ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"
+                                uselessjibberishvar=`</dev/null ssh -n $HOST "rm -f egg/$APPDIR/tomcat/conf/server.xml"`
                                 scp data/$APP.tomcatid$TOMCATID.server.xml.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/conf/server.xml
                             fi
                             #Compare instance.props local to remote and send if anything's changed
@@ -118,9 +120,11 @@ do
                                 NEEDTOBOUNCETOMCAT=1
                                 ./log.sh "$APPDIR instance.props local is the DIFFERENT than remote"
                                 #Make sure /conf exists
-                                ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
+                                #ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
+                                uselessjibberishvar=`</dev/null ssh -n $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"`
                                 #Copy latest to remote Tomcat
-                                ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props"
+                                #ssh -t -t $HOST "rm -f egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props"
+                                uselessjibberishvar=`</dev/null ssh -n $HOST "rm -f egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props"`
                                 scp data/$APP.tomcatid$TOMCATID.instance.props.tmp ec2-user@$HOST:~/egg/$APPDIR/tomcat/webapps/ROOT/conf/instance.props
                             fi
                             #If anything's changed, bounce tomcat

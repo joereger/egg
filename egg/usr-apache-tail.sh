@@ -85,15 +85,15 @@ if [ "$APPNUM" != "" ]; then
                                         HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 
                                         if [ "$LOGTYPE" == "1" ]; then
-                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-access_log"
+                                            ssh -t -t $HOST "sudo tail -f --lines=100 /var/log/httpd/$APPNAME-access_log"
                                         elif [ "$LOGTYPE" == "2" ]; then
-                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-referer_log"
+                                            ssh -t -t $HOST "sudo tail -f --lines=100 /var/log/httpd/$APPNAME-referer_log"
                                         elif [ "$LOGTYPE" == "3" ]; then
-                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-agent_log"
+                                            ssh -t -t $HOST "sudo tail -f --lines=100 /var/log/httpd/$APPNAME-agent_log"
                                         elif [ "$LOGTYPE" == "4" ]; then
-                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-instanceperformance_log"
+                                            ssh -t -t $HOST "sudo tail -f --lines=100 /var/log/httpd/$APPNAME-instanceperformance_log"
                                         else
-                                            ssh -t -t $HOST "sudo tail -f /var/log/httpd/$APPNAME-access_log"
+                                            ssh -t -t $HOST "sudo tail -f --lines=100 /var/log/httpd/$APPNAME-access_log"
                                         fi
 
 

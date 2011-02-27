@@ -17,13 +17,17 @@ source egg-tomcat-stop-lock.sh
 if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
     #Do the stop
     ./log-status.sh "Stopping Tomcat $APPDIR"
-    ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
-    ssh -t -t $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"
+    #ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
+    uselessjibberishvar=`</dev/null ssh -n -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"`
+    #ssh -t -t $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"
+    uselessjibberishvar=`</dev/null ssh -n $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"`
     ./log.sh "Calling $APPDIR Catalina shutdown.sh"
-    uselessjibberishvar=`ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; bash egg/$APPDIR/tomcat/bin/shutdown.sh"`
+    uselessjibberishvar=`</dev/null ssh -n $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; bash egg/$APPDIR/tomcat/bin/shutdown.sh"`
     ./log.sh "Waiting 5 seconds for $APPDIR Tomcat to shut down before sending hard pkill"
     sleep 5
-    ssh -t -t $HOST "pkill -f egg/${APPDIR}/tomcat/conf"
+    #ssh -t -t $HOST "pkill -f egg/${APPDIR}/tomcat/conf"
+    uselessjibberishvar=`</dev/null ssh -n $HOST "pkill -f egg/${APPDIR}/tomcat/conf"`
+    echo $uselessjibberishvar
 fi
 
 

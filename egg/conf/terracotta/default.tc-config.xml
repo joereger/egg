@@ -2,7 +2,7 @@
 <tc:tc-config xsi:schemaLocation="http://www.terracotta.org/schema/terracotta-5.xsd" xmlns:tc="http://www.terracotta.org/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 <servers>
-   <server host="localhost">
+   <server host="[TERRACOTTAID.1.INTERNALHOSTNAME]">
       <data>%(user.home)/terracotta/server-data</data>
       <logs>%(user.home)/terracotta/server-logs</logs>
    </server>

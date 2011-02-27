@@ -43,7 +43,7 @@ do
 	
 		if [ "$APPNAME_A" == "$APP" ]; then
 		
-			echo --FOUND $APP TOMCAT INSTANCE--
+			./log.sh "Found Tomcat $APPNAME_A$TOMCATID_A to stop"
 			echo TOMCATID=$TOMCATID_A
 			echo LOGICALINSTANCEID=$LOGICALINSTANCEID_A
 			echo APPNAME=$APPNAME_A
