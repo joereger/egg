@@ -25,9 +25,12 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
     uselessjibberishvar=`</dev/null ssh -n $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; bash egg/$APPDIR/tomcat/bin/shutdown.sh"`
     ./log.sh "Waiting 5 seconds for $APPDIR Tomcat to shut down before sending hard pkill"
     sleep 5
-    #ssh -t -t $HOST "pkill -f egg/${APPDIR}/tomcat/conf"
-    uselessjibberishvar=`</dev/null ssh -n $HOST "pkill -f egg/${APPDIR}/tomcat/conf"`
-    echo $uselessjibberishvar
+    #Syntax of next line sensitive
+    uselessjibberishvar=`</dev/null ssh -n $HOST "pkill -f egg/${APPDIR}/tomcat/conf; echo terminated"`
+    #Syntax of above line sensitive
+    ./log.sh "uselessjibberishvar=$uselessjibberishvar"
+    ./log.sh "Waiting 40 seconds for $APPDIR Tomcat to fully shut down"
+    sleep 40
 fi
 
 
