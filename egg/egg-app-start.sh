@@ -28,9 +28,7 @@ if [ ! -f "$INSTANCESFILE" ]; then
 fi
 
 #Read TOMCATSFILE
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	
 		TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -59,9 +57,7 @@ do
 			#Read AMAZONIIDSFILE
             AMAZONINSTANCEID=""
             HOST=""
-            while read amazoniidsline;
-            do
-                #Ignore lines that start with a comment hash mark
+            exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
                 if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                     LOGICALINSTANCEID_C=$(echo "$amazoniidsline" | cut -d ":" -f1)
                     if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID_C" ]; then
@@ -70,7 +66,7 @@ do
                         #echo "Found hostname for LOGICALINSTANCEID=$LOGICALINSTANCEID_A"
                     fi
                 fi
-            done < "$AMAZONIIDSFILE"
+            }; done; exec 4>&-
 			
 			#Start this instance
 			if [ "$HOST" != "" ]; then
@@ -79,7 +75,7 @@ do
 		
 		fi
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 
 

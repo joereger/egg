@@ -52,9 +52,7 @@ fi
 
 
 #Read TOMCATSFILE
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 
 	    TOMCATID_TMP=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -73,7 +71,7 @@ do
 		fi
 
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 
 
@@ -110,18 +108,14 @@ sed -i "s/\[TOMCATID\]/$TOMCATID/g" data/$APP.tomcatid$TOMCATID.instance.props.t
 
 #Replace [MYSQLID.2.INTERNALHOSTNAME] with actual internal hostname
 #Read Mysqls
-while read inmysqlline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$inmysqlline" | cut -c1) != "#" ]; then
+exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
+	if [ $(echo "$inmysqlsline" | cut -c1) != "#" ]; then
 
-		MYSQLID=$(echo "$inmysqlline" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$inmysqlline" | cut -d ":" -f2)
+		MYSQLID=$(echo "$inmysqlsline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$inmysqlsline" | cut -d ":" -f2)
 
         #Read AMAZONIIDSFILE
-        while read amazoniidsline;
-        do
-            #Ignore lines that start with a comment hash mark
+        exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
             if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                 LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
                 if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -134,27 +128,23 @@ do
 
                 fi
             fi
-        done < "$AMAZONIIDSFILE"
+        }; done; exec 4>&-
 	fi
-done < "$MYSQLSFILE"
+}; done; exec 3>&-
 
 
 
 
 #Replace [TERRACOTTAID.2.INTERNALHOSTNAME] with actual internal hostname
 #Read Terracottas
-while read interracottas;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
 	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
 
 		TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
 		LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
 
         #Read AMAZONIIDSFILE
-        while read amazoniidsline;
-        do
-            #Ignore lines that start with a comment hash mark
+        exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
             if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                 LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
                 if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -167,6 +157,6 @@ do
 
                 fi
             fi
-        done < "$AMAZONIIDSFILE"
+        }; done; exec 4>&-
 	fi
-done < "$TERRACOTTASFILE"
+}; done; exec 3>&-

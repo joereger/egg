@@ -27,20 +27,15 @@ if [ ! -f "$INSTANCESFILE" ]; then
   exit 1
 fi
 
-#Read APACHESFILE
-while read interraline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$interraline" | cut -c1) != "#" ]; then
+exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
+	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
 	
-		TERRACOTTAID=$(echo "$interraline" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$interraline" | cut -d ":" -f2)
+		TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
 
 		
 		#Read INSTANCESFILE    
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
+		exec 4<> $INSTANCESFILE; while read ininstancesline <&4; do {
 			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 			
 				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -54,9 +49,7 @@ do
 					#Read AMAZONIIDSFILE
 					AMAZONINSTANCEID=""
 					HOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
+					exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -64,7 +57,7 @@ do
 								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
-					done < "$AMAZONIIDSFILE"
+					}; done; exec 5>&-
 
 					echo "CHECKING TERRACOTTA $INSTANCESIZE http://$HOST/"
 
@@ -94,8 +87,8 @@ do
 
 				fi
 			fi
-		done < "$INSTANCESFILE"
+		}; done; exec 4>&-
 		
 	
 	fi
-done < "$TERRACOTTASFILE"
+}; done; exec 3>&-

@@ -31,19 +31,15 @@ fi
 ALLISWELL=1
 
 #Read APACHESFILE
-while read inapachesline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$inapachesline" | cut -c1) != "#" ]; then
+exec 3<> $APACHESFILE; while read inapacheline <&3; do {
+	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
 	
-		APACHEID=$(echo "$inapachesline" | cut -d ":" -f1)
-		LOGICALINSTANCEID=$(echo "$inapachesline" | cut -d ":" -f2)
+		APACHEID=$(echo "$inapacheline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$inapacheline" | cut -d ":" -f2)
 
 		
 		#Read INSTANCESFILE    
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
+		exec 4<> $INSTANCESFILE; while read ininstancesline <&4; do {
 			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 			
 				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -57,9 +53,7 @@ do
 					#Read AMAZONIIDSFILE
 					AMAZONINSTANCEID=""
 					HOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
+					exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -67,7 +61,7 @@ do
 								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
-					done < "$AMAZONIIDSFILE"
+					}; done; exec 5>&-
 
 					#Apache Existence Check
 					./log.sh "Start Apache$APACHEID Installation Check"
@@ -105,11 +99,11 @@ do
 
 				fi
 			fi
-		done < "$INSTANCESFILE"
+		}; done; exec 4>&-
 		
 	
 	fi
-done < "$APACHESFILE"
+}; done; exec 3>&-
 
 if [ "$ALLISWELL" == "1"  ]; then
     ./log-status.sh "Apaches AllIsWell `date`"

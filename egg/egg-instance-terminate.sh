@@ -20,10 +20,8 @@ if [ ! -f "$AMAZONIIDSFILE" ]; then
   cp data/amazoniids.conf.sample $AMAZONIIDSFILE
 fi
 		
-#Read INSTANCESFILE   
-while read ininstancesline;
-do
-	#Ignore lines that start with a comment hash mark
+#Read INSTANCESFILE
+exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID_IN=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -43,9 +41,7 @@ do
 			#Read AMAZONIIDSFILE
 			AMAZONINSTANCEID=""
 		    HOST=""
-			while read amazoniidsline;
-			do
-				#Ignore lines that start with a comment hash mark
+			exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
 				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -53,7 +49,7 @@ do
 						HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 					fi
 				fi
-			done < "$AMAZONIIDSFILE"
+			}; done; exec 4>&-
 			
 			echo "   "
 			echo Terminating LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE AMAZONINSTANCEID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=$ELASTICIP
@@ -83,5 +79,5 @@ do
 			fi
 		fi	
 	fi
-done < "$INSTANCESFILE"
+}; done; exec 3>&-
 

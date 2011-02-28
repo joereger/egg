@@ -31,15 +31,13 @@ fi
 
 echo "Tail Apache for which app? (Type the number and hit enter)"
 COUNT=0
-while read inappsline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $APPSFILE; while read inappsline <&3; do {
 	if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
 		APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
 		COUNT=$(( $COUNT + 1 ))
         echo "$COUNT - $APPNAME"
 	fi
-done < "$APPSFILE"
+}; done; exec 3>&-
 
 #Read apps file
 read APPNUM
@@ -55,9 +53,7 @@ read LOGTYPE
 
 if [ "$APPNUM" != "" ]; then
     COUNTDEUX=0
-    while read inappsline;
-    do
-        #Ignore lines that start with a comment hash mark
+    exec 3<> $APPSFILE; while read inappsline <&3; do {
         if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
             APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
             APACHEID=$(echo "$inappsline" | cut -d ":" -f2)
@@ -65,19 +61,15 @@ if [ "$APPNUM" != "" ]; then
             if [ "$COUNTDEUX" == "$APPNUM" ]; then
                 #Read APACHESFILE
                 LOGICALINSTANCEID=0
-                while read inapachesline;
-                do
-                    #Ignore lines that start with a comment hash mark
-                    if [ $(echo "$inapachesline" | cut -c1) != "#" ]; then
-                        APACHEID_A=$(echo "$inapachesline" | cut -d ":" -f1)
-                        LOGICALINSTANCEID=$(echo "$inapachesline" | cut -d ":" -f2)
+                exec 4<> $APACHESFILE; while read inapacheline <&4; do {
+                    if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
+                        APACHEID_A=$(echo "$inapacheline" | cut -d ":" -f1)
+                        LOGICALINSTANCEID=$(echo "$inapacheline" | cut -d ":" -f2)
                         if [ "$APACHEID_A" == "$APACHEID" ]; then
                             #Read AMAZONIIDSFILE
                             AMAZONINSTANCEID=""
                             HOST=""
-                            while read amazoniidsline;
-                            do
-                                #Ignore lines that start with a comment hash mark
+                            exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
                                 if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                                     LOGICALINSTANCEID_B=$(echo "$amazoniidsline" | cut -d ":" -f1)
                                     if [ "$LOGICALINSTANCEID_B" == "$LOGICALINSTANCEID" ]; then
@@ -100,13 +92,13 @@ if [ "$APPNUM" != "" ]; then
 
                                     fi
                                 fi
-                            done < "$AMAZONIIDSFILE"
+                            }; done; exec 5>&-
                         fi
                     fi
-                done < "$APACHESFILE"
+                }; done; exec 4>&-
             fi
         fi
-    done < "$APPSFILE"
+    }; done; exec 3>&-
 
 
 fi

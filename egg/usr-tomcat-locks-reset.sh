@@ -2,7 +2,7 @@
 
 source common.sh
 
-echo "Reset all Tomcat start/stop locks? (Type y/n and hit enter)"
+echo "Reset all Tomcat start/stop locks? (y/n and hit enter)"
 
 
 

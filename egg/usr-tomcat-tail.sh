@@ -23,32 +23,26 @@ if [ ! -f "$INSTANCESFILE" ]; then
 fi
 
 echo "Tail which tomcat's log file? (Type the number and hit enter)"
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	    TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
 	    LOGICALINSTANCEID=$(echo "$intomcatline" | cut -d ":" -f2)
 		APPNAME=$(echo "$intomcatline" | cut -d ":" -f3)
         echo "$TOMCATID - $APPNAME - LogicalInstance $LOGICALINSTANCEID"
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 read CHOSENTOMCATID
 if [ "$CHOSENTOMCATID" != "" ]; then
 
-    while read intomcatline;
-    do
-        #Ignore lines that start with a comment hash mark
+    exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
         if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
             TOMCATID_B=$(echo "$intomcatline" | cut -d ":" -f1)
             LOGICALINSTANCEID_B=$(echo "$intomcatline" | cut -d ":" -f2)
             APPNAME_B=$(echo "$intomcatline" | cut -d ":" -f3)
             if [ "$CHOSENTOMCATID" == "$TOMCATID_B" ]; then
 
-                while read amazoniidsline;
-                do
-                    #Ignore lines that start with a comment hash mark
+                exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
                     if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                         LOGICALINSTANCEID_C=$(echo "$amazoniidsline" | cut -d ":" -f1)
                         if [ "$LOGICALINSTANCEID_C" == "$LOGICALINSTANCEID_B" ]; then
@@ -61,13 +55,13 @@ if [ "$CHOSENTOMCATID" != "" ]; then
 
                         fi
                     fi
-                done < "$AMAZONIIDSFILE"
+                }; done; exec 4>&-
 
 
 
             fi
         fi
-    done < "$TOMCATSFILE"
+    }; done; exec 3>&-
 
 
 fi

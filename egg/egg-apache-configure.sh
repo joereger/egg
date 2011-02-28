@@ -46,9 +46,7 @@ fi
 
 LOGICALINSTANCEID=""
 #Read APACHESFILE to get LOGICALINSTANCEID
-while read inapacheline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
 		APACHEID_A=$(echo "$inapacheline" | cut -d ":" -f1)
 		LOGICALINSTANCEID_A=$(echo "$inapacheline" | cut -d ":" -f2)
@@ -56,14 +54,12 @@ do
 			LOGICALINSTANCEID=$LOGICALINSTANCEID_A		
 		fi
 	fi
-done < "$APACHESFILE"
+}; done; exec 3>&-
 
 
 HOST=""
 #Read INSTANCESFILE... to get HOST  
-while read ininstancesline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -77,9 +73,7 @@ do
 			#Read AMAZONIIDSFILE
 			AMAZONINSTANCEID=""
 		    HOST=""
-			while read amazoniidsline;
-			do
-				#Ignore lines that start with a comment hash mark
+			exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
 				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -87,11 +81,11 @@ do
 						HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 					fi
 				fi
-			done < "$AMAZONIIDSFILE"
+			}; done; exec 4>&-
 
 		fi
 	fi
-done < "$INSTANCESFILE"
+}; done; exec 3>&-
 
 
 
@@ -100,9 +94,7 @@ done < "$INSTANCESFILE"
 #Along the way I'm building up VHOSTS with the VirtualHost config section(s)
 VHOSTS=""
 NEWLINE="\x0a"
-while read inappsline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $APPSFILE; while read inappsline <&3; do {
 	if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
 		APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
 		APACHEID_C=$(echo "$inappsline" | cut -d ":" -f2)
@@ -123,9 +115,7 @@ do
 			PROXYPASSREVERSES=$PROXYPASSREVERSES$NEWLINE
 			
 			#Read TOMCATSFILE to find instances that should be on this Apache.
-			while read intomcatline;
-			do
-				#Ignore lines that start with a comment hash mark
+			exec 4<> $TOMCATSFILE; while read intomcatline <&4; do {
 				if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 				
 					TOMCATID_A=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -142,12 +132,10 @@ do
 
 						ISFIRST="0";
 						#Iterate urls.conf to get ServerAlias directives
-						while read inurlsline;
-						do
-							#Ignore lines that start with a comment hash mark
-							if [ $(echo "$inurlsline" | cut -c1) != "#" ]; then
-								APPNAME_B=$(echo "$inurlsline" | cut -d ":" -f1)
-								URL=$(echo "$inurlsline" | cut -d ":" -f2)
+						exec 5<> $URLSFILE; while read inurlsfile <&5; do {
+							if [ $(echo "$inurlsfile" | cut -c1) != "#" ]; then
+								APPNAME_B=$(echo "$inurlsfile" | cut -d ":" -f1)
+								URL=$(echo "$inurlsfile" | cut -d ":" -f2)
 								if [ "$APPNAME_B" == "$APPNAME" ]; then
 									if [ $ISFIRST = "0" ]; then
 										VHOSTS=$VHOSTS"ServerName "$URL
@@ -159,15 +147,13 @@ do
 									ISFIRST="1"
 								fi
 							fi
-						done < "$URLSFILE"
+						}; done; exec 5>&-
 
 						#Flag, true if this tomcat host is found in amazoniids.conf
 						TOMCATFOUND="false"
 						
 						#Read AMAZONIIDSFILE to get the HOST for this Tomcat
-						while read amazoniidsline;
-						do
-							#Ignore lines that start with a comment hash mark
+						exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
 							if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 								LOGICALINSTANCEID_D=$(echo "$amazoniidsline" | cut -d ":" -f1)
 								if [ "$LOGICALINSTANCEID_D" == "$LOGICALINSTANCEID_TOMCAT" ]; then
@@ -176,7 +162,7 @@ do
 								    TOMCATFOUND="true"
 								fi
 							fi
-						done < "$AMAZONIIDSFILE"
+						}; done; exec 5>&-
 						
 						if [ "$TOMCATFOUND" == "true" ]; then
                             #Build BalanceMember for this Tomcat
@@ -190,7 +176,7 @@ do
 					
 					fi
 				fi
-			done < "$TOMCATSFILE"
+			}; done; exec 4>&-
 			
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS$NEWLINE
@@ -238,7 +224,7 @@ do
 			
 		fi
 	fi
-done < "$APPSFILE"
+}; done; exec 3>&-
 
 
 HTTPDCONFTOUSE=conf/apache/default.httpd.conf

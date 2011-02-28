@@ -30,9 +30,7 @@ fi
 ALLISWELL=1
 
 #Read Mysqls
-while read inmysqlsline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 	if [ $(echo "$inmysqlsline" | cut -c1) != "#" ]; then
 	
 		MYSQLID=$(echo "$inmysqlsline" | cut -d ":" -f1)
@@ -40,9 +38,7 @@ do
 
 		
 		#Read INSTANCESFILE    
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
+		exec 4<> $INSTANCESFILE; while read ininstancesline <&4; do {
 			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 			
 				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -56,9 +52,7 @@ do
 					#Read AMAZONIIDSFILE
 					AMAZONINSTANCEID=""
 					HOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
+					exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -66,7 +60,7 @@ do
 								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
-					done < "$AMAZONIIDSFILE"
+					}; done; exec 5>&-
 
 
 					#MySQL Existence Check
@@ -134,11 +128,11 @@ do
 
 				fi
 			fi
-		done < "$INSTANCESFILE"
+		}; done; exec 4>&-
 		
 	
 	fi
-done < "$MYSQLSFILE"
+}; done; exec 3>&-
 
 if [ "$ALLISWELL" == "1"  ]; then
     ./log-status.sh "MySQLs AllIsWell `date`"

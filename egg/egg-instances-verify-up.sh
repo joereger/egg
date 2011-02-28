@@ -18,11 +18,8 @@ fi
 SOMETHINGHASCHANGED="0"
 ALLISWELL=1
 		
-#Read INSTANCESFILE   
-while read line_instances_ivu;
-do
-
-	#Ignore lines that start with a comment hash mark
+#Read INSTANCESFILE
+ exec 3<> $INSTANCESFILEIVU; while read line_instances_ivu <&3; do {
 	if [ $(echo "$line_instances_ivu" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$line_instances_ivu" | cut -d ":" -f1)
@@ -41,9 +38,7 @@ do
 		#Read AMAZONIIDSFILE
 		AMAZONINSTANCEID=""
 		HOST=""
-		while read amazoniidsline;
-		do
-			#Ignore lines that start with a comment hash mark
+		exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
 			if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 				LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 				if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -51,7 +46,7 @@ do
 					HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 				fi
 			fi
-		done < "$AMAZONIIDSFILE"
+		}; done; exec 4>&-
 		
 		echo " "
 		./log-blue.sh "LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE IID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=${ELASTICIP}"
@@ -139,7 +134,7 @@ do
             export sshdone="false"
             while [ $sshdone == "false" ]
             do
-                export sshcheck=`</dev/null ssh $HOST "[ -d ./ ] && echo yipee"`
+                export sshcheck=`ssh $HOST "[ -d ./ ] && echo yipee"`
                 if [ "$sshcheck" == "$sshtest" ]; then
                     export sshdone="true"
                 else
@@ -151,7 +146,7 @@ do
 
             #Uninstall sendmail
             ./log.sh "Uninstalling sendmail"
-            sendmailuninstall=`</dev/null ssh -n -t -t $HOST "sudo yum -y remove sendmail"`
+            sendmailuninstall=`ssh -t -t $HOST "sudo yum -y remove sendmail"`
             #echo $sendmailuninstall
             ./log.sh "Done uninstalling sendmail"
 
@@ -170,7 +165,7 @@ do
 #            ./log.sh "Done installing Sun Java"
 
             #Remap port 25 to port 8025 so that Java can bind to it when running as non-root user
-            iptablesremap=`</dev/null ssh -n -t -t $HOST "sudo iptables -t nat -A PREROUTING -p tcp --dport 25 -j REDIRECT --to-port 8025"`
+            iptablesremap=`ssh -t -t $HOST "sudo iptables -t nat -A PREROUTING -p tcp --dport 25 -j REDIRECT --to-port 8025"`
             ./log.sh "Done remapping port 25 to post 8025"
 
             #Attach EBS volumes if necessary
@@ -196,11 +191,11 @@ do
                        export done="true"
                        ./log.sh "EBS volume mount success ${iid} ${EBSVOLUME} ${EBSDEVICENAME}"
                        #Configure the instance to have the drive on reboot and to have it mounted as /vol
-                       sshtmp1=`</dev/null ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"`
+                       sshtmp1=`ssh -t -t $HOST "echo '/dev/sdh /vol xfs noatime 0 0' | sudo tee -a /etc/fstab"`
                        echo $sshtmp1
-                       sshtmp2=`</dev/null ssh -t -t $HOST "sudo mkdir -m 000 /vol"`
+                       sshtmp2=`ssh -t -t $HOST "sudo mkdir -m 000 /vol"`
                        echo $sshtmp2
-                       sshtmp3=`</dev/null ssh -t -t $HOST "sudo mount /vol"`
+                       sshtmp3=`ssh -t -t $HOST "sudo mount /vol"`
                        echo $sshtmp3
                    else
                       ./log.sh "Sleeping 10 sec for volume to attach"
@@ -234,7 +229,7 @@ do
 	fi
 
 
-done < "$INSTANCESFILEIVU"
+}; done; exec 3>&-
 
 
 #Any time we change instances we have to update the apacheconfig

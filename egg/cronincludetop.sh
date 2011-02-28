@@ -33,10 +33,7 @@ fi
 
 ./log-debug.sh "CRON `date`: $CRONNAME"
 
-while read cronpauseallline;
-do
-
-    #Ignore lines that start with a comment hash mark
+exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
 
         CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
@@ -61,7 +58,7 @@ do
 
         fi
     fi
-done < "$CRONLOCKSFILE"
+}; done; exec 3>&-
 
 
 
@@ -73,10 +70,7 @@ CRONPAUSEALLFILE=data/cron.pause.all
 #fi
 
 
-while read cronpauseallline;
-do
-
-    #Ignore lines that start with a comment hash mark
+exec 3<> $CRONPAUSEALLFILE; while read cronpauseallline <&3; do {
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
         CURRENTTIME=`date +%s`
         #./log.sh CURRENTTIME=$CURRENTTIME
@@ -101,7 +95,7 @@ do
 
 
     fi
-done < "$CRONPAUSEALLFILE"
+}; done; exec 3>&-
 
 
 

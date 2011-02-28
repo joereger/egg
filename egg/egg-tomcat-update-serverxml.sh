@@ -32,9 +32,7 @@ fi
 
 
 #Read TOMCATSFILE
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 
 	    TOMCATID_TMP=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -53,7 +51,7 @@ do
 		fi
 
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 
 

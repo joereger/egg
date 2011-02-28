@@ -23,30 +23,24 @@ if [ ! -f "$INSTANCESFILE" ]; then
 fi
 
 echo "Tail which tomcat's log file? (Type the number and hit enter)"
-while read interrline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$interrline" | cut -c1) != "#" ]; then
-	    TERRACOTTAID=$(echo "$interrline" | cut -d ":" -f1)
-	    LOGICALINSTANCEID=$(echo "$interrline" | cut -d ":" -f2)
+exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
+	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
+	    TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
+	    LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
         echo "$TERRACOTTAID - Terracotta$TERRACOTTAID - LogicalInstance $LOGICALINSTANCEID"
 	fi
-done < "$TERRACOTTASFILE"
+}; done; exec 3>&-
 
 read CHOSENTERRACOTTAID
 if [ "$CHOSENTERRACOTTAID" != "" ]; then
 
-    while read interrline;
-    do
-        #Ignore lines that start with a comment hash mark
-        if [ $(echo "$interrline" | cut -c1) != "#" ]; then
-            TERRACOTTAID=$(echo "$interrline" | cut -d ":" -f1)
-            LOGICALINSTANCEID=$(echo "$interrline" | cut -d ":" -f2)
+    exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
+        if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
+            TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
+            LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
             if [ "$CHOSENTERRACOTTAID" == "$TERRACOTTAID" ]; then
 
-                while read amazoniidsline;
-                do
-                    #Ignore lines that start with a comment hash mark
+                exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
                     if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                         LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
                         if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -63,11 +57,11 @@ if [ "$CHOSENTERRACOTTAID" != "" ]; then
 
                         fi
                     fi
-                done < "$AMAZONIIDSFILE"
+                }; done; exec 4>&-
 
             fi
         fi
-    done < "$TERRACOTTASFILE"
+    }; done; exec 3>&-
 
 
 fi

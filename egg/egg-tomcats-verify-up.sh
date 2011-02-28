@@ -37,9 +37,7 @@ fi
 ALLISWELL=1
 
 #Read TOMCATSFILE
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 	
 		TOMCATID=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -55,9 +53,7 @@ do
 		JVMROUTE=$APP$TOMCATID
 		
 		#Read INSTANCESFILE    
-		while read ininstancesline;
-		do
-			#Ignore lines that start with a comment hash mark
+		exec 4<> $INSTANCESFILE; while read ininstancesline <&4; do {
 			if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 			
 				LOGICALINSTANCEID_B=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -71,9 +67,7 @@ do
 					#Read AMAZONIIDSFILE
 					AMAZONINSTANCEID=""
 		            HOST=""
-					while read amazoniidsline;
-					do
-						#Ignore lines that start with a comment hash mark
+					exec 5<> $AMAZONIIDSFILE; while read amazoniidsline <&5; do {
 						if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 							LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 							if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -81,7 +75,7 @@ do
 								HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 							fi
 						fi
-					done < "$AMAZONIIDSFILE"
+					}; done; exec 5>&-
 				
 				
 
@@ -142,11 +136,11 @@ do
 
 				fi
 			fi
-		done < "$INSTANCESFILE"
+		}; done; exec 4>&-
 		
 	
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 ./log.sh "Done processing Tomcats"
 

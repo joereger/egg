@@ -21,9 +21,7 @@ if [ ! -f "$TOMCATSTOPLOCKSFILE" ]; then
   ./log.sh "$TOMCATSTOPLOCKSFILE does not exist so creating it."
   cp data/tomcat.stop.locks.sample $TOMCATSTOPLOCKSFILE
 fi
-while read tcstopline;
-do
-    #Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSTOPLOCKSFILE; while read tcstopline <&3; do {
     if [ $(echo "$tcstopline" | cut -c1) != "#" ]; then
         APPDIR_LOCK=$(echo "$tcstopline" | cut -d ":" -f1)
         LASTRUN=$(echo "$tcstopline" | cut -d ":" -f2)
@@ -39,7 +37,7 @@ do
             fi
         fi
     fi
-done < "$TOMCATSTOPLOCKSFILE"
+}; done; exec 3>&-
 
 
 if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then

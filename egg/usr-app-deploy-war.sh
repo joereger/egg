@@ -11,23 +11,19 @@ fi
 
 echo "Deploy war to which app? (Type the number and hit enter)"
 COUNT=0
-while read inappsline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $APPSFILE; while read inappsline <&3; do {
 	if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
 		APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
 		COUNT=$(( $COUNT + 1 ))
         echo "$COUNT - $APPNAME"
 	fi
-done < "$APPSFILE"
+}; done; exec 3>&-
 
 read APP
 if [ "$APP" != "" ]; then
     CHOSENAPP=""
     COUNTDEUX=0
-    while read inappsline;
-    do
-        #Ignore lines that start with a comment hash mark
+    exec 3<> $APPSFILE; while read inappsline <&3; do {
         if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
             APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
             COUNTDEUX=$(( $COUNTDEUX + 1 ))
@@ -35,7 +31,7 @@ if [ "$APP" != "" ]; then
                 CHOSENAPP=$APPNAME
             fi
         fi
-    done < "$APPSFILE"
+    }; done; exec 3>&-
 
     if [ "$CHOSENAPP" != "" ]; then
         #echo "$CHOSENAPP will be stopped"

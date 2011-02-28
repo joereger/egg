@@ -3,6 +3,13 @@
 source common.sh
 
 INSTANCESFILE=conf/instances.conf
+AMAZONIIDSFILE=data/amazoniids.conf
+
+if [ ! -f "$AMAZONIIDSFILE" ]; then
+  echo "$AMAZONIIDSFILE does not exist so creating it."
+  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
+fi
+
 
 if [ ! -f "$INSTANCESFILE" ]; then
   echo "Sorry, $INSTANCESFILE does not exist."
@@ -23,9 +30,7 @@ while read line; do
 	ISVALIDINSTANCE=0
   
   	#Read INSTANCESFILE   
-	while read ininstancesline;
-	do
-		#Ignore lines that start with a comment hash mark
+	exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 		if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 		
 			LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
@@ -42,9 +47,7 @@ while read line; do
 			#Read AMAZONIIDSFILE
 			AMAZONINSTANCEID=""
 		    HOST=""
-			while read amazoniidsline;
-			do
-				#Ignore lines that start with a comment hash mark
+			exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
 				if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
 					LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
 					if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -52,7 +55,7 @@ while read line; do
 						HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 					fi
 				fi
-			done < "$AMAZONIIDSFILE"
+			}; done; exec 4>&-
 			
 			
 			#If this instance is found, mark the iid as being valid
@@ -60,7 +63,7 @@ while read line; do
 				ISVALIDINSTANCE=1
 			fi
 		fi
-	done < "$INSTANCESFILE"
+	}; done; exec 3>&-
   
   	if [ $ISVALIDINSTANCE == 0 ]; then
 		./log-status.sh "Terminating unnecessary instance $IID $INSTANCESIZE"

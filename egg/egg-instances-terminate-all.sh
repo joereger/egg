@@ -11,16 +11,14 @@ if [ ! -f "$INSTANCESFILE" ]; then
   exit 1
 fi
 
-while read ininstancesline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 
 		LOGICALINSTANCEID=$(echo "$ininstancesline" | cut -d ":" -f1)
         ./egg-instance-terminate.sh $LOGICALINSTANCEID
 
 	fi
-done < "$INSTANCESFILE"
+}; done; exec 3>&-
 
 
 #Delete any instance tagged with EC2NAMETAG

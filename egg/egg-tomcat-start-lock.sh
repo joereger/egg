@@ -21,9 +21,7 @@ if [ ! -f "$TOMCATSTARTLOCKSFILE" ]; then
   ./log.sh "$TOMCATSTARTLOCKSFILE does not exist so creating it."
   cp data/tomcat.start.locks.sample $TOMCATSTARTLOCKSFILE
 fi
-while read tcstartline;
-do
-    #Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSTARTLOCKSFILE; while read tcstartline <&3; do {
     if [ $(echo "$tcstartline" | cut -c1) != "#" ]; then
         APPDIR_LOCK=$(echo "$tcstartline" | cut -d ":" -f1)
         LASTRUN=$(echo "$tcstartline" | cut -d ":" -f2)
@@ -39,7 +37,7 @@ do
             fi
         fi
     fi
-done < "$TOMCATSTARTLOCKSFILE"
+}; done; exec 3>&-
 
 
 if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then

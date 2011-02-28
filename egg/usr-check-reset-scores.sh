@@ -2,7 +2,7 @@
 
 source common.sh
 
-echo "Start all Check scores? (Type y/n and hit enter)"
+echo "Reset all Check scores? (y/n and hit enter)"
 
 CHECKTOMCATSFILE=data/check.tomcats
 

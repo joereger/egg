@@ -16,14 +16,12 @@ fi
 
 
 #Read APACHESFILE
-while read inapachesline;
-do
-	#Ignore lines that start with a comment hash mark
-	if [ $(echo "$inapachesline" | cut -c1) != "#" ]; then
+exec 3<> $APACHESFILE; while read inapacheline <&3; do {
+	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
 	
-		APACHEID=$(echo "$inapachesline" | cut -d ":" -f1)
+		APACHEID=$(echo "$inapacheline" | cut -d ":" -f1)
 		
 		./egg-apache-configure.sh $APACHEID
 
 	fi
-done < "$APACHESFILE"
+}; done; exec 3>&-

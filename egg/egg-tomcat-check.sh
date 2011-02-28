@@ -27,9 +27,7 @@ if [ ! -f "$CHECKTOMCATSFILE" ]; then
 fi
 
 #Read TOMCATSFILE
-while read intomcatline;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 
 	    TOMCATID_TMP=$(echo "$intomcatline" | cut -d ":" -f1)
@@ -108,9 +106,7 @@ do
             #Figure out how long since last good
             #Read CHECKTOMCATSFILE
             foundtomcatidincheckfile=0
-            while read incheckline;
-            do
-                #Ignore lines that start with a comment hash mark
+            exec 4<> $CHECKTOMCATSFILE; while read incheckline <&4; do {
                 if [ $(echo "$incheckline" | cut -c1) != "#" ]; then
 
                     TOMCATID_CHK=$(echo "$incheckline" | cut -d ":" -f1)
@@ -135,7 +131,7 @@ do
                     fi
 
                 fi
-            done < "$CHECKTOMCATSFILE"
+            }; done; exec 4>&-
 
             #If this tomcatid wasn't found in the check file then create a row for it.
             #This sets a false lastgood time of now but this only happens once, the first time check system sees this tomcatid.
@@ -151,7 +147,7 @@ do
 		fi
 
 	fi
-done < "$TOMCATSFILE"
+}; done; exec 3>&-
 
 
 

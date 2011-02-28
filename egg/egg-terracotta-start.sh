@@ -41,16 +41,12 @@ rm -f $TMPCONF
 cp $CONFTOUSE $TMPCONF
 
 #Read Terracottas
-while read interracottas;
-do
-	#Ignore lines that start with a comment hash mark
+exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
 	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
 		TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
 		LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
         #Read AMAZONIIDSFILE
-        while read amazoniidsline;
-        do
-            #Ignore lines that start with a comment hash mark
+        exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
             if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
                 LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
                 if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
@@ -62,9 +58,9 @@ do
 
                 fi
             fi
-        done < "$AMAZONIIDSFILE"
+        }; done; exec 4>&-
 	fi
-done < "$TERRACOTTASFILE"
+}; done; exec 3>&-
 
 #Send tc-config.cml to remote
 ssh -t -t $HOST "mkdir -p terracotta-3.4.0_1"

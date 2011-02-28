@@ -41,11 +41,11 @@ ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/manager"
 
 #Install X-11 fonts sendmail
 ./log.sh "Installing x11 fonts"
-fontinstalla=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-fonts-base.noarch"`
-fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi.noarch"`
-fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install xorg-x11-xbitmaps.i686"`
-fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install liberation-fonts"`
-fontinstallb=`</dev/null ssh -n -t -t $HOST "sudo yum -y install freetype freetype-devel"`
+fontinstalla=`ssh -t -t $HOST "sudo yum -y install xorg-x11-fonts-base.noarch"`
+fontinstallb=`ssh -t -t $HOST "sudo yum -y install xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi.noarch"`
+fontinstallb=`ssh -t -t $HOST "sudo yum -y install xorg-x11-xbitmaps.i686"`
+fontinstallb=`ssh -t -t $HOST "sudo yum -y install liberation-fonts"`
+fontinstallb=`ssh -t -t $HOST "sudo yum -y install freetype freetype-devel"`
 
 
 ./log-status.sh "Done creating Tomcat $APPDIR"
