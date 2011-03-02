@@ -9,33 +9,6 @@ if [ "$1" == "" ]; then echo "Must provide an TOMCATID"; exit; fi
 TOMCATID=$1
 RESTARTIFCONFIGHASCHANGED=$2  #Set to "RESTARTIFCONFIGHASCHANGED" to restart if config has changed
 
-TOMCATSFILE=conf/tomcats.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-CHECKTOMCATSFILE=data/check.tomcats
-
-
-if [ ! -f "$CHECKTOMCATSFILE" ]; then
-  echo "$CHECKTOMCATSFILE does not exist so creating it."
-  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
-fi
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-
 
 #Read TOMCATSFILE
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {

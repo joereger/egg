@@ -2,24 +2,12 @@
 
 source common.sh
 
-INSTANCESFILEIVU=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$INSTANCESFILEIVU" ]; then
-  echo "Sorry, $INSTANCESFILEIVU does not exist."
-  exit 1
-fi
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
 
 SOMETHINGHASCHANGED="0"
 ALLISWELL=1
 		
 #Read INSTANCESFILE
- exec 3<> $INSTANCESFILEIVU; while read line_instances_ivu <&3; do {
+ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
 	if [ $(echo "$line_instances_ivu" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$line_instances_ivu" | cut -d ":" -f1)

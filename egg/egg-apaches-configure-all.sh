@@ -7,14 +7,6 @@ source common.sh
 
 #APP=$1
 
-APACHESFILE=conf/apaches.conf
-
-if [ ! -f "$APACHESFILE" ]; then
-  echo "Sorry, $APACHESFILE does not exist."
-  exit 1
-fi
-
-
 #Read APACHESFILE
 exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then

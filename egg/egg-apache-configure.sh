@@ -7,43 +7,6 @@ if [ "$1" == "" ]; then echo "Must provide a APACHEID"; exit; fi
 
 APACHEID=$1
 
-APACHESFILE=conf/apaches.conf
-INSTANCESFILE=conf/instances.conf
-TOMCATSFILE=conf/tomcats.conf
-URLSFILE=conf/urls.conf
-APPSFILE=conf/apps.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$APACHESFILE" ]; then
-  echo "Sorry, $APACHESFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$URLSFILE" ]; then
-  echo "Sorry, $URLSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$APPSFILE" ]; then
-  echo "Sorry, $APPSFILE does not exist."
-  exit 1
-fi
-
 LOGICALINSTANCEID=""
 #Read APACHESFILE to get LOGICALINSTANCEID
 exec 3<> $APACHESFILE; while read inapacheline <&3; do {

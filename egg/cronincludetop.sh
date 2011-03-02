@@ -23,22 +23,9 @@ if [ "${CRONLOCKTIMEOUTSECONDS}" == "" ]; then
     exit
 fi
 
-CRONLOCKSFILE=data/cron.locks
 
-if [ ! -f "$CRONLOCKSFILE" ]; then
-  echo "$CRONLOCKSFILE does not exist so creating it."
-  echo "$CRONLOCKSFILE does not exist so creating it." >> $LOGFILEDEBUG
-  cp data/cron.locks.sample $CRONLOCKSFILE
-fi
 
 ./log-debug.sh "CRON `TZ=EST date`: $CRONNAME"
-
-
-
-
-
-
-
 
 
 
@@ -80,21 +67,15 @@ exec 3<> $CRONPAUSEALLFILE; while read cronpauseallline <&3; do {
 
 
 
-
-
-
-
+#Check to see if there's a lock for the currently-running cron job
 exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
-
         CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
         RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
-
         if [ "$CRONNAME_A" == "$CRONNAME" ]; then
             #There is a lock... let's see if it's valid
             #./log-debug.sh "Cron lock exists for $CRONNAME"
             #./log-status.sh "Cron lock exists for $CRONNAME"
-
             CURRENTTIME=`date +%s`
             #echo CURRENTTIME=$CURRENTTIME
             RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+CRONLOCKTIMEOUTSECONDS))
@@ -106,7 +87,6 @@ exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
             else
                 ./log-debug.sh "Cron lock for $CRONNAME has expired, continuing"
             fi
-
         fi
     fi
 }; done; exec 3>&-
@@ -123,7 +103,7 @@ if [ "$CRONNAME" != "CRONVERIFYUP" ]; then
             RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
             if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
                 CURRENTTIME=`date +%s`
-                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+7200))
+                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10000))
                 if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
                     ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
                     exit
@@ -138,15 +118,7 @@ fi
 
 
 
-
-
-
-
-
-
-
-
-#Delete any current line with this
+#Delete any current line with this cron job in it
 sed -i "
 /^${CRONNAME}:/ d\
 " $CRONLOCKSFILE

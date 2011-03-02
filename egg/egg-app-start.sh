@@ -7,26 +7,6 @@ if [ "$1" == "" ]; then echo "Must provide an APP"; exit; fi
 
 APP=$1
 
-TOMCATSFILE=conf/tomcats.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
 #Read TOMCATSFILE
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then

@@ -2,12 +2,6 @@
 
 source common.sh
 
-APPSFILE=conf/apps.conf
-
-if [ ! -f "$APPSFILE" ]; then
-  echo "Sorry, $APPSFILE does not exist."
-  exit 1
-fi
 
 echo "Start which app? (Type the number and hit enter)"
 COUNT=0

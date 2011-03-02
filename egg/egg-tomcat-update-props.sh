@@ -13,44 +13,6 @@ APP=$2
 APPDIR=$3
 TOMCATID=$4
 
-TOMCATSFILE=conf/tomcats.conf
-MYSQLSFILE=conf/mysqls.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-TERRACOTTASFILE=conf/terracottas.conf
-
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-if [ ! -f "$MYSQLSFILE" ]; then
-  echo "Sorry, $MYSQLSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$TERRACOTTASFILE" ]; then
-  echo "Sorry, $TERRACOTTASFILE does not exist."
-  exit 1
-fi
-
-
-
-
-
-
 #Read TOMCATSFILE
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then

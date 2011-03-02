@@ -11,20 +11,6 @@ TERRACOTTAID=$2
 
 ./log-status.sh "Starting Terracotta$TERRACOTTAID on $HOST"
 
-AMAZONIIDSFILE=data/amazoniids.conf
-TERRACOTTASFILE=conf/terracottas.conf
-
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-if [ ! -f "$TERRACOTTASFILE" ]; then
-  echo "Sorry, $TERRACOTTASFILE does not exist."
-  exit 1
-fi
 
 
 #Send the latest config file

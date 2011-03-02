@@ -2,29 +2,6 @@
 
 source common.sh
 
-APPSFILE=conf/apps.conf
-
-if [ ! -f "$APPSFILE" ]; then
-  echo "Sorry, $APPSFILE does not exist."
-  exit 1
-fi
-
-APACHESFILE=conf/apaches.conf
-
-if [ ! -f "$APACHESFILE" ]; then
-  echo "Sorry, $APACHESFILE does not exist."
-  exit 1
-fi
-
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-
 
 
 #Read apps file

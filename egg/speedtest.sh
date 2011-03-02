@@ -1,15 +1,15 @@
 #!/bin/bash
 
 
-rm -f speedtest.data
+#rm -f speedtest.data
 #rm -f speedtest.zip
 
 STARTTIME=$(date +%s.%N)
 
-for i in {1..500}
-do
-   echo "Yo, file being written at `date`" >> speedtest.data
-done
+#for i in {1..500}
+#do
+#   echo "Yo, file being written at `date`" >> speedtest.data
+#done
 
 #ENDInt=$(date +%s.%N)
 #DIFF=$(echo "$ENDInt - $STARTTIME" | bc)
@@ -27,7 +27,7 @@ done
 
 #zip -q speedtest.zip speedtest.data
 
-rm speedtest.data
+#rm speedtest.data
 #rm speedtest.zip
 
 END=$(date +%s.%N)

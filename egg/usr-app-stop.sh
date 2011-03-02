@@ -2,13 +2,6 @@
 
 source common.sh
 
-APPSFILE=conf/apps.conf
-
-if [ ! -f "$APPSFILE" ]; then
-  echo "Sorry, $APPSFILE does not exist."
-  exit 1
-fi
-
 echo "Stop which app? (Type the number and hit enter)"
 COUNT=0
 exec 3<> $APPSFILE; while read inappsline <&3; do {

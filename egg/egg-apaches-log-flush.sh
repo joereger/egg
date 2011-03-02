@@ -7,27 +7,6 @@ source common.sh
 
 #APP=$1
 
-APACHESFILE=conf/apaches.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-if [ ! -f "$APACHESFILE" ]; then
-  echo "Sorry, $APACHESFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-
 ALLISWELL=1
 
 #Read APACHESFILE

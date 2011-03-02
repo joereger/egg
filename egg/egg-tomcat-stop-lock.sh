@@ -16,11 +16,6 @@ fi
 
 #Check for Existing Lock
 ISTOMCATSTOPLOCK=0
-TOMCATSTOPLOCKSFILE=data/tomcat.stop.locks
-if [ ! -f "$TOMCATSTOPLOCKSFILE" ]; then
-  ./log.sh "$TOMCATSTOPLOCKSFILE does not exist so creating it."
-  cp data/tomcat.stop.locks.sample $TOMCATSTOPLOCKSFILE
-fi
 exec 3<> $TOMCATSTOPLOCKSFILE; while read tcstopline <&3; do {
     if [ $(echo "$tcstopline" | cut -c1) != "#" ]; then
         APPDIR_LOCK=$(echo "$tcstopline" | cut -d ":" -f1)

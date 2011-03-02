@@ -3,26 +3,6 @@
 export DONTREDITSTDOUTTOLOGFILE=1
 source common.sh
 
-TOMCATSFILE=conf/tomcats.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-
 
 
 if [ "$1" == "" ]; then
@@ -60,7 +40,7 @@ if [ "$CHOSENTOMCATID" != "" ]; then
                             HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 
                             APPDIR=$APPNAME_B$CHOSENTOMCATID
-                            ssh -t -t $HOST "tail -f --lines=100 egg/${APPDIR}/tomcat/logs/catalina.out"
+                            ssh -t -t $HOST "tail -f --lines=100 egg/${APPDIR}/tomcat/logs/console.log"
 
 
                         fi

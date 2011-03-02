@@ -21,16 +21,6 @@ TOMCATID=$7
 
 
 
-TOMCATSFILE=conf/tomcats.conf
-
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-
-
 #Read TOMCATSFILE
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then

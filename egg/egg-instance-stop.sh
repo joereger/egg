@@ -7,18 +7,6 @@ if [ "$1" == "" ]; then echo "Must provide a LOGICALINSTANCEID"; exit; fi
 
 LOGICALINSTANCEID=$1
 
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
 		
 #Read INSTANCESFILE   
 exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {

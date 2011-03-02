@@ -2,24 +2,6 @@
 
 source common.sh
 
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-TOMCATSFILE=conf/tomcats.conf
-MYSQLSFILE=conf/mysqls.conf
-TERRACOTTASFILE=conf/terracottas.conf
-APACHESFILE=conf/apaches.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
-
 
 echo "Terminate which Amazon instance? (Type the number and hit enter)"
 

@@ -7,31 +7,6 @@ source common.sh
 
 #APP=$1
 
-TOMCATSFILE=conf/tomcats.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-CHECKTOMCATSFILE=data/check.tomcats
-
-
-if [ ! -f "$CHECKTOMCATSFILE" ]; then
-  echo "$CHECKTOMCATSFILE does not exist so creating it."
-  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
-fi
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
 
 #Used to determine if all is well
 ALLISWELL=1

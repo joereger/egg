@@ -3,24 +3,6 @@
 export DONTREDITSTDOUTTOLOGFILE=1
 source common.sh
 
-TERRACOTTASFILE=conf/terracottas.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-if [ ! -f "$TERRACOTTASFILE" ]; then
-  echo "Sorry, $TERRACOTTASFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
 
 echo "Tail which tomcat's log file? (Type the number and hit enter)"
 exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {

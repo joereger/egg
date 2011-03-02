@@ -7,26 +7,6 @@ source common.sh
 
 #APP=$1
 
-TERRACOTTASFILE=conf/terracottas.conf
-INSTANCESFILE=conf/instances.conf
-AMAZONIIDSFILE=data/amazoniids.conf
-
-if [ ! -f "$AMAZONIIDSFILE" ]; then
-  echo "$AMAZONIIDSFILE does not exist so creating it."
-  cp data/amazoniids.conf.sample $AMAZONIIDSFILE
-fi
-
-
-if [ ! -f "$TERRACOTTASFILE" ]; then
-  echo "Sorry, $TERRACOTTASFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
 exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
 	if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
 	

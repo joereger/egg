@@ -13,18 +13,6 @@ APP=$2
 APPDIR=$3
 TOMCATID=$4
 
-TOMCATSFILE=conf/tomcats.conf
-CHECKTOMCATSFILE=data/check.tomcats
-
-if [ ! -f "$TOMCATSFILE" ]; then
-  echo "Sorry, $TOMCATSFILE does not exist."
-  exit 1
-fi
-
-if [ ! -f "$CHECKTOMCATSFILE" ]; then
-  echo "$CHECKTOMCATSFILE does not exist so creating it."
-  cp $CHECKTOMCATSFILE.sample $CHECKTOMCATSFILE
-fi
 
 #Read TOMCATSFILE
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
@@ -59,8 +47,15 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             WGETENDTIME=$(date +%s.%N)
             WGETEXECUTIONTIME=$(echo "$WGETENDTIME - $WGETSTARTTIME" | bc)
             STATUSSMALL=$(echo $status | cut -c1-150)
-            echo "$WGETEXECUTIONTIME $APPDIR $STATUSSMALL" >> logs/wget.log
+            echo "$WGETEXECUTIONTIME \t$APPDIR \t$STATUSSMALL" >> logs/wget.log
+            ISOK=0
             if [[ $status == *"HTTP request sent, awaiting response... 200 OK"* ]]; then
+                ISOK=1
+            elif [[ $status == *"302 Moved Temp"* ]]; then
+                ISOK=1
+            fi
+
+            if [ "$ISOK" == "1" ]; then
                 ./log.sh "Tomcat $APPDIR wget success $WGETEXECUTIONTIME seconds, recording LASTGOOD"
                 CURRENTTIME=`date +%s`
                 #Delete any current line with this tomcatid

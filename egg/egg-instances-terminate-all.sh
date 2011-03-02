@@ -4,13 +4,6 @@ source common.sh
 
 
 #Run through instances.conf and try for graceful shutdowns before mass termination by tag
-INSTANCESFILE=conf/instances.conf
-
-if [ ! -f "$INSTANCESFILE" ]; then
-  echo "Sorry, $INSTANCESFILE does not exist."
-  exit 1
-fi
-
 exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 	if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
 
@@ -36,5 +29,4 @@ while read line; do
 done
 
 #Empty the amazoniids.conf file by copying in an empty one
-AMAZONIIDSFILE=data/amazoniids.conf
 cp data/amazoniids.conf.sample $AMAZONIIDSFILE
