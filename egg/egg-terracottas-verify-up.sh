@@ -80,6 +80,7 @@ exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
                     then
                         ./log.sh "Terracotta$TERRACOTTAID health appears OK"
                     else
+                        ./mail.sh "Terracotta$TERRACOTTAID health appears fail, restarting" "terra what?"
                         ./log-status-red.sh "Terracotta$TERRACOTTAID health appears FAIL"
                         ./egg-terracotta-stop.sh $HOST
                         ./egg-terracotta-start.sh $HOST $TERRACOTTAID

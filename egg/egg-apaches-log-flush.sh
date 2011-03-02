@@ -63,39 +63,8 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 						fi
 					}; done; exec 5>&-
 
-					#Apache Existence Check
-					./log.sh "Start Apache$APACHEID Installation Check"
-					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
-					if [ "$apachecheck" != 1 ]; then
-					    ALLISWELL=0
-						./log-status-red.sh "Apache$APACHEID installation folder not found, will create"
-						./egg-apache-stop.sh $HOST
-						./egg-apache-create.sh $HOST
-						./egg-apache-configure.sh $APACHEID
-						./egg-apache-start.sh $HOST
-					else 
-						./log.sh "Apache$APACHEID installation folder found"
-					fi
-					
-					#Apache Process Check
-					./log.sh "Start Apache$APACHEID Process Check"
-                    #This line very finickey...
-                    processcheck=`ssh $HOST "[ -n \"\\\`pgrep httpd\\\`\" ] && echo 1"`
-                    ./log.sh "processcheck=$processcheck"
-					if [ "$processcheck" != 1 ]; then
-					    ALLISWELL=0
-					    ./mail.sh "Apache$APACHEID process not found, restarting" "donde esta apache?"
-						./log-status-red.sh "Apache$APACHEID process not found"
-						./egg-apache-stop.sh $HOST
-						./egg-apache-configure.sh $APACHEID
-						./egg-apache-start.sh $HOST
-					else
-						./log.sh "Apache$APACHEID process found"
-					fi
 
-					#Check the configuration... will only adjust/bounce if something's changed
-					./egg-apache-configure.sh $APACHEID
-
+                    ssh -t -t $HOST "sudo rm -f /var/log/httpd/*"
 
 
 				fi
@@ -106,6 +75,3 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 	fi
 }; done; exec 3>&-
 
-if [ "$ALLISWELL" == "1"  ]; then
-    ./log-status.sh "Apaches AllIsWell `date`"
-fi

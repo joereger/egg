@@ -31,7 +31,7 @@ if [ ! -f "$CRONLOCKSFILE" ]; then
   cp data/cron.locks.sample $CRONLOCKSFILE
 fi
 
-./log-debug.sh "CRON `date`: $CRONNAME"
+./log-debug.sh "CRON `TZ=EST date`: $CRONNAME"
 
 exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
     if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then

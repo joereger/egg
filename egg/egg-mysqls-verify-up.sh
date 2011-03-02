@@ -84,6 +84,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
                     echo processcheck=$processcheck
 					if [ "$processcheck" != 1 ]; then
 					    ALLISWELL=0
+					    ./mail.sh "MySQL$MYSQLID process not found, restarting" "where mah process at"
 						./log-status-red.sh "MySQL$MYSQLID process not found, restarting"
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
@@ -102,7 +103,8 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
                     echo selectcheck=$selectcheck
 					if [ "$selectcheck" != "2" ]; then
 					    ALLISWELL=0
-						./log-status-red.sh "MySQL$MYSQLID process not found, restarting"
+					    ./mail.sh "MySQL$MYSQLID fails select check, restarting" "select me"
+						./log-status-red.sh "MySQL$MYSQLID fails select check, restarting"
 						./egg-mysql-stop.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
 						./egg-mysql-start.sh $HOST

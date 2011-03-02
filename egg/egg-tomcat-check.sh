@@ -44,12 +44,6 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             HTTPPORT=$((8100+$TOMCATID))
 
 
-
-#url='http://localhost:8080/'
-#status=$(r=(IFS=' ';$(curl -Is --connect-timeout 5 "${url}" || echo 1 500));echo ${r[1]})
-#[ status -eq 500 ] && bounce # assuming the bounce script is called 'bounce'
-
-
             #HTTP Check
             ./log.sh "Start HTTP Check $APPDIR"
             url="http://$HOST:$HTTPPORT/"
@@ -57,8 +51,6 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             timeout=120
             #status=`wget --tries 1 --timeout 120 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
             #$status=`wget --tries 1 --timeout 120 $url`
-
-
 
             #"HTTP request sent, awaiting response... 200 OK"
 
@@ -77,28 +69,20 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                 $TOMCATID:$CURRENTTIME
                 " $CHECKTOMCATSFILE
             else
-                ./log-status-red.sh "HTTP 200 fail $APPDIR"
+                #This big loop just done to collect better logging/emailing data (namely LASTGOODSECONDSAGO)
+                exec 4<> $CHECKTOMCATSFILE; while read incheckline <&4; do {
+                    if [ $(echo "$incheckline" | cut -c1) != "#" ]; then
+                        TOMCATID_CHK=$(echo "$incheckline" | cut -d ":" -f1)
+                        if [ "$TOMCATID_CHK" == "$TOMCATID" ]; then
+                            LASTGOOD=$(echo "$incheckline" | cut -d ":" -f2)
+                            CURRENTTIME=`date +%s`
+                            LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
+                        fi
+                    fi
+                }; done; exec 4>&-
+                ./log-status-red.sh "Tomcat $APPDIR fails wget, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
+                ./mail.sh "Tomcat $APPDIR fails wget, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
             fi
-
-
-
-
-
-#            if [ "$status" == "200" ]; then
-#                ./log.sh "HTTP 200 response from $APPDIR $url, recording LASTGOOD"
-#                CURRENTTIME=`date +%s`
-#                #Delete any current line with this tomcatid
-#                sed -i "
-#                /^${TOMCATID}:/ d\
-#                " $CHECKTOMCATSFILE
-#                #Write a new record
-#                sed -i "
-#                /#BEGINDATA/ a\
-#                $TOMCATID:$CURRENTTIME
-#                " $CHECKTOMCATSFILE
-#            else
-#                ./log-status-red.sh "HTTP 200 fail $APPDIR"
-#            fi
 
             #This is max time that tomcat can be down before restart
             MAXLASTGOOD=600
@@ -118,7 +102,8 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
                         ./log.sh $APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
                         if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
-                            ./log-status-red.sh "$APPDIR Tomcat http://$HOST:$HTTPPORT/ Down > $MAXLASTGOOD seconds"
+                            ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
+                            ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
                             ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"

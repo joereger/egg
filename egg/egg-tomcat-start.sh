@@ -29,7 +29,7 @@ source egg-tomcat-start-lock.sh
 
 
 if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then
-    #Do the start
+    ./egg-tomcat-log-flush.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
     export RESTARTIFCONFIGHASCHANGED="NORESTART"
     ./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
     ./log-status.sh "Starting Tomcat $APPDIR"

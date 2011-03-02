@@ -37,3 +37,6 @@ END=$(date +%s.%N)
 # echo $END
 DIFF=$(echo "$END - $STARTTIME" | bc)
 echo $DIFF
+
+#Single Line Version
+#STARTTIME=$(date +%s.%N); for i in {1..100000}; do TMPVAR=$((i/3)); done; END=$(date +%s.%N); DIFF=$(echo "$END - $STARTTIME" | bc); echo $DIFF

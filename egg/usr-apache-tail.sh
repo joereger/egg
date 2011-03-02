@@ -27,38 +27,44 @@ fi
 
 
 
-
-
-echo "Tail Apache for which app? (Type the number and hit enter)"
-COUNT=0
-exec 3<> $APPSFILE; while read inappsline <&3; do {
-	if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
-		APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
-		COUNT=$(( $COUNT + 1 ))
-        echo "$COUNT - $APPNAME"
-	fi
-}; done; exec 3>&-
-
 #Read apps file
-read APPNUM
+if [ "$1" == "" ]; then
+    echo "Tail Apache for which app? (Type the number and hit enter)"
+    COUNT=0
+    exec 3<> $APPSFILE; while read inappsline <&3; do {
+        if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
+            APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
+            COUNT=$(( $COUNT + 1 ))
+            echo "$COUNT - $APPNAME"
+        fi
+    }; done; exec 3>&-
+    read APACHENUM
+else
+    APACHENUM=$1
+fi
 
 
-echo "Which type of log? (Type the number and hit enter)"
-echo "1 - access log (default, hit enter)"
-echo "2 - referer log"
-echo "3 - user agent log"
-echo "4 - instance performance log"
-read LOGTYPE
+if [ "$2" == "" ]; then
+    echo "Which type of log? (Type the number and hit enter)"
+    echo "1 - access log (default, hit enter)"
+    echo "2 - referer log"
+    echo "3 - user agent log"
+    echo "4 - instance performance log"
+    read LOGTYPE
+else
+    LOGTYPE=$2
+fi
 
+echo "APACHENUM=$APACHENUM LOGTYPE=$LOGTYPE"
 
-if [ "$APPNUM" != "" ]; then
+if [ "$APACHENUM" != "" ]; then
     COUNTDEUX=0
     exec 3<> $APPSFILE; while read inappsline <&3; do {
         if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
             APPNAME=$(echo "$inappsline" | cut -d ":" -f1)
             APACHEID=$(echo "$inappsline" | cut -d ":" -f2)
             COUNTDEUX=$(( $COUNTDEUX + 1 ))
-            if [ "$COUNTDEUX" == "$APPNUM" ]; then
+            if [ "$COUNTDEUX" == "$APACHENUM" ]; then
                 #Read APACHESFILE
                 LOGICALINSTANCEID=0
                 exec 4<> $APACHESFILE; while read inapacheline <&4; do {

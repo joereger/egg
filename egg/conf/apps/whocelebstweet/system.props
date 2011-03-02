@@ -6,4 +6,4 @@ dbMaxActive=20
 dbMaxIdle=20
 dbMinIdle=12
 dbMaxWait=10000
-#terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
+terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
