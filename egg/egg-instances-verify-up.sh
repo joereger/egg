@@ -64,7 +64,7 @@ ALLISWELL=1
 		if [ "${thisinstanceisup}" == "0" ]; then
 		    ALLISWELL=0
 			./log-status-red.sh "Instance $LOGICALINSTANCEID not found, will create"
-			./mail.sh "Instance: $LOGICALINSTANCEID not found, creating" "stand up!!!!!!!!!"
+			./mail.sh "Instance$LOGICALINSTANCEID not found, creating" "stand up!!!!!!!!!"
 
             export key="joekey"
             export id_file="/home/ec2-user/.ssh/joekey.pem"
@@ -234,9 +234,9 @@ ALLISWELL=1
 
 
 #Any time we change instances we have to update the apacheconfig
-if [ "$SOMETHINGHASCHANGED" == "1" ]; then
+#if [ "$SOMETHINGHASCHANGED" == "1" ]; then
     #./log-status-blue.sh "An instance has changed, services may need to be updated"
-fi
+#fi
 
 if [ "$ALLISWELL" == "1" ]; then
     ./log-status.sh "Instances AllIsWell `TZ=EST date`"

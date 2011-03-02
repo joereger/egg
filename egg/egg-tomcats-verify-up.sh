@@ -77,9 +77,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 						fi
 					}; done; exec 5>&-
 				
-				
 
-					./log-blue.sh "CHECKING $APP $INSTANCESIZE http://$HOST:$HTTPPORT/"
 					
 					#Instance Check
 					./log.sh "Start $APPDIR Instance Check"
@@ -92,7 +90,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
 					    #Tomcat Check
                         ./log.sh "$APPDIR Start Tomcat Installation Check "
-                        tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`
+                        tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/bin/ ] && echo 1"`
                         if [ "$tomcatcheck" != 1 ]; then
                             ALLISWELL=0
                             ./log-status-green.sh "$APPDIR Tomcat not found, will create"

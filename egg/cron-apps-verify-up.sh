@@ -3,7 +3,7 @@
 #--------------------------
 #Open cron job and create lock
 CRONNAME="CRONVERIFYUP"          #Only alphabetic, no spaces, no funky chars
-CRONLOCKTIMEOUTSECONDS=3600   #One hour... this could be a long running job
+CRONLOCKTIMEOUTSECONDS=10000   #This could be a long running job
 cd /home/ec2-user/egg
 source cronincludetop.sh
 #--------------------------

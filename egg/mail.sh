@@ -11,6 +11,8 @@ SUBJECT=$1
 MESSAGE=$2
 CURRENTTIME=`TZ=EST date +"%b %d %r %N"`
 
+echo "[$CURRENTTIME] $SUBJECT" >> logs/mail.log
 echo $MESSAGE | mail -s "$SUBJECT  [$CURRENTTIME]" "$TO"
+
 
 

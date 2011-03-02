@@ -22,6 +22,8 @@ fi
 	if [ $(echo "$line_instances_ivu" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$line_instances_ivu" | cut -d ":" -f1)
+		SECURITYGROUP=$(echo "$line_instances_ivu" | cut -d ":" -f2)
+		INSTANCESIZE=$(echo "$line_instances_ivu" | cut -d ":" -f3)
 
 		#Read AMAZONIIDSFILE
 		AMAZONINSTANCEID=""
@@ -38,8 +40,8 @@ fi
 		
 
 		SPEED=`ssh $HOST 'STARTTIME=$(date +%s.%N); for i in {1..100000}; do TMPVAR=$((i/3)); done; END=$(date +%s.%N); DIFF=$(echo "$END - $STARTTIME" | bc); echo $DIFF'`
-        echo "LOGICALINSTANCEID=$LOGICALINSTANCEID SPEED=$SPEED"
-        echo "LOGICALINSTANCEID=$LOGICALINSTANCEID SPEED=$SPEED" >> data/instances.speed
+        echo "LOGICALINSTANCEID=$LOGICALINSTANCEID SPEED=$SPEED $INSTANCESIZE $SECURITYGROUP"
+        echo "LOGICALINSTANCEID=$LOGICALINSTANCEID SPEED=$SPEED $INSTANCESIZE $SECURITYGROUP" >> logs/instances.speed.log
 
 	fi
 }; done; exec 3>&-

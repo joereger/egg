@@ -54,10 +54,14 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
             #"HTTP request sent, awaiting response... 200 OK"
 
-
+            WGETSTARTTIME=$(date +%s.%N)
             export status=`wget --tries 1 --timeout 120 $url 2>&1`
+            WGETENDTIME=$(date +%s.%N)
+            WGETEXECUTIONTIME=$(echo "$WGETENDTIME - $WGETSTARTTIME" | bc)
+            STATUSSMALL=$(echo $status | cut -c1-150)
+            echo "$WGETEXECUTIONTIME $APPDIR $STATUSSMALL" >> logs/wget.log
             if [[ $status == *"HTTP request sent, awaiting response... 200 OK"* ]]; then
-                ./log.sh "HTTP 200 response from $APPDIR $url, recording LASTGOOD"
+                ./log.sh "Tomcat $APPDIR wget success $WGETEXECUTIONTIME seconds, recording LASTGOOD"
                 CURRENTTIME=`date +%s`
                 #Delete any current line with this tomcatid
                 sed -i "
@@ -80,8 +84,8 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         fi
                     fi
                 }; done; exec 4>&-
-                ./log-status-red.sh "Tomcat $APPDIR fails wget, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
-                ./mail.sh "Tomcat $APPDIR fails wget, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
+                ./log-status-red.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
+                ./mail.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
             fi
 
             #This is max time that tomcat can be down before restart

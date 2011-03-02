@@ -29,15 +29,7 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
         uselessjibberishvar=`ssh $HOST "cd egg/$APPDIR/tomcat/bin/; chmod 777 *.sh;"`
         ./log.sh "Tomcat $APPDIR Catalina shutdown.sh calling then waiting 5 sec"
         uselessjibberishvar=`ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; bash egg/$APPDIR/tomcat/bin/shutdown.sh"`
-        #./log.sh "Waiting 5 seconds for $APPDIR Tomcat to shut down before sending hard pkill"
         sleep 5
-        #Syntax of next line sensitive
-        #uselessjibberishvar=`</dev/null ssh -n $HOST "pkill -f egg/${APPDIR}/tomcat/conf; echo terminated"`
-        #Syntax of above line sensitive
-        #./log.sh "uselessjibberishvar=$uselessjibberishvar"
-        #./log.sh "Waiting 40 seconds for $APPDIR Tomcat to fully shut down"
-        #sleep 40
-
 
         export tcdone="false"
         export tccount=0
@@ -46,9 +38,10 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
             tcprocesschk=`ssh $HOST "[ -n \"\\\`ps ax | grep egg/${APPDIR}/tomcat/conf | grep -v grep\\\`\" ] && echo 1"`
             ./log.sh "tcprocesschk=$tcprocesschk"
             if [ "$tcprocesschk" == 1 ]; then
-                ./log.sh "Tomcat ${APPDIR} process running (try $tccount), sending pkill, waiting 5 sec"
-                ssh $HOST "pkill -f egg/${APPDIR}/tomcat/conf"
-                #./log.sh "uselessjibberishvar=$uselessjibberishvar"
+                #Have to use ps to grab the PID... couldn't get onto one line
+                PID=`ssh $HOST "ps -ef | grep egg/${APPDIR}/tomcat/conf | grep -v grep | awk '{print \\$2}' "`
+                ./log.sh "Tomcat ${APPDIR} process running (try $tccount), sending kill -9 to PID $PID then waiting 5 sec"
+                ssh -t -t $HOST "sudo kill -9 $PID"
                 sleep 5
                 tccount=$(( $tccount + 1 ))
                 if [ "$tccount" == "15" ]; then

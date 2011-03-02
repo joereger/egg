@@ -13,5 +13,6 @@ source common.sh
 ./egg-terracottas-verify-up.sh
 ./egg-apaches-verify-up.sh
 ./egg-tomcats-verify-up.sh
+./egg-tomcats-check-all.sh
 
 
