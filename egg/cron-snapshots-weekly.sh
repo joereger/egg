@@ -8,7 +8,7 @@ cd /home/ec2-user/egg
 source cronincludetop.sh
 #--------------------------
 
-./egg-instances-snapshot.sh "WEEKLY"
+./egg-snapshots-create.sh weekly
 
 #--------------------------
 #Close and release lock
