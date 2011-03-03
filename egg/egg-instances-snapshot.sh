@@ -46,7 +46,7 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
                 if [ "$LOGICALINSTANCEID_C" == "$LOGICALINSTANCEID" ]; then
                     APP=$(echo "$intomcatline" | cut -d ":" -f3)
                     APPDIR=$APP$TOMCATID
-                    TCECHO=$TCECHO" "$APPDIR
+                    TCECHO=$TCECHO$APPDIR" "
                 fi
             fi
         }; done; exec 4>&-
@@ -58,7 +58,7 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
                 MYSQLID=$(echo "$inmysqlsline" | cut -d ":" -f1)
                 LOGICALINSTANCEID_D=$(echo "$inmysqlsline" | cut -d ":" -f2)
                 if [ "$LOGICALINSTANCEID_D" == "$LOGICALINSTANCEID" ]; then
-                    MYSQLECHO=$MYSQLECHO" mysql"$MYSQLID
+                    MYSQLECHO=$MYSQLECHO"mysql"$MYSQLID" "
                 fi
             fi
         }; done; exec 4>&-
@@ -70,7 +70,7 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
                 TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
 		        LOGICALINSTANCEID_E=$(echo "$interracottas" | cut -d ":" -f2)
                 if [ "$LOGICALINSTANCEID_E" == "$LOGICALINSTANCEID" ]; then
-                    TERECHO=$TERECHO" terracotta"$TERRACOTTAID
+                    TERECHO=$TERECHO"terracotta"$TERRACOTTAID" "
                 fi
             fi
         }; done; exec 4>&-
@@ -82,7 +82,7 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
                 APACHEID=$(echo "$inapacheline" | cut -d ":" -f1)
 		        LOGICALINSTANCEID_F=$(echo "$inapacheline" | cut -d ":" -f2)
                 if [ "$LOGICALINSTANCEID_F" == "$LOGICALINSTANCEID" ]; then
-                    APAACHEECHO=$APAACHEECHO" apache"$APACHEID
+                    APAACHEECHO=$APAACHEECHO"apache"$APACHEID" "
                 fi
             fi
         }; done; exec 4>&-
@@ -94,8 +94,11 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
 
 
         if [ "$EBSVOLUME" != "" ]; then
+            if [ "$HOST" == "" ]; then
+                HOST="nohost"
+            fi
 
-            ./egg-snapshot.sh $EBSVOLUME $TIMEPERIOD $HOST "$DESCRIPTION"
+            ./egg-snapshot.sh $EBSVOLUME $TIMEPERIOD $HOST "${DESCRIPTION}"
 
         fi
 

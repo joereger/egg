@@ -43,8 +43,9 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
             #"HTTP request sent, awaiting response... 200 OK"
 
+            mkdir -p logs/wget
             WGETSTARTTIME=$(date +%s.%N)
-            export status=`wget --tries 1 --timeout 120 $url 2>&1`
+            export status=`wget --tries 1 --timeout 120 -O logs/wget/$APPNAME$TOMCATID.html $url 2>&1`
             WGETENDTIME=$(date +%s.%N)
             WGETEXECUTIONTIME=$(echo "$WGETENDTIME - $WGETSTARTTIME" | bc)
             STATUSSMALL=$(echo $status | cut -c97-175)
