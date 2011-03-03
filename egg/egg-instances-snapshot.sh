@@ -2,16 +2,23 @@
 
 source common.sh
 
-		
-#Read INSTANCESFILE
- exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
+if [ "$#" == "0" ]; then echo "!USAGE: TIMEPERIOD"; exit; fi
+if [ "$1" == "" ]; then echo "Must provide a TIMEPERIOD"; exit; fi
+
+TIMEPERIOD=$1
+
+exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
 	if [ $(echo "$line_instances_ivu" | cut -c1) != "#" ]; then
 	
 		LOGICALINSTANCEID=$(echo "$line_instances_ivu" | cut -d ":" -f1)
 		SECURITYGROUP=$(echo "$line_instances_ivu" | cut -d ":" -f2)
 		INSTANCESIZE=$(echo "$line_instances_ivu" | cut -d ":" -f3)
+		AMIID=$(echo "$line_instances_ivu" | cut -d ":" -f4)
+		ELASTICIP=$(echo "$line_instances_ivu" | cut -d ":" -f5)
+		EBSVOLUME=$(echo "$line_instances_ivu" | cut -d ":" -f6)
+		EBSDEVICENAME=$(echo "$line_instances_ivu" | cut -d ":" -f7)
 
-		#Read AMAZONIIDSFILE
+
 		AMAZONINSTANCEID=""
 		HOST=""
 		exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
@@ -27,7 +34,10 @@ source common.sh
 
 
 
-		#Read TOMCATSFILE
+
+
+
+		 #Read TOMCATSFILE
         TCECHO=""
         exec 4<> $TOMCATSFILE; while read intomcatline <&4; do {
             if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
@@ -76,16 +86,20 @@ source common.sh
                 fi
             fi
         }; done; exec 4>&-
-		
 
-		SPEED=`ssh $HOST 'STARTTIME=$(date +%s.%N); for i in {1..100000}; do TMPVAR=$((i/3)); done; END=$(date +%s.%N); DIFF=$(echo "$END - $STARTTIME" | bc); echo $DIFF'`
-        CURRENTTIME=`TZ=EST date +"%b %d %r"`
-        echo -e "$CURRENTTIME \t$SPEED sec \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
-        echo -e "$CURRENTTIME \t$SPEED sec \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO" >> logs/instances.speed.log
+
+
+
+		 DESCRIPTION=$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO
+
+
+        if [ "$EBSVOLUME" != "" ]; then
+
+            ./egg-snapshot.sh $EBSVOLUME $TIMEPERIOD $HOST "$DESCRIPTION"
+
+        fi
 
 	fi
 }; done; exec 3>&-
-
-
 
 

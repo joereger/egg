@@ -7,12 +7,19 @@ if [ "$1" == "" ]; then echo "Must provide a HOST"; exit; fi
 
 HOST=$1
 
-#TODO Only make this call if $HOST is actually listed as a MySQL instance... i call this script from egg-instance-terminate.sh
+mysqlcheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
+if [ "$mysqlcheck" == 1 ]; then
 
-./log-status.sh "Stopping MySQL on $HOST"
-ssh -t -t $HOST "sudo /sbin/service mysqld stop"
-./log-status.sh "Sleeping 10 while MySQL shuts down"
-sleep 10
+    ./log-status.sh "Stopping MySQL on $HOST"
+    ssh -t -t $HOST "sudo /sbin/service mysqld stop"
+    ./log-status.sh "Sleeping 10 while MySQL shuts down"
+    sleep 10
+
+else
+
+    ./log-status.sh "MySQL not found on $HOST, not stopping"
+
+fi
 
 
 

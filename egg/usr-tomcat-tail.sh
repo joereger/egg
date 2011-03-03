@@ -40,7 +40,7 @@ if [ "$CHOSENTOMCATID" != "" ]; then
                             HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
 
                             APPDIR=$APPNAME_B$CHOSENTOMCATID
-                            ssh -t -t $HOST "tail -f --lines=100 egg/${APPDIR}/tomcat/logs/console.log"
+                            ssh -t -t $HOST "tail -f --lines=100 egg/${APPDIR}/tomcat/logs/catalina.out"
 
 
                         fi

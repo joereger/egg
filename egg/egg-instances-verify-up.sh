@@ -36,8 +36,8 @@ ALLISWELL=1
 			fi
 		}; done; exec 4>&-
 		
-		echo " "
-		./log-blue.sh "LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE IID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=${ELASTICIP}"
+		#echo " "
+		#./log-blue.sh "LOGICALINSTANCEID=$LOGICALINSTANCEID $INSTANCESIZE IID=$AMAZONINSTANCEID HOST=$HOST ELASTICIP=${ELASTICIP}"
 		
 		#Determine whether this instance is running
 		thisinstanceisup=0
@@ -46,7 +46,7 @@ ALLISWELL=1
 		if [ "$status" == "$RUNNING" ]; then
 			export thisinstanceisup=1  	
 		fi
-		./log.sh "Thisinstanceisup=$thisinstanceisup"
+		#./log.sh "Thisinstanceisup=$thisinstanceisup"
 		
 		#Start an instance if necessary
 		if [ "${thisinstanceisup}" == "0" ]; then

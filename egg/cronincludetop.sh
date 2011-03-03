@@ -103,7 +103,7 @@ if [ "$CRONNAME" != "CRONVERIFYUP" ]; then
             RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
             if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
                 CURRENTTIME=`date +%s`
-                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10000))
+                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
                 if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
                     ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
                     exit

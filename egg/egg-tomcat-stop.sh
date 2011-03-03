@@ -36,12 +36,23 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
         while [ $tcdone == "false" ]
         do
             tcprocesschk=`ssh $HOST "[ -n \"\\\`ps ax | grep egg/${APPDIR}/tomcat/conf | grep -v grep\\\`\" ] && echo 1"`
-            ./log.sh "tcprocesschk=$tcprocesschk"
+            #./log.sh "tcprocesschk=$tcprocesschk"
             if [ "$tcprocesschk" == 1 ]; then
                 #Have to use ps to grab the PID... couldn't get onto one line
-                PID=`ssh $HOST "ps -ef | grep egg/${APPDIR}/tomcat/conf | grep -v grep | awk '{print \\$2}' "`
-                ./log.sh "Tomcat ${APPDIR} process running (try $tccount), sending kill -9 to PID $PID then waiting 5 sec"
-                ssh -t -t $HOST "sudo kill -9 $PID"
+                ./log.sh "Tomcat ${APPDIR} process running (try $tccount)"
+                export prockilled="false"
+                while [ $prockilled == "false" ]; do
+                    PID=`ssh $HOST "ps -ef | grep egg/${APPDIR}/tomcat/conf | grep -v grep | awk '{print \\$2}' | head -n1 "`
+                    if [ "$PID" != "" ]; then
+                        ./log.sh "Tomcat ${APPDIR} sending kill -9 to PID=$PID"
+                        ssh -t -t $HOST "sudo kill -9 $PID"
+                    else
+                        ./log.sh "Tomcat ${APPDIR} PID empty so leaving loop"
+                        prockilled="true"
+                    fi
+                    sleep 2  #To prevent a CPU-hogging loop
+                done
+
                 sleep 5
                 tccount=$(( $tccount + 1 ))
                 if [ "$tccount" == "15" ]; then

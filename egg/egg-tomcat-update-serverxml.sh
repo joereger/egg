@@ -52,7 +52,7 @@ if [ -e conf/apps/$APP/tomcatid$TOMCATID.server.xml ]; then
 	./log.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml exists"
     SERVERXMLTOUSE=conf/apps/$APP/tomcatid$TOMCATID.server.xml
 else
-	./log.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
+	./log-debug.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
 fi
 
 #Make a copy of the base file to use

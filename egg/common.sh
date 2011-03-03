@@ -14,7 +14,7 @@ fi
 #echo -e ${cc_black_cyan}
 WHATTOLOG="$0 $@"
 echo -e ${cc_black_cyan}`TZ=EST date +"%b%d"`" "`TZ=EST date +"%r"`" "$WHATTOLOG${c_reset} >> $LOGFILEDEBUG
-echo -e ${cc_black_cyan}`TZ=EST date +"%b%d"`" "`TZ=EST date +"%r"`" "$WHATTOLOG${c_reset} >> $LOGFILEINFO
+#echo -e ${cc_black_cyan}`TZ=EST date +"%b%d"`" "`TZ=EST date +"%r"`" "$WHATTOLOG${c_reset} >> $LOGFILEINFO
 #./log-status-green.sh "$0 $@"
 #echo -e ${c_reset}
 

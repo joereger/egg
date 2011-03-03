@@ -44,7 +44,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 
 
 					#MySQL Existence Check
-					echo Start MySQL Check
+					echo "Start MySQL$MYSQLID Check"
 					apachecheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
 					    ALLISWELL=0

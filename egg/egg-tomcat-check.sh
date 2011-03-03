@@ -15,6 +15,7 @@ TOMCATID=$4
 
 
 #Read TOMCATSFILE
+
 exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
 
@@ -46,8 +47,9 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             export status=`wget --tries 1 --timeout 120 $url 2>&1`
             WGETENDTIME=$(date +%s.%N)
             WGETEXECUTIONTIME=$(echo "$WGETENDTIME - $WGETSTARTTIME" | bc)
-            STATUSSMALL=$(echo $status | cut -c1-150)
-            echo "$WGETEXECUTIONTIME \t$APPDIR \t$STATUSSMALL" >> logs/wget.log
+            STATUSSMALL=$(echo $status | cut -c97-175)
+            #--2011-03-02 17:58:12-- http://10.254.98.230:8110/ Connecting to 10.254.98.230:8110... connected.
+            echo -e "$WGETEXECUTIONTIME \t$APPDIR \t$STATUSSMALL" >> logs/wget.log
             ISOK=0
             if [[ $status == *"HTTP request sent, awaiting response... 200 OK"* ]]; then
                 ISOK=1
@@ -83,9 +85,13 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                 ./mail.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
             fi
 
+
+
+
+
+
             #This is max time that tomcat can be down before restart
             MAXLASTGOOD=600
-
             #Figure out how long since last good
             #Read CHECKTOMCATSFILE
             foundtomcatidincheckfile=0
