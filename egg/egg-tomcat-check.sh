@@ -50,7 +50,8 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             WGETEXECUTIONTIME=$(echo "$WGETENDTIME - $WGETSTARTTIME" | bc)
             STATUSSMALL=$(echo $status | cut -c97-175)
             #--2011-03-02 17:58:12-- http://10.254.98.230:8110/ Connecting to 10.254.98.230:8110... connected.
-            echo -e "$WGETEXECUTIONTIME \t$APPDIR \t$STATUSSMALL" >> logs/wget.log
+            CTIME=`TZ=EST date +"%b %d %r %N"`
+            echo -e "[$CTIME] $WGETEXECUTIONTIME \t$APPDIR \t$STATUSSMALL" >> logs/wget.log
             ISOK=0
             if [[ $status == *"HTTP request sent, awaiting response... 200 OK"* ]]; then
                 ISOK=1

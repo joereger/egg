@@ -88,6 +88,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 					MEMMAX_A=$(echo "$intomcatline" | cut -d ":" -f5)
 					MAXTHREADS_A=$(echo "$intomcatline" | cut -d ":" -f6)
 					HTTPPORT_A=$((8100+$TOMCATID_A))
+					JVMROUTE=$APPNAME$TOMCATID_A
 				
 					if [ "$APPNAME_A" == "$APPNAME" ]; then
 						
@@ -129,7 +130,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 						
 						if [ "$TOMCATFOUND" == "true" ]; then
                             #Build BalanceMember for this Tomcat
-                            BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=node1 acquire=60000 smax=15 max=20 ttl=120 timeout=120 retry=60"
+                            BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=$JVMROUTE acquire=60000 smax=15 max=20 ttl=120 timeout=120 retry=60"
                             BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
 
                             #Build ProxyPassReverse for this Tomcat
