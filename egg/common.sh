@@ -100,3 +100,8 @@ if [ ! -f "$TERRACOTTASFILE" ]; then
   exit 1
 fi
 
+PULSEFILE=data/pulse.updates
+if [ ! -f "$PULSEFILE" ]; then
+  echo "$PULSEFILE does not exist so creating it."
+  cp data/pulse.updates.sample $PULSEFILE
+fi

@@ -44,12 +44,14 @@ ALLISWELL=1
 		export RUNNING="running"
 		export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
 		if [ "$status" == "$RUNNING" ]; then
-			export thisinstanceisup=1  	
+			export thisinstanceisup=1
+			./egg-pulse-update.sh $AMAZONINSTANCEID "OK"
 		fi
 		#./log.sh "Thisinstanceisup=$thisinstanceisup"
 		
 		#Start an instance if necessary
 		if [ "${thisinstanceisup}" == "0" ]; then
+		    ./egg-pulse-update.sh $AMAZONINSTANCEID "CREATING"
 		    ALLISWELL=0
 			./log-status-red.sh "Instance $LOGICALINSTANCEID not found, will create"
 			./mail.sh "Instance$LOGICALINSTANCEID not found, creating" "stand up!!!!!!!!!"
@@ -77,6 +79,7 @@ ALLISWELL=1
                ./log-status-green.sh "Error starting instance for amazonimageid ${AMIID}"
                continue
             fi
+            ./egg-pulse-update.sh $AMAZONINSTANCEID "WAIT FOR RUN"
             ./log.sh "Amazon iid=$iid created, waiting for it to be RUNNING"
 
             # Loop until the status changes to .running.
@@ -92,9 +95,10 @@ ALLISWELL=1
                   sleep 10
                fi
             done
-            ./log.sh "Instance ${iid} is RUNNING"
 
+            ./log.sh "Instance ${iid} is RUNNING"
             #Add Tag(s)
+            ./egg-pulse-update.sh $AMAZONINSTANCEID "ADDING TAG"
             ./log.sh "Starting to add tag"
             ec2-create-tags ${iid} --tag Name="${EC2NAMETAG}"
             ./log.sh "Tag ${EC2NAMETAG} added to Instance ${iid}"
@@ -103,6 +107,7 @@ ALLISWELL=1
             if [ "$ELASTICIP" != "" ]; then
                 ./log.sh "Associating elastic IP address $ELASTICIP"
                 ${EC2_HOME}/bin/ec2-associate-address $ELASTICIP -i ${iid}
+                ./egg-pulse-update.sh $AMAZONINSTANCEID "EIP WAIT"
                 ./log.sh "Waiting 30 seconds for elasticip to be assigned"
                 sleep 30
             fi
@@ -127,6 +132,7 @@ ALLISWELL=1
                 if [ "$sshcheck" == "$sshtest" ]; then
                     export sshdone="true"
                 else
+                    ./egg-pulse-update.sh $AMAZONINSTANCEID "SSH WAIT"
                     ./log.sh "SSH not up yet, sleeping 10 seconds."
                     sleep 10
                 fi
@@ -159,6 +165,7 @@ ALLISWELL=1
 
             #Attach EBS volumes if necessary
             if [ "$EBSVOLUME" != "" ]; then
+                ./egg-pulse-update.sh $AMAZONINSTANCEID "EBS MOUNTING"
                 # Attach the volume to the running instance
                 # For future reference here's what I did to the volume to create the file system
                 # yum install xfsprogs
@@ -197,6 +204,8 @@ ALLISWELL=1
                    fi
                 done
             fi
+
+            ./egg-pulse-update.sh $AMAZONINSTANCEID "OK"
 
 			
 			#Delete any current line with this logicalinstanceid

@@ -61,6 +61,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
             if [ "$ISOK" == "1" ]; then
                 ./log.sh "Tomcat $APPDIR wget success $WGETEXECUTIONTIME seconds, recording LASTGOOD"
+                ./egg-pulse-update.sh $APPDIR "OK"
                 CURRENTTIME=`date +%s`
                 #Delete any current line with this tomcatid
                 sed -i "
@@ -83,6 +84,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         fi
                     fi
                 }; done; exec 4>&-
+                ./egg-pulse-update.sh $APPDIR "Fail ${LASTGOODSECONDSAGO}sec"
                 ./log-status-red.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
                 ./mail.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
             fi
@@ -109,10 +111,12 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
                         ./log.sh $APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
                         if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
+                            ./egg-pulse-update.sh $APPDIR "Restarting"
                             ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
                             ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
                             ./egg-tomcat-stop.sh $HOST $APPDIR
                             ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
+                            ./egg-pulse-update.sh $APPDIR "Wait Tomcat Come Up"
                             ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
                             sleep 30
                             #Delete any current line with this tomcatid
