@@ -11,6 +11,8 @@ HOST=$1
 APP=$2
 APPDIR=$3
 
+
+
 #Clear any existing locks, create new ones
 TOMCATSTOPLOCKTIMEOUTSECONDS=360
 source egg-tomcat-stop-unlock.sh
@@ -18,6 +20,8 @@ source egg-tomcat-stop-lock.sh
 TOMCATSTARTLOCKTIMEOUTSECONDS=360
 source egg-tomcat-start-unlock.sh
 source egg-tomcat-start-lock.sh
+
+./egg-pulse-update.sh $APPDIR "DEPLOYING WAR"
 
 #Delete ROOT dir, recreate it
 ./log-status.sh "Deploy: Delete root dirs $APPDIR"
@@ -38,4 +42,6 @@ ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
 #Clear the locks
 source egg-tomcat-stop-unlock.sh
 source egg-tomcat-start-unlock.sh
+
+./egg-pulse-update.sh $APPDIR "WAR DEPLOYED"
 

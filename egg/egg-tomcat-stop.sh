@@ -22,6 +22,7 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
     if [ "$tomcatcheck" == 1 ]; then
 
         #Do the stop
+        ./egg-pulse-update.sh $APPDIR "STOPPING"
         ./log-status.sh "Stopping Tomcat $APPDIR"
         #ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
         uselessjibberishvar=`ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"`
@@ -60,6 +61,7 @@ if [ "$ISTOMCATSTOPLOCK" == "0"  ]; then
                     ./log-status-red.sh "Tomcat ${APPDIR} process shutdown FAIL"
                 fi
             else
+                ./egg-pulse-update.sh $APPDIR "STOPPED"
                 ./log.sh "Tomcat ${APPDIR} process not found"
                 export tcdone="true"
             fi

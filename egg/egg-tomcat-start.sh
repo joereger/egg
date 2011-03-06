@@ -32,6 +32,7 @@ if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then
     ./egg-tomcat-log-flush.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
     export RESTARTIFCONFIGHASCHANGED="NORESTART"
     ./egg-tomcat-configure.sh $TOMCATID $RESTARTIFCONFIGHASCHANGED
+    ./egg-pulse-update.sh $APPDIR "STARTING"
     ./log-status.sh "Starting Tomcat $APPDIR"
     #ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
     uselessjibberishvar=`ssh -n -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"`
@@ -41,5 +42,6 @@ if [ "$ISTOMCATSTARTLOCK" == "0"  ]; then
     #ssh $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; export CATALINA_OPTS=\"-server -Xms${MEMMIN}m -Xmx${MEMMAX}m\"; bash egg/$APPDIR/tomcat/bin/startup.sh"
     uselessjibberishvar=`ssh -n $HOST "export CATALINA_HOME=/home/ec2-user/egg/$APPDIR/tomcat; export JRE_HOME=/usr/lib/jvm/jre; export CATALINA_OPTS=\"-server -Xms${MEMMIN}m -Xmx${MEMMAX}m\"; bash egg/$APPDIR/tomcat/bin/startup.sh"`
     echo $uselessjibberishvar
+    ./egg-pulse-update.sh $APPDIR "STARTED"
 fi
 

@@ -68,6 +68,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/bin/ ] && echo 1"`
                         if [ "$tomcatcheck" != 1 ]; then
                             ALLISWELL=0
+                            ./egg-pulse-update.sh $APPDIR "NOT FOUND, WILL CREATE"
                             ./log-status-green.sh "$APPDIR Tomcat not found, will create"
                             ./egg-tomcat-create.sh $HOST $APP $APPDIR $TOMCATID
                             #Reset Check status by deleting any line for this tomcatid
@@ -84,6 +85,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         warcheck=`ssh $HOST "[ -e ./egg/$APPDIR/ROOT.war ] && echo 1"`
                         if [ "$warcheck" != 1 ]; then
                             ALLISWELL=0
+                            ./egg-pulse-update.sh $APPDIR "WAR NOT FOUND"
                             ./log-status-green.sh "$APPDIR WAR not found, will deploy"
                             ./egg-tomcat-deploy-war.sh $HOST $APP $APPDIR
                             #Reset Check status by deleting any line for this tomcatid
@@ -102,6 +104,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         #./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
 
 					else
+					    ./egg-pulse-update.sh $APPDIR "INSTANCE NOT RUNNING"
 						./log-status-red.sh "Instance for $APPDIR not running"
 						export thisinstanceisup=0
 						export ALLISWELL=0
