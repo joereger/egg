@@ -45,7 +45,7 @@ exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
 					./log.sh "Start Terracotta$TERRACOTTAID Installation Check"
 					check=`ssh $HOST "[ -d /home/ec2-user/terracotta-3.4.0_1/ ] && echo 1"`
 					if [ "$check" != 1 ]; then
-					    ./egg-pulse-update.sh "Terracotta$TERRACOTTAID" "CREATING"
+					    ./pulse-update.sh "Terracotta$TERRACOTTAID" "CREATING"
 						./log-status-red.sh "Terracotta$TERRACOTTAID installation folder not found, will create"
 						./egg-terracotta-create.sh $HOST
 						./egg-terracotta-configure.sh $HOST
@@ -59,14 +59,15 @@ exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
                     ./log.sh "processcheck=$processcheck"
                     if `echo ${processcheck} | grep "localhost.health: OK" 1>/dev/null 2>&1`
                     then
-                        ./egg-pulse-update.sh "Terracotta$TERRACOTTAID" "OK"
+                        ./pulse-update.sh "Terracotta$TERRACOTTAID" "OK"
                         ./log.sh "Terracotta$TERRACOTTAID health appears OK"
                     else
-                        ./egg-pulse-update.sh "Terracotta$TERRACOTTAID" "RESTARTING"
+                        ./pulse-update.sh "Terracotta$TERRACOTTAID" "RESTARTING"
                         ./mail.sh "Terracotta$TERRACOTTAID health appears fail, restarting" "terra what?"
                         ./log-status-red.sh "Terracotta$TERRACOTTAID health appears FAIL"
                         ./egg-terracotta-stop.sh $HOST
                         ./egg-terracotta-start.sh $HOST $TERRACOTTAID
+                        ./pulse-update.sh "Terracotta$TERRACOTTAID" "DONE .RESTARTING"
                     fi
 
 				fi

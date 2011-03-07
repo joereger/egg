@@ -21,20 +21,23 @@ TOMCATSTARTLOCKTIMEOUTSECONDS=360
 source egg-tomcat-start-unlock.sh
 source egg-tomcat-start-lock.sh
 
-./egg-pulse-update.sh $APPDIR "DEPLOYING WAR"
+./pulse-update.sh $APPDIR "WAR DEPLOYING"
 
 #Delete ROOT dir, recreate it
+./pulse-update.sh $APPDIR "WAR DELETE ROOT"
 ./log-status.sh "Deploy: Delete root dirs $APPDIR"
 ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/ROOT"
 ssh -t -t $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
 
 #Copy the WAR file
+./pulse-update.sh $APPDIR "WAR COPY"
 ./log-status.sh "Deploy: Copy WAR file $APPDIR"
 scp war/$APP/ROOT.war ec2-user@$HOST:ROOT.war
 ssh -t -t $HOST "cp ROOT.war egg/$APPDIR/ROOT.war"
 ssh -t -t $HOST "rm -f ROOT.war"
 
 #Unzip the WAR file
+./pulse-update.sh $APPDIR "WAR UNZIP"
 ./log-status.sh "Deploy: Unzip WAR file $APPDIR"
 ssh -t -t $HOST "unzip egg/$APPDIR/ROOT.war -d egg/$APPDIR/tomcat/webapps/ROOT"
 ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
@@ -43,5 +46,5 @@ ssh -t -t $HOST "sudo chmod -R 755 /home/ec2-user/egg/$APPDIR"
 source egg-tomcat-stop-unlock.sh
 source egg-tomcat-start-unlock.sh
 
-./egg-pulse-update.sh $APPDIR "WAR DEPLOYED"
+./pulse-update.sh $APPDIR "WAR DEPLOYED"
 

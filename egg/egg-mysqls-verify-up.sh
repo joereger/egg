@@ -48,7 +48,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 					apachecheck=`ssh $HOST "[ -e /etc/my.cnf ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
 					    ALLISWELL=0
-					    ./egg-pulse-update.sh "MySQL$MYSQLID" "INSTALLING"
+					    ./pulse-update.sh "MySQL$MYSQLID" "INSTALLING"
 						./log-status-red.sh "MySQL$MYSQLID my.cnf not found, installing"
 						./egg-mysql-create.sh $HOST
 						./egg-mysql-configure.sh $HOST $MYSQLID
@@ -65,7 +65,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
                     echo processcheck=$processcheck
 					if [ "$processcheck" != 1 ]; then
 					    ALLISWELL=0
-					    ./egg-pulse-update.sh "MySQL$MYSQLID" "RESTARTING"
+					    ./pulse-update.sh "MySQL$MYSQLID" "RESTARTING"
 					    ./mail.sh "MySQL$MYSQLID process not found, restarting" "where mah process at"
 						./log-status-red.sh "MySQL$MYSQLID process not found, restarting"
 						./egg-mysql-stop.sh $HOST
@@ -79,13 +79,17 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 
 
 
+
                     #MySQL Select Check
                     #This line very finickey...
+                    STARTTIME=$(date +%s.%N);
                     selectcheck=`ssh $HOST "mysql -uroot -pcatalyst --silent --silent --execute='select 1+1;'"`
+                    ENDTIME=$(date +%s.%N);
+                    DIFFTIME=$(echo "$ENDTIME - $STARTTIME" | bc);
                     echo selectcheck=$selectcheck
 					if [ "$selectcheck" != "2" ]; then
 					    ALLISWELL=0
-					    ./egg-pulse-update.sh "MySQL$MYSQLID" "RESTARTING"
+					    ./pulse-update.sh "MySQL$MYSQLID" "RESTARTING"
 					    ./mail.sh "MySQL$MYSQLID fails select check, restarting" "select me"
 						./log-status-red.sh "MySQL$MYSQLID fails select check, restarting"
 						./egg-mysql-stop.sh $HOST
@@ -94,7 +98,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 						./log.sh "MySQL$MYSQLID Sleeping 10 seconds for startup"
                         sleep 10
 					else
-					    ./egg-pulse-update.sh "MySQL$MYSQLID" "OK"
+					    ./pulse-update.sh "MySQL$MYSQLID" "OK, ${DIFFTIME}sec"
 						./log.sh "MySQL$MYSQLID select check passes"
 					fi
 

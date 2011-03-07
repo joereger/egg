@@ -71,7 +71,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                                 ./log.sh "$APPDIR server.xml local is the SAME as remote"
                             else
                                 NEEDTOBOUNCETOMCAT=1
-                                ./egg-pulse-update.sh $APPDIR "UPDATING SERVER.XML"
+                                ./pulse-update.sh $APPDIR "UPDATING SERVER.XML"
                                 ./log.sh "$APPDIR server.xml local is the DIFFERENT than remote"
                                 #Make sure /conf exists
                                 #ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/conf"
@@ -86,7 +86,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                                 ./log.sh "$APPDIR instance.props local is the SAME as remote"
                             else
                                 NEEDTOBOUNCETOMCAT=1
-                                ./egg-pulse-update.sh $APPDIR "UPDATING INSTANCE.PROPS"
+                                ./pulse-update.sh $APPDIR "UPDATING INSTANCE.PROPS"
                                 ./log.sh "$APPDIR instance.props local is the DIFFERENT than remote"
                                 #Make sure /conf exists
                                 #ssh -t -t $HOST "mkdir -p egg/$APPDIR/tomcat/webapps/ROOT/conf"
@@ -103,7 +103,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                                     ./egg-tomcat-stop.sh $HOST $APPDIR
                                     ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
                                     ./log-status.sh "Bounced Tomcat ${APPDIR} to update props, sleeping 30 sec for it to come up"
-                                    ./egg-pulse-update.sh $APPDIR "WAITING TO COME UP"
+                                    ./pulse-update.sh $APPDIR "WAITING 30 SEC FOR STARTUP"
                                     #Reset Check status by deleting any line for this tomcatid
                                     sed -i "
                                     /^${TOMCATID}:/ d\
@@ -113,7 +113,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                                 fi
                              fi
 
-
+                            ./pulse-update.sh $APPDIR "DONE CONFIGURING, SHOULD BE RUNNING"
 
                     fi
                 fi

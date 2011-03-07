@@ -80,6 +80,11 @@ source common.sh
 
 		SPEED=`ssh $HOST 'STARTTIME=$(date +%s.%N); for i in {1..100000}; do TMPVAR=$((i/3)); done; END=$(date +%s.%N); DIFF=$(echo "$END - $STARTTIME" | bc); echo $DIFF'`
         CURRENTTIME=`TZ=EST date +"%b %d %r"`
+        if [ "$SPEED" != "" ]; then
+            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK, ${SPEED}sec $SECURITYGROUP $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+        else
+            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "SPEEDTEST EMPTY RESULT $SECURITYGROUP $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+        fi
         echo -e "$CURRENTTIME \t$SPEED sec \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
         echo -e "$CURRENTTIME \t$SPEED sec \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO" >> logs/instances.speed.log
 
