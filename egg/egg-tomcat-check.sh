@@ -61,7 +61,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
             if [ "$ISOK" == "1" ]; then
                 ./log.sh "Tomcat $APPDIR wget success $WGETEXECUTIONTIME seconds, recording LASTGOOD"
-                ./pulse-update.sh $APPDIR "OK, ${WGETEXECUTIONTIME}sec"
+                ./pulse-update.sh $APPDIR "OK, ${WGETEXECUTIONTIME:0:3}s"
                 #./pulse-update.sh "${$APPDIR}WGET" "$WGETEXECUTIONTIME"
                 CURRENTTIME=`date +%s`
                 #Delete any current line with this tomcatid

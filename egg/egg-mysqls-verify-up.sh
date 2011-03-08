@@ -98,7 +98,7 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 						./log.sh "MySQL$MYSQLID Sleeping 10 seconds for startup"
                         sleep 10
 					else
-					    ./pulse-update.sh "MySQL$MYSQLID" "OK, ${DIFFTIME}sec"
+					    ./pulse-update.sh "MySQL$MYSQLID" "OK, ${DIFFTIME:0:3}s"
 						./log.sh "MySQL$MYSQLID select check passes"
 					fi
 

@@ -35,7 +35,7 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
-    echo "TOMCATS________________"
+    echo "TOMCATS__________________________"
 
 
     exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
@@ -56,7 +56,7 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
-    echo "INSTANCES______________"
+    echo "INSTANCES________________________"
 
     exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
         if [ $(echo "$ininstancesline" | cut -c1) != "#" ]; then
@@ -89,7 +89,7 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
-    echo "TERRACOTTAS____________"
+    echo "TERRACOTTAS______________________"
 
     exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
         if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
@@ -107,7 +107,7 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
-    echo "MYSQLS_________________"
+    echo "MYSQLS___________________________"
 
     exec 3<> $MYSQLSFILE; while read inmysqls <&3; do {
         if [ $(echo "$inmysqls" | cut -c1) != "#" ]; then
@@ -145,9 +145,9 @@ do
                                 tput cup $ROW $COL
                                 tput el
                                 if [ "${VALUE:0:2}" = "OK" ]; then
-                                    echo -e ${cf_green}$VALUE${c_reset}
+                                    echo -e ${cf_green}${VALUE}${c_reset}
                                 else
-                                    echo -e ${cb_red}$VALUE${c_reset}
+                                    echo -e ${cb_red}${VALUE}${c_reset}
                                 fi
                 fi
                 fi

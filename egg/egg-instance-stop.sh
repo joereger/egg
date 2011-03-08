@@ -55,7 +55,7 @@ exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 			if [ ${thisinstanceisup} == "1" ]; then
 				echo Will stop amazon ec2 instance for logical instance $LOGICALINSTANCEID
 
-
+                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "STOPPING MYSQL"
                 #Try for some graceful shutdown of MySQL
                 ./egg-mysql-stop.sh $HOST
 
@@ -63,6 +63,7 @@ exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
                 ${EC2_HOME}/bin/ec2-stop-instances $AMAZONINSTANCEID
 
                 # Loop until the status changes to .stopped.
+                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "STOPPING, WAIT 30 SEC"
                 sleep 30
                 echo Stopping instance ${AMAZONINSTANCEID}
                 export STOPPED="stopped"
@@ -73,10 +74,12 @@ exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
                    if [ $status == ${STOPPED} ]; then
                       export done="true"
                    else
+                      ./pulse-update.sh "Instance$LOGICALINSTANCEID" "STOPPING, WAIT 10 SEC"
                       echo Waiting...
                       sleep 10
                    fi
                 done
+                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "STOPPED"
                 echo Instance ${AMAZONINSTANCEID} is stopped
 					
 

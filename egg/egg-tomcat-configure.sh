@@ -110,10 +110,10 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                                     " $CHECKTOMCATSFILE
                                     #Sleep for app to come up
                                     sleep 30
+                                    ./pulse-update.sh $APPDIR "DONE CONFIGURING, SHOULD BE RUNNING"
                                 fi
                              fi
 
-                            ./pulse-update.sh $APPDIR "DONE CONFIGURING, SHOULD BE RUNNING"
 
                     fi
                 fi
