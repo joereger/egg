@@ -64,30 +64,41 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                 ./pulse-update.sh $APPDIR "OK, ${WGETEXECUTIONTIME:0:3}s"
                 #./pulse-update.sh "${$APPDIR}WGET" "$WGETEXECUTIONTIME"
                 CURRENTTIME=`date +%s`
+                LASTCHECKED=`date +%s`
                 #Delete any current line with this tomcatid
                 sed -i "
                 /^${TOMCATID}:/ d\
                 " $CHECKTOMCATSFILE
-                #Write a new record
+                #Write a new record, update LASTGOOD as CURRENTTIME
                 sed -i "
                 /#BEGINDATA/ a\
-                $TOMCATID:$CURRENTTIME
+                $TOMCATID:$CURRENTTIME:$LASTCHECKED
                 " $CHECKTOMCATSFILE
             else
-                #This big loop just done to collect better logging/emailing data (namely LASTGOODSECONDSAGO)
+                #Record last check
                 exec 4<> $CHECKTOMCATSFILE; while read incheckline <&4; do {
                     if [ $(echo "$incheckline" | cut -c1) != "#" ]; then
                         TOMCATID_CHK=$(echo "$incheckline" | cut -d ":" -f1)
                         if [ "$TOMCATID_CHK" == "$TOMCATID" ]; then
                             LASTGOOD=$(echo "$incheckline" | cut -d ":" -f2)
                             CURRENTTIME=`date +%s`
+                            LASTCHECKED=`date +%s`
                             LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
+                            #Delete any current line with this tomcatid
+                            sed -i "
+                            /^${TOMCATID}:/ d\
+                            " $CHECKTOMCATSFILE
+                            #Write a new record, keep old LASTGOOD but update
+                            sed -i "
+                            /#BEGINDATA/ a\
+                            $TOMCATID:$LASTGOOD:$LASTCHECKED
+                            " $CHECKTOMCATSFILE
                         fi
                     fi
                 }; done; exec 4>&-
                 ./pulse-update.sh $APPDIR "Fail ${LASTGOODSECONDSAGO} sec"
-                ./log-status-red.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
-                ./mail.sh "Tomcat $APPDIR fails wget $WGETEXECUTIONTIME seconds, LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO" "status=$status"
+                ./log-status-red.sh "Tomcat $APPDIR fails wget ${WGETEXECUTIONTIME:0:4}s, down ${LASTGOODSECONDSAGO}s"
+                ./mail.sh "Tomcat $APPDIR fails wget ${WGETEXECUTIONTIME:0:4}s, down ${LASTGOODSECONDSAGO}s" "LASTGOODSECONDSAGO=${LASTGOODSECONDSAGO}s, status=$status"
             fi
 
 
@@ -96,7 +107,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
 
             #This is max time that tomcat can be down before restart
-            MAXLASTGOOD=600
+            MAXLASTGOOD=800
             #Figure out how long since last good
             #Read CHECKTOMCATSFILE
             foundtomcatidincheckfile=0
@@ -108,22 +119,40 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                     if [ "$TOMCATID_CHK" == "$TOMCATID" ]; then
                         foundtomcatidincheckfile=1
                         LASTGOOD=$(echo "$incheckline" | cut -d ":" -f2)
+                        LASTCHECKED=$(echo "$incheckline" | cut -d ":" -f3)
                         CURRENTTIME=`date +%s`
                         LASTGOODSECONDSAGO=$((CURRENTTIME-LASTGOOD))
-                        ./log.sh $APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO
-                        if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
-                            ./pulse-update.sh $APPDIR "Restarting"
-                            ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
-                            ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
-                            ./egg-tomcat-stop.sh $HOST $APPDIR
-                            ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
-                            ./pulse-update.sh $APPDIR "Wait Tomcat Come Up"
-                            ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
-                            sleep 30
-                            #Delete any current line with this tomcatid
-                            sed -i "
-                            /^${TOMCATID}:/ d\
-                            " $CHECKTOMCATSFILE
+
+                        ISTOOLONGSINCELASTCHECK=0
+                        LASTCHECKEDSECONDSAGO=""
+                        if [ "$LASTCHECKED" != "" ]; then
+                            LASTCHECKEDSECONDSAGO=$((CURRENTTIME-LASTCHECKED))
+                            if [ "${LASTCHECKEDSECONDSAGO}" -gt "${MAXLASTGOOD}" ]; then
+                                #It's been too long since last check
+                                ISTOOLONGSINCELASTCHECK=1
+                            fi
+                        fi
+
+                        ./log.sh "$APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO, LASTCHECKSECONDSAGO=$LASTCHECKEDSECONDSAGO, ISTOOLONGSINCELASTCHECK=$ISTOOLONGSINCELASTCHECK"
+                        if [ "${ISTOOLONGSINCELASTCHECK}" == "0"  ]; then
+                            if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
+                                ./pulse-update.sh $APPDIR "Restarting"
+                                ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
+                                ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
+                                ./egg-tomcat-stop.sh $HOST $APPDIR
+                                ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
+                                ./pulse-update.sh $APPDIR "Wait Tomcat Come Up"
+                                ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
+                                sleep 30
+                                ./pulse-update.sh $APPDIR "RESTART COMPLETE"
+                                #Delete any current line with this tomcatid
+                                sed -i "
+                                /^${TOMCATID}:/ d\
+                                " $CHECKTOMCATSFILE
+                            fi
+                        else
+                            #It's been too long since the last down check... need a couple in quick succession
+                            ./pulse-update.sh $APPDIR "TOO LONG SINCE LAST CHECK (${LASTCHECKEDSECONDSAGO:0:3}s)"
                         fi
                     fi
 
@@ -134,10 +163,11 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             #This sets a false lastgood time of now but this only happens once, the first time check system sees this tomcatid.
             if [ "$foundtomcatidincheckfile" == "0"  ]; then
                 CURRENTTIME=`date +%s`
+                LASTCHECKED=`date +%s`
                 #Write a new record
                 sed -i "
                 /#BEGINDATA/ a\
-                $TOMCATID:$CURRENTTIME
+                $TOMCATID:$CURRENTTIME:$LASTCHECKED
                 " $CHECKTOMCATSFILE
             fi
 
