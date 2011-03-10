@@ -3,7 +3,7 @@
 #--------------------------
 #Open cron job and create lock
 CRONNAME="CRONINSTANCESSPEEDTEST"   #Only alphabetic, no spaces, no funky chars
-CRONLOCKTIMEOUTSECONDS=300          #Not sure here
+CRONLOCKTIMEOUTSECONDS=600          #Not sure here
 cd /home/ec2-user/egg
 source cronincludetop.sh
 #--------------------------

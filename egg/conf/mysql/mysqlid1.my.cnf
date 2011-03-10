@@ -25,7 +25,7 @@ long_query_time=3
 log-error=/var/lib/mysql/error.log
 myisam_recover = force,backup
 myisam_sort_buffer_size=512M
-#skip-innodb
+
 
 
 [mysqld_safe]

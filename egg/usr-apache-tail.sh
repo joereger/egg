@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export DONTREDITSTDOUTTOLOGFILE=1
 source common.sh
 
 

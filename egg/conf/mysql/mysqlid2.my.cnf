@@ -5,32 +5,12 @@ user=mysql
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links=0
 #Below added by joe
-max_connections=600
-default-storage-engine=MyISAM
-thread_cache_size = 256
-table_cache = 1024
-key_buffer = 4000M
-sort_buffer_size = 256K
-read_buffer_size = 256K
-read_rnd_buffer_size = 256K
-max_allowed_packet = 1M
-tmp_table_size=64M
-max_heap_table_size=64M
-query_cache_size=128M
-query_cache_type=1
-log_output=FILE
-slow_query_log_file=/var/lib/mysql/slowquery.log
-slow_query_log=1
-long_query_time=3
-log-error=/var/lib/mysql/error.log
-myisam_recover = force,backup
-myisam_sort_buffer_size=512M
-#OLD
+#LARGE
 #max_connections=600
 #default-storage-engine=MyISAM
 #thread_cache_size = 256
 #table_cache = 1024
-#key_buffer = 1000M
+#key_buffer = 4000M
 #sort_buffer_size = 256K
 #read_buffer_size = 256K
 #read_rnd_buffer_size = 256K
@@ -45,8 +25,29 @@ myisam_sort_buffer_size=512M
 #long_query_time=3
 #log-error=/var/lib/mysql/error.log
 #myisam_recover = force,backup
-#myisam_sort_buffer_size=256M
-#skip-innodb
+#myisam_sort_buffer_size=512M
+#SMALL
+max_connections=600
+default-storage-engine=MyISAM
+thread_cache_size = 256
+table_cache = 1024
+key_buffer = 1000M
+sort_buffer_size = 256K
+read_buffer_size = 256K
+read_rnd_buffer_size = 256K
+max_allowed_packet = 1M
+tmp_table_size=64M
+max_heap_table_size=64M
+query_cache_size=128M
+query_cache_type=1
+log_output=FILE
+slow_query_log_file=/var/lib/mysql/slowquery.log
+slow_query_log=1
+long_query_time=3
+log-error=/var/lib/mysql/error.log
+myisam_recover = force,backup
+myisam_sort_buffer_size=256M
+
 
 
 [mysqld_safe]

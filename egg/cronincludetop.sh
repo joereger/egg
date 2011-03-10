@@ -97,22 +97,24 @@ exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
 #Basically, when that sucker's running, don't run other cronjobs
 #Only need to run this if the current cron is NOT CRONVERIFYUP
 if [ "$CRONNAME" != "CRONVERIFYUP" ]; then
-    exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
-        if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
-            CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
-            RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
-            if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
-                CURRENTTIME=`date +%s`
-                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
-                if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
-                    ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
-                    exit
-                else
-                    ./log-debug.sh "CRONVERIFYUP lock has expired, continuing $CRONNAME"
+    if [ "$CRONNAME" != "CRONINSTANCESSPEEDTEST" ]; then
+        exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
+            if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
+                CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
+                RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
+                if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
+                    CURRENTTIME=`date +%s`
+                    RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
+                    if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
+                        ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
+                        exit
+                    else
+                        ./log-debug.sh "CRONVERIFYUP lock has expired, continuing $CRONNAME"
+                    fi
                 fi
             fi
-        fi
-    }; done; exec 3>&-
+        }; done; exec 3>&-
+    fi
 fi
 
 
