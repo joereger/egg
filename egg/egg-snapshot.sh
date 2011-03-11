@@ -2,8 +2,9 @@
 
 source common.sh
 
-if [ "$#" == "0" ]; then echo "!USAGE: EBSVOLUME HOST(nohost for empty) DESCRIPTION(optional)"; exit; fi
+if [ "$#" == "0" ]; then echo "!USAGE: EBSVOLUME TIMEPERIOD HOST(nohost for empty) DESCRIPTION(optional)"; exit; fi
 if [ "$1" == "" ]; then echo "Must provide a EBSVOLID"; exit; fi
+if [ "$2" == "" ]; then echo "Must provide a TIMEPERIOD"; exit; fi
 
 EBSVOLUME=$1
 TIMEPERIOD=$2

@@ -29,10 +29,6 @@ export JAVA_HOME=/usr/lib/jvm/jre
 #EC2 Name Tag for all instances
 export EC2NAMETAG="eggpuppet"
 
-
-
-
-
 CRONLOCKSFILE=data/cron.locks
 if [ ! -f "$CRONLOCKSFILE" ]; then
   echo "$CRONLOCKSFILE does not exist so creating it."
@@ -49,6 +45,12 @@ fi
 APACHESFILE=conf/apaches.conf
 if [ ! -f "$APACHESFILE" ]; then
   echo "Sorry, $APACHESFILE does not exist."
+  exit 1
+fi
+
+SNAPSHOTSFILE=conf/snapshots.conf
+if [ ! -f "$SNAPSHOTSFILE" ]; then
+  echo "Sorry, $SNAPSHOTSFILE does not exist."
   exit 1
 fi
 

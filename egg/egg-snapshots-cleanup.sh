@@ -18,10 +18,12 @@ exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
 
             ./egg-snapshot-cleanup.sh $EBSVOLUME daily
             ./egg-snapshot-cleanup.sh $EBSVOLUME weekly
+            ./egg-snapshot-cleanup.sh $EBSVOLUME monthly
 
         fi
 
 	fi
 }; done; exec 3>&-
+
 
 

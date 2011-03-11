@@ -93,28 +93,41 @@ exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
 
 
 
-#Check for CRONVERIFYUP
+#Some cronjobs run no matter what... even if CRONVERIFYUP is active.
+FREEPASS=0
+if [ "$CRONNAME" == "CRONVERIFYUP" ]; then FREEPASS=1; fi
+if [ "$CRONNAME" == "CRONINSTANCESSPEEDTEST" ]; then FREEPASS=1; fi
+if [ "$CRONNAME" == "CRONSNAPSHOTSDAILY" ]; then FREEPASS=1; fi
+if [ "$CRONNAME" == "CRONSNAPSHOTSWEEKLY" ]; then FREEPASS=1; fi
+if [ "$CRONNAME" == "CRONSNAPSHOTSMONTHLY" ]; then FREEPASS=1; fi
+if [ "$CRONNAME" == "CRONSNAPSHOTSCLEANUP" ]; then FREEPASS=1; fi
+
+
+
+
+
+#Check for CRONVERIFYUP.
 #Basically, when that sucker's running, don't run other cronjobs
 #Only need to run this if the current cron is NOT CRONVERIFYUP
-if [ "$CRONNAME" != "CRONVERIFYUP" ]; then
-    if [ "$CRONNAME" != "CRONINSTANCESSPEEDTEST" ]; then
-        exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
-            if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
-                CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
-                RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
-                if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
-                    CURRENTTIME=`date +%s`
-                    RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
-                    if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
-                        ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
-                        exit
-                    else
-                        ./log-debug.sh "CRONVERIFYUP lock has expired, continuing $CRONNAME"
-                    fi
+if [ "$FREEPASS" == "0" ]; then
+    exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
+        if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
+            CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
+            RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
+            if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
+                CURRENTTIME=`date +%s`
+                RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
+                if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
+                    ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
+                    exit
+                else
+                    ./log-debug.sh "CRONVERIFYUP lock has expired, continuing $CRONNAME"
                 fi
             fi
-        }; done; exec 3>&-
-    fi
+        fi
+    }; done; exec 3>&-
+else
+    ./log-debug.sh "$CRONNAME gets FREEPASS, not checked for locks"
 fi
 
 
