@@ -148,6 +148,8 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"<Proxy balancer://$APPNAME>"
 			VHOSTS=$VHOSTS$NEWLINE
+			VHOSTS=$VHOSTS"BrowserMatchNoCase baidu isrobot"
+			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase slurp isrobot"
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"BrowserMatchNoCase yandexbot isrobot"
