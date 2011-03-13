@@ -83,9 +83,6 @@ source common.sh
 
         UPTIME=`ssh $HOST 'uptime'`
         ./log-debug.sh "Instance$LOGICALINSTANCEID $UPTIME"
-        #FL1=$(echo "UPTIME" | cut -d "," -f3)
-        #LOAD1=$(echo "$UPTIME" | awk '{print $10}')
-        #LOAD=${UPTIME:53:69}
 
         pre=`echo $UPTIME | sed -e "s/\(.*\) \(.*\), \(.*\), \(.*\)/\1/"`
         min_1=`echo $UPTIME | sed -e 's/\(.*\) \(.*\), \(.*\), \(.*\)/\2/'`
@@ -100,9 +97,6 @@ source common.sh
         # so convert the number to an interger
         #thisloadavg=`echo $loadavg|awk -F \. '{print $1}'`
 
-
-
-
         if [ "$min_1" != "" ]; then
             ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
         else
@@ -111,6 +105,29 @@ source common.sh
 
         echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
         echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO" >> logs/instances.speed.log
+
+
+
+
+        #Check Egg (this) server
+        UPTIME=`uptime`
+
+        pre=`echo $UPTIME | sed -e "s/\(.*\) \(.*\), \(.*\), \(.*\)/\1/"`
+        min_1=`echo $UPTIME | sed -e 's/\(.*\) \(.*\), \(.*\), \(.*\)/\2/'`
+        min_5=`echo $UPTIME | sed -e 's/\(.*\) \(.*\), \(.*\), \(.*\)/\3/'`
+        min_15=`echo $UPTIME | sed -e 's/\(.*\) \(.*\), \(.*\), \(.*\)/\4/'`
+
+        if [ "$min_1" != "" ]; then
+            ./pulse-update.sh "Egg" "OK ($min_1 $min_5 $min_15)"
+        else
+            ./pulse-update.sh "Egg" "SPEEDTEST EMPTY RESULT"
+        fi
+
+
+
+
+
+
 
 	fi
 }; done; exec 3>&-

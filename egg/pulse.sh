@@ -87,23 +87,8 @@ do
     }; done; exec 3>&-
 
 
-    ROWS=$(( $ROWS + 1 ))
-    tput cup $ROWS 0
-    echo "TERRACOTTAS______________________"
 
-    exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
-        if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
-            TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
-            LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
-            ROWS=$(( $ROWS + 1 ))
-            tput cup $ROWS 1
-            tput el
-            echo "Terracotta$TERRACOTTAID"
-            KEY="Terracotta$TERRACOTTAID"
-            hput rows $KEY $ROWS
-            hput cols $KEY 20
-        fi
-    }; done; exec 3>&-
+
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
@@ -123,8 +108,69 @@ do
     }; done; exec 3>&-
 
 
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 0
+    echo "MISC_____________________________"
 
+
+
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 1
+    echo "Egg"
+    KEY="Egg"
+    hput rows $KEY $ROWS
+    hput cols $KEY 20
+
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 1
+    echo "Cron"
+    KEY="Cron"
+    hput rows $KEY $ROWS
+    hput cols $KEY 20
+
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 1
+    echo "CronOn"
+    KEY="CronOn"
+    hput rows $KEY $ROWS
+    hput cols $KEY 20
+
+
+    exec 3<> $APACHESFILE; while read inapache <&3; do {
+        if [ $(echo "$inapache" | cut -c1) != "#" ]; then
+            APACHEID=$(echo "$inapache" | cut -d ":" -f1)
+            ROWS=$(( $ROWS + 1 ))
+            tput cup $ROWS 1
+            tput el
+            echo "Apache$APACHEID"
+            KEY="Apache$APACHEID"
+            hput rows $KEY $ROWS
+            hput cols $KEY 20
+        fi
+    }; done; exec 3>&-
+
+    exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
+        if [ $(echo "$interracottas" | cut -c1) != "#" ]; then
+            TERRACOTTAID=$(echo "$interracottas" | cut -d ":" -f1)
+            LOGICALINSTANCEID=$(echo "$interracottas" | cut -d ":" -f2)
+            ROWS=$(( $ROWS + 1 ))
+            tput cup $ROWS 1
+            tput el
+            echo "Terracotta$TERRACOTTAID"
+            KEY="Terracotta$TERRACOTTAID"
+            hput rows $KEY $ROWS
+            hput cols $KEY 20
+        fi
+    }; done; exec 3>&-
+
+
+
+
+
+    #========================================
+    #========================================
     #This is the loop that updates the screen
+    #========================================
     COUNT=0
     export done="false"
     while [ $done == "false" ]
@@ -162,6 +208,8 @@ do
 
         sleep 1
     done
+    #========================================
+    #========================================
 
 
 done

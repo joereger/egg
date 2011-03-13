@@ -12,8 +12,9 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
 	
 		APACHEID=$(echo "$inapacheline" | cut -d ":" -f1)
-		
+
 		./egg-apache-configure.sh $APACHEID
+
 
 	fi
 }; done; exec 3>&-

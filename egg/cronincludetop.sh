@@ -46,6 +46,8 @@ exec 3<> $CRONPAUSEALLFILE; while read cronpauseallline <&3; do {
 
 
         if [ "${PAUSEENDSAT}" -eq "0"  ]; then
+            ./pulse-update.sh "Cron" "OK"
+            ./pulse-update.sh "CronOn" "PAUSED INDEFINITELY"
             ./log-debug.sh "Cron jobs paused indefinitely, exiting"
             exit
         fi
@@ -53,6 +55,8 @@ exec 3<> $CRONPAUSEALLFILE; while read cronpauseallline <&3; do {
         if [ "${CURRENTTIME}" -lt "${PAUSEENDSAT}"  ]; then
             REMAININGSECONDS=$((PAUSEENDSAT-CURRENTTIME))
             REMAININGMINUTES=$((REMAININGSECONDS/60))
+            ./pulse-update.sh "Cron" "OK"
+            ./pulse-update.sh "Cron" "PAUSED ANOTHER ${REMAININGMINUTES}min"
             ./log-debug.sh "Cron jobs paused another $REMAININGMINUTES min, exiting"
             exit
         else
@@ -64,6 +68,7 @@ exec 3<> $CRONPAUSEALLFILE; while read cronpauseallline <&3; do {
     fi
 }; done; exec 3>&-
 
+./pulse-update.sh "CronOn" "OK"
 
 
 
@@ -82,6 +87,7 @@ exec 3<> $CRONLOCKSFILE; while read cronpauseallline <&3; do {
             #echo RUNSTARTEDATPLUSTIMEOUT=$RUNSTARTEDATPLUSTIMEOUT
 
             if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
+                ./pulse-update.sh "Cron" "OK $CRONNAME LOCK, NOT RUNNING"
                 ./log-debug.sh "Cron lock for $CRONNAME, exiting"
                 exit
             else
@@ -144,6 +150,13 @@ sed -i "
 /#BEGINDATA/ a\
 $CRONNAME:$CURRENTTIME
 " $CRONLOCKSFILE
+
+
+
+
+./pulse-update.sh "Cron" "OK ${CRONNAME} START"
+
+
 
 
 #Start time counter

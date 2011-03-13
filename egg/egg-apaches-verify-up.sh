@@ -47,11 +47,13 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 					apachecheck=`ssh $HOST "[ -d /etc/httpd/conf/ ] && echo 1"`
 					if [ "$apachecheck" != 1 ]; then
 					    ALLISWELL=0
+					    ./pulse-update.sh "Apache$APACHEID" "NOT FOUND, WILL CREATE"
 						./log-status-red.sh "Apache$APACHEID installation folder not found, will create"
 						./egg-apache-stop.sh $HOST
 						./egg-apache-create.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST
+						./pulse-update.sh "Apache$APACHEID" "DONE CREATING"
 					else 
 						./log.sh "Apache$APACHEID installation folder found"
 					fi
@@ -63,11 +65,13 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
                     ./log.sh "processcheck=$processcheck"
 					if [ "$processcheck" != 1 ]; then
 					    ALLISWELL=0
+					    ./pulse-update.sh "Apache$APACHEID" "PROCESS NOT FOUND, RESTARTING"
 					    ./mail.sh "Apache$APACHEID process not found, restarting" "donde esta apache?"
 						./log-status-red.sh "Apache$APACHEID process not found"
 						./egg-apache-stop.sh $HOST
 						./egg-apache-configure.sh $APACHEID
 						./egg-apache-start.sh $HOST
+						./pulse-update.sh "Apache$APACHEID" "DONE RESTARTING"
 					else
 						./log.sh "Apache$APACHEID process found"
 					fi
@@ -87,4 +91,5 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 
 if [ "$ALLISWELL" == "1"  ]; then
     ./log-status.sh "Apaches AllIsWell `date`"
+    ./pulse-update.sh "Apache$APACHEID" "OK"
 fi
