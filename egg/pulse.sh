@@ -113,7 +113,6 @@ do
     echo "MISC_____________________________"
 
 
-
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 1
     echo "Egg"

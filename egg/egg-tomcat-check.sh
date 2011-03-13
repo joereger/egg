@@ -33,16 +33,13 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
             HTTPPORT=$((8100+$TOMCATID))
 
 
+
+
             #HTTP Check
             ./log.sh "Start HTTP Check $APPDIR"
             url="http://$HOST:$HTTPPORT/"
             retries=0
             timeout=120
-            #status=`wget --tries 1 --timeout 120 $url 2>&1 | egrep "HTTP" | awk {'print $6'}`
-            #$status=`wget --tries 1 --timeout 120 $url`
-
-            #"HTTP request sent, awaiting response... 200 OK"
-
             mkdir -p logs/wget
             WGETSTARTTIME=$(date +%s.%N)
             export status=`wget --tries 1 --timeout 120 -O logs/wget/$APPNAME$TOMCATID.html $url 2>&1`
@@ -136,19 +133,48 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         ./log.sh "$APPDIR LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO, LASTCHECKSECONDSAGO=$LASTCHECKEDSECONDSAGO, ISTOOLONGSINCELASTCHECK=$ISTOOLONGSINCELASTCHECK"
                         if [ "${ISTOOLONGSINCELASTCHECK}" == "0"  ]; then
                             if [ "${LASTGOODSECONDSAGO}" -gt "${MAXLASTGOOD}"  ]; then
-                                ./pulse-update.sh $APPDIR "Restarting"
-                                ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
-                                ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
-                                ./egg-tomcat-stop.sh $HOST $APPDIR
-                                ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
-                                ./pulse-update.sh $APPDIR "Wait Tomcat Come Up"
-                                ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
-                                sleep 30
-                                ./pulse-update.sh $APPDIR "RESTART COMPLETE"
-                                #Delete any current line with this tomcatid
-                                sed -i "
-                                /^${TOMCATID}:/ d\
-                                " $CHECKTOMCATSFILE
+
+                                #Before any restart need to make sure CRONVERIFY isn't running
+                                ISCRONVERIFYUPRUNNING=0
+                                exec 5<> $CRONLOCKSFILE; while read cronpauseallline <&5; do {
+                                    if [ $(echo "$cronpauseallline" | cut -c1) != "#" ]; then
+                                        CRONNAME_A=$(echo "$cronpauseallline" | cut -d ":" -f1)
+                                        RUNSTARTEDAT=$(echo "$cronpauseallline" | cut -d ":" -f2)
+                                        if [ "$CRONNAME_A" == "CRONVERIFYUP" ]; then
+                                            CURRENTTIME=`date +%s`
+                                            RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
+                                            if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
+                                                ./log-debug.sh "egg-tomcat-check.sh finds that CRONVERIFYUP lock is valid, exiting ISCRONVERIFYUPRUNNING=1"
+                                                ISCRONVERIFYUPRUNNING=1
+                                            else
+                                                ./log-debug.sh "egg-tomcat-check.sh finds that CRONVERIFYUP lock has expired, continuing ISCRONVERIFYUPRUNNING=0"
+                                            fi
+                                        fi
+                                    fi
+                                }; done; exec 5>&-
+
+
+                                #If CRONVERIFYUP is not running, go ahead and restart
+                                if [ "${ISCRONVERIFYUPRUNNING}" == "0"  ]; then
+
+                                    #Do Restart
+                                    ./pulse-update.sh $APPDIR "Restarting"
+                                    ./mail.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting" "LASTGOODSECONDSAGO=$LASTGOODSECONDSAGO"
+                                    ./log-status-red.sh "Tomcat $APPDIR down > $MAXLASTGOOD seconds, restarting"
+                                    ./egg-tomcat-stop.sh $HOST $APPDIR
+                                    ./egg-tomcat-start.sh $TOMCATID $HOST $APPDIR $MEMMIN $MEMMAX
+                                    ./pulse-update.sh $APPDIR "Wait Tomcat Come Up"
+                                    ./log-status.sh "Sleeping 30 sec for Tomcat $APPDIR to come up"
+                                    sleep 30
+                                    ./pulse-update.sh $APPDIR "RESTART COMPLETE"
+                                    #Delete any current line with this tomcatid
+                                    sed -i "
+                                    /^${TOMCATID}:/ d\
+                                    " $CHECKTOMCATSFILE
+
+                                else
+                                    ./pulse-update.sh $APPDIR "DOWN ${LASTGOODSECONDSAGO}s, RESTART NEEDED, CRONVERIFYUP BLOCKS"
+                                fi
                             fi
                         else
                             #It's been too long since the last down check... need a couple in quick succession

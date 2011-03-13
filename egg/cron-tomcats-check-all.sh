@@ -4,7 +4,7 @@ sleep 10 #done because i want to be able to lock this out if verify-up runs at s
 
 #--------------------------
 #Open cron job and create lock
-CRONNAME="CRONCHECK"          #Only alphabetic, no spaces, no funky chars
+CRONNAME="CRONTOMCATCHECK"          #Only alphabetic, no spaces, no funky chars
 CRONLOCKTIMEOUTSECONDS=3600   #Not sure here
 cd /home/ec2-user/egg
 source cronincludetop.sh
