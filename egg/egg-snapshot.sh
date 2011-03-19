@@ -30,7 +30,7 @@ fi
 if [ "$DESCRIPTION" == "" ]; then
     DESCRIPTION="eggsnapshot $TIMEPERIOD"
 else
-    DESCRIPTION="eggsnapshot $TIMEPERIOD $DESCRIPTION"
+    DESCRIPTION="eggsnapshot $DESCRIPTION $TIMEPERIOD"
 fi
 ./log-debug.sh "Snapshot $EBSVOLUME $TIMEPERIOD HOST=$HOST DESCRIPTION=$DESCRIPTION"
 

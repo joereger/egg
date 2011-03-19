@@ -54,14 +54,14 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 				
 
 					
-					#Instance Check
-					./log.sh "Start $APPDIR Instance Check"
-					export thisinstanceisup=0
-					export RUNNING="running"
-					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
-					if [ $status == ${RUNNING} ]; then
-						./log.sh "Instance for $APPDIR running"
-						export thisinstanceisup=1  	
+#					#Instance Check
+#					./log.sh "Start $APPDIR Instance Check"
+#					export thisinstanceisup=0
+#					export RUNNING="running"
+#					export status=`${EC2_HOME}/bin/ec2-describe-instances $AMAZONINSTANCEID | grep INSTANCE | cut -f6`
+#					if [ $status == ${RUNNING} ]; then
+#						./log.sh "Instance for $APPDIR running"
+#						export thisinstanceisup=1
 
 					    #Tomcat Check
                         ./log.sh "$APPDIR Start Tomcat Installation Check "
@@ -69,7 +69,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         if [ "$tomcatcheck" != 1 ]; then
                             ALLISWELL=0
                             ./pulse-update.sh $APPDIR "NOT FOUND, WILL CREATE"
-                            ./log-status-green.sh "$APPDIR Tomcat not found, will create"
+                            ./log-status-red.sh "$APPDIR Tomcat not found, will create"
                             ./egg-tomcat-create.sh $HOST $APP $APPDIR $TOMCATID
                             #Reset Check status by deleting any line for this tomcatid
                             sed -i "
@@ -103,12 +103,12 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
                         #HTTP Check which will restart tomcat instance if necessary
                         #./egg-tomcat-check.sh $HOST $APP $APPDIR $TOMCATID
 
-					else
-					    ./pulse-update.sh $APPDIR "INSTANCE NOT RUNNING"
-						./log-status-red.sh "Instance for $APPDIR not running"
-						export thisinstanceisup=0
-						export ALLISWELL=0
-					fi
+#					else
+#					    ./pulse-update.sh $APPDIR "INSTANCE NOT RUNNING"
+#						./log-status-red.sh "Instance for $APPDIR not running"
+#						export thisinstanceisup=0
+#						export ALLISWELL=0
+#					fi
 
 				fi
 			fi

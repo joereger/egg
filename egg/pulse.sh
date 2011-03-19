@@ -114,6 +114,13 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 1
+    echo "VerifyUp"
+    KEY="VerifyUp"
+    hput rows $KEY $ROWS
+    hput cols $KEY 20
+
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 1
     echo "CronOn"
     KEY="CronOn"
     hput rows $KEY $ROWS
