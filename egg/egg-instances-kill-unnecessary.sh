@@ -53,9 +53,17 @@ while read line; do
   
   	if [ $ISVALIDINSTANCE == 0 ]; then
 		./log-status.sh "Terminating unnecessary instance $IID $INSTANCESIZE"
-		./egg-instance-terminate.sh $LOGICALINSTANCEID
+		echo "Terminating unnecessary instance $IID $INSTANCESIZE"
+		#Terminate command
+        ${EC2_HOME}/bin/ec2-terminate-instances $IID
+
+        #Delete any current line with this logicalinstanceid
+        sed -i "
+        /^${LOGICALINSTANCEID}:/ d\
+        " $AMAZONIIDSFILE
 	else 
-		./log.sh Not terminating instance $IID
+		./log.sh "Not terminating instance $IID"
+		echo "Not terminating instance $IID"
 	fi
   
 done 
