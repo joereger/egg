@@ -130,7 +130,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 						
 						if [ "$TOMCATFOUND" == "true" ]; then
                             #Build BalanceMember for this Tomcat
-                            BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=$JVMROUTE acquire=60000 smax=5 max=10 ttl=120 timeout=120 retry=60"
+                            BALANCEMEMBERS=$BALANCEMEMBERS"BalancerMember http://$HOST_TOMCAT:$HTTPPORT_A route=$JVMROUTE acquire=60000 smax=5 max=10 ttl=120 timeout=120 retry=60 loadfactor=1"
                             BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
 
                             #Build ProxyPassReverse for this Tomcat
@@ -144,7 +144,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 			
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
+			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=bybusyness timeout=120"
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"<Proxy balancer://$APPNAME>"
 			VHOSTS=$VHOSTS$NEWLINE
@@ -220,7 +220,7 @@ if  diff data/apacheid$APACHEID.httpd.conf.tmp data/apacheid$APACHEID.httpd.conf
     ./log.sh "apacheid$APACHEID httpd.conf remote is SAME as local"
 else
     ./log.sh "apacheid$APACHEID httpd.conf remote is DIFFERENT than local"
-
+    ./pulse-update.sh "Apache$APACHEID" "httpd.conf remote DIFFERENT than local, copying"
     #Copy latest to the remote Apache host
     scp data/apacheid$APACHEID.httpd.conf.tmp ec2-user@$HOST:httpd.conf.tmp
     ssh -t -t $HOST "sudo cp httpd.conf.tmp /etc/httpd/conf/httpd.conf"
@@ -230,8 +230,10 @@ else
     scp ec2-user@$HOST:/etc/httpd/conf/httpd.conf data/apacheid$APACHEID.httpd.conf.remote
 
     #Bounce Apache
+    ./pulse-update.sh "Apache$APACHEID" "Bouncing to update config"
     ./egg-apache-stop.sh $HOST
     ./egg-apache-start.sh $HOST
+    ./pulse-update.sh "Apache$APACHEID" "Done bouncing to update config"
 fi
 
 rm -f data/apacheid$APACHEID.httpd.conf.tmp
