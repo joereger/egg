@@ -27,7 +27,7 @@ symbolic-links=0
 #myisam_recover = force,backup
 #myisam_sort_buffer_size=512M
 #SMALL
-max_connections=600
+max_connections=800
 default-storage-engine=MyISAM
 thread_cache_size = 256
 table_cache = 1024
