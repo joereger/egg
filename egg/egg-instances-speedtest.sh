@@ -76,6 +76,12 @@ source common.sh
                 fi
             fi
         }; done; exec 4>&-
+
+
+        DISKSPACEAVAILABLE=`ssh $HOST "df / | awk '{ print \\$4 }' | tail -n 1"`
+        echo "DISKSPACEAVAILABLE=$DISKSPACEAVAILABLE"
+        GIGAVAIL=$((DISKSPACEAVAILABLE / 1000000))
+
 		
 
 		#SPEED=`ssh $HOST 'STARTTIME=$(date +%s.%N); for i in {1..100000}; do TMPVAR=$((i/3)); done; END=$(date +%s.%N); DIFF=$(echo "$END - $STARTTIME" | bc); echo $DIFF'`
@@ -98,9 +104,13 @@ source common.sh
         #thisloadavg=`echo $loadavg|awk -F \. '{print $1}'`
 
         if [ "$min_1" != "" ]; then
-            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+            if [ $DISKSPACEAVAILABLE < 1000000 ]; then
+                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "LOW DISK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+            else
+                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+            fi
         else
-            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "SPEEDTEST EMPTY RESULT $AMAZONINSTANCEID $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "SPEEDTEST EMPTY RESULT $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
         fi
 
         echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
