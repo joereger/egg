@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Colors
+#Colors yo
 c_reset='\e[0m' ;
 c_bold_on='\e[1m' ; c_bold_off='\e[22m'
 c_blink_on='\e[5m' ; c_blink_off='\e[25m'
