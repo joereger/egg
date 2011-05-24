@@ -2,10 +2,12 @@
 
 source common.sh
 
-if [ "$#" == "0" ]; then echo "!USAGE: LOGICALINSTANCEID"; exit; fi
+if [ "$#" == "0" ]; then echo "!USAGE: LOGICALINSTANCEID FORCE(optional)"; exit; fi
 if [ "$1" == "" ]; then echo "Must provide a LOGICALINSTANCEID"; exit; fi
 
 LOGICALINSTANCEID=$1
+FORCE=$2
+if [ $FORCE == "" ]; then FORCE="0"; exit; fi
 		
 #Read INSTANCESFILE
 exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
@@ -63,6 +65,23 @@ exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 				sed -i "
 				/^${LOGICALINSTANCEID}:/ d\
 				" $AMAZONIIDSFILE
+
+			else
+			    #If force (usually from egg-instances-verify-up.sh just before creation) then do it
+			    if [ ${FORCE} == "1" ]; then
+
+			        #Try for some graceful shutdown
+                    ./egg-instance-stop.sh $LOGICALINSTANCEID
+
+                    #Terminate command
+                    ${EC2_HOME}/bin/ec2-terminate-instances $AMAZONINSTANCEID
+
+                    #Delete any current line with this logicalinstanceid
+                    sed -i "
+                    /^${LOGICALINSTANCEID}:/ d\
+                    " $AMAZONIIDSFILE
+
+				fi
 			fi
 		fi	
 	fi

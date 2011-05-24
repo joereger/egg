@@ -59,10 +59,13 @@ source common.sh
 		    #Instance not up, should it be?
 		    if [ "$SHOULDBEUP" == "1" ]; then
 
-                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "CREATING"
                 ./log-status-red.sh "Instance $LOGICALINSTANCEID not found, will create"
                 ./mail.sh "Instance$LOGICALINSTANCEID not found, creating" "stand up!!!!!!!!!"
 
+                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "FORCE TERMINATING TO BE SAFE"
+                ./egg-instance-terminate.sh $LOGICALINSTANCEID "1"
+
+                ./pulse-update.sh "Instance$LOGICALINSTANCEID" "CREATING"
                 export key="joekey"
                 export id_file="/home/ec2-user/.ssh/joekey.pem"
                 export zone="us-east-1c"
