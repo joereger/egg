@@ -22,3 +22,10 @@ dbConnectionUrlImpressions=jdbc\:mysql\://[MYSQLID.1.INTERNALHOSTNAME]\:3306/dne
 dbDriverNameImpressions=com.mysql.jdbc.Driver
 dbUsernameImpressions=root
 dbPasswordImpressions=catalyst
+
+#infinispanconfigfileobjectcache=
+#infinispanconfigfilehibernate=
+#infinispanconfigfilehibernatedbcache=
+#infinispanconfigfilehibernateimpressions=
+jgroupstcppinginitialhosts=[JGROUPS.TCPPING.INITIALHOSTS]
+jgroupstcpport=[JGROUPS.TCP.PORT]

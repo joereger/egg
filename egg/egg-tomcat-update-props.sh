@@ -122,3 +122,59 @@ exec 3<> $TERRACOTTASFILE; while read interracottas <&3; do {
         }; done; exec 4>&-
 	fi
 }; done; exec 3>&-
+
+
+#Replace [JGROUPS.TCP.PORT] with the port for *this* instance
+#Note that this must line up with the port number for *this* instance calculated below for HOSTLIST
+JGROUPSTCPPORTTHIS=$((9000+($TOMCATID*10)))
+echo "JGROUPSTCPPORTTHIS=$JGROUPSTCPPORTTHIS"
+#Replace instances of [JGROUPS.TCP.PORT] with $JGROUPSTCPPORTTHIS
+sed -i "s/\[JGROUPS.TCP.PORT\]/$JGROUPSTCPPORTTHIS/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
+
+
+#Replace [JGROUPS.TCPPING.INITIALHOSTS] with list of hosts in this cluster
+#Iterate tocmats to find hosts
+HOSTLIST=""
+JGROUPSTCPPORT=9000
+exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
+	if [ $(echo "$intomcatline" | cut -c1) != "#" ]; then
+
+		TOMCATID_A=$(echo "$intomcatline" | cut -d ":" -f1)
+		LOGICALINSTANCEID_A=$(echo "$intomcatline" | cut -d ":" -f2)
+		APPNAME_A=$(echo "$intomcatline" | cut -d ":" -f3)
+		HTTPPORT_A=$((8100+$TOMCATID_A))
+
+		if [ "$APPNAME_A" == "$APP" ]; then
+
+			#Read AMAZONIIDSFILE
+            AMAZONINSTANCEID=""
+            HOST=""
+
+            JGROUPSTCPPORT=$((9000+($TOMCATID_A*10)))
+            echo "JGROUPSTCPPORT=$JGROUPSTCPPORT"
+
+            exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
+                if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+                    LOGICALINSTANCEID_C=$(echo "$amazoniidsline" | cut -d ":" -f1)
+                    if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID_C" ]; then
+                        AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+                        HOST=$(echo "$amazoniidsline" | cut -d ":" -f3)
+                        INTERNALHOSTNAME=$(echo "$amazoniidsline" | cut -d ":" -f4)
+                        echo "HOSTLIST=${HOSTLIST}"
+                        if [ "$HOSTLIST" == "" ]; then
+                            HOSTLIST="${HOST}[${JGROUPSTCPPORT}]"
+                        else
+                            HOSTLIST="${HOSTLIST},${HOST}[${JGROUPSTCPPORT}]"
+                        fi
+
+                    fi
+                fi
+            }; done; exec 4>&-
+
+		fi
+	fi
+}; done; exec 3>&-
+echo "Final HOSTLIST=${HOSTLIST}"
+#Now I have list of hosts
+#Replace instances of [JGROUPS.TCPPING.INITIALHOSTS] with $HOSTLIST
+sed -i "s/\[JGROUPS.TCPPING.INITIALHOSTS\]/$HOSTLIST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp

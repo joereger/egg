@@ -10,8 +10,7 @@ if [ "$3" == "" ]; then echo "Must provide an APPDIR"; exit; fi
 TOMCATID=$1
 HOST=$2
 APPDIR=$3
-MEMMIN=$4
-MEMMAX=$5
+
 
 
 tomcatcheck=`ssh $HOST "[ -d ./egg/$APPDIR/tomcat/ ] && echo 1"`

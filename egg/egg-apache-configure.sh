@@ -144,7 +144,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 			
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=bybusyness timeout=120"
+			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
 			VHOSTS=$VHOSTS$NEWLINE
 			VHOSTS=$VHOSTS"<Proxy balancer://$APPNAME>"
 			VHOSTS=$VHOSTS$NEWLINE

@@ -28,6 +28,8 @@ source egg-tomcat-start-lock.sh
 ./log-status.sh "Deploy: Delete root dirs $APPDIR"
 ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/webapps/ROOT"
 ssh -t -t $HOST "mkdir egg/$APPDIR/tomcat/webapps/ROOT"
+ssh -t -t $HOST "rm -rf egg/$APPDIR/tomcat/work/Catalina/localhost"
+ssh -t -t $HOST "mkdir egg/$APPDIR/tomcat/work/Catalina/localhost"
 
 #Copy the WAR file
 ./pulse-update.sh $APPDIR "WAR COPY"

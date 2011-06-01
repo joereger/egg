@@ -7,3 +7,7 @@ dbMaxIdle=20
 dbMinIdle=12
 dbMaxWait=10000
 #terracottahost01=[TERRACOTTAID.1.INTERNALHOSTNAME]
+infinispanconfigfileobjectcache=infinispan-cache4objects-joereger.xml
+infinispanconfigfilehibernate=infinispan-cache4hibernate-joereger.xml
+jgroupstcppinginitialhosts=[JGROUPS.TCPPING.INITIALHOSTS]
+jgroupstcpport=[JGROUPS.TCP.PORT]
