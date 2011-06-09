@@ -6,6 +6,7 @@ user=mysql
 symbolic-links=0
 #Below added by joe (this is default my.cnf)
 max_connections=600
+max_connect_errors=1000
 default-storage-engine=MyISAM
 thread_cache_size = 256
 table_cache = 1024
