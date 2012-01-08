@@ -49,10 +49,9 @@ if [ "$CHOSENCOUNT" != "" ]; then
                     INSTANCESIZE="t1.micro"
                     AMIID="ami-08728661"
                     ZONE="us-east-1c"
-                    KEY="joekey"
                     SECURITYGROUP="default"
 
-                    export iid=`${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t ${INSTANCESIZE} -z ${ZONE} -k ${KEY} -g ${SECURITYGROUP} | grep INSTANCE | cut -f2`
+                    export iid=`${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t ${INSTANCESIZE} -z ${ZONE} -k ${KEYPAIR} -g ${SECURITYGROUP} | grep INSTANCE | cut -f2`
                     if [ $? != 0 ]; then
                        echo "ERROR STARTING INSTANCE"
                        continue

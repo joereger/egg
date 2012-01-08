@@ -47,12 +47,12 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
 
 #I can put tomcatid23.server.xml into /conf/apps/$APPNAME/ to override default base server.xml
-SERVERXMLTOUSE=conf/tomcat/default.server.xml
-if [ -e conf/apps/$APP/tomcatid$TOMCATID.server.xml ]; then
-	./log.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml exists"
-    SERVERXMLTOUSE=conf/apps/$APP/tomcatid$TOMCATID.server.xml
+SERVERXMLTOUSE=$CONFDIR/tomcat/default.server.xml
+if [ -e $CONFDIR/apps/$APP/tomcatid$TOMCATID.server.xml ]; then
+	./log.sh "$CONFDIR/apps/$APP/tomcatid$TOMCATID.server.xml exists"
+    SERVERXMLTOUSE=$CONFDIR/apps/$APP/tomcatid$TOMCATID.server.xml
 else
-	./log-debug.sh "conf/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
+	./log-debug.sh "$CONFDIR/apps/$APP/tomcatid$TOMCATID.server.xml not found, using default server.xml"
 fi
 
 #Make a copy of the base file to use

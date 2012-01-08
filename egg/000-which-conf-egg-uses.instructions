@@ -1,0 +1,7 @@
+
+Egg will default to files in the /conf/default/ directory.  As of now these are Joe Reger's sites/servers.
+
+To tell Egg to use conf files from /conf/socketware/ create a file called 000-use-conf-socketware.conf in the root
+Egg directory.  Egg will do a simple check to see if that file exists and if it does then it'll use /conf/socketware/
+
+This file is necessary because Egg has a single codebase checked into source control.

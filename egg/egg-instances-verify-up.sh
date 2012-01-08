@@ -66,8 +66,7 @@ source common.sh
                 ./egg-instance-terminate.sh $LOGICALINSTANCEID "1"
 
                 ./pulse-update.sh "Instance$LOGICALINSTANCEID" "CREATING"
-                export key="joekey"
-                export id_file="/home/ec2-user/.ssh/joekey.pem"
+                #export id_file="/home/ec2-user/.ssh/joekey.pem"
                 export zone="us-east-1c"
                 export securitygroup1="default"
                 export securitygroup2="$SECURITYGROUP"
@@ -78,7 +77,7 @@ source common.sh
                 fi
 
                 ./log-status-green.sh "Creating $INSTANCESIZE instance from AMI ${AMIID} "
-                export iid=`${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${key} -g ${securitygroup1} -g ${securitygroup2} | grep INSTANCE | cut -f2`
+                export iid=`${EC2_HOME}/bin/ec2-run-instances ${AMIID} -t $INSTANCESIZE -z ${zone} -k ${KEYPAIR} -g ${securitygroup1} -g ${securitygroup2} | grep INSTANCE | cut -f2`
                 if [ $? != 0 ]; then
                    ./pulse-update.sh "Instance$LOGICALINSTANCEID" "ERROR STARTING INSTANCE"
                    ./log-status-green.sh "Error starting instance for amazonimageid ${AMIID}"

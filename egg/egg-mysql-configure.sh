@@ -10,13 +10,13 @@ if [ "$2" == "" ]; then echo "Must provide a MYSQLID"; exit; fi
 HOST=$1
 MYSQLID=$2
 
-#Check for /conf/mysql/mysqlid$MYSQLID.my.cnf to see if I have unique settings for this one instance
-MYCNFTMP=conf/mysql/default.my.cnf
-if [ -e conf/mysql/mysqlid${MYSQLID}.my.cnf ]; then
-	./log.sh "conf/mysql/mysqlid${MYSQLID}.my.cnf exists"
-    MYCNFTMP=conf/mysql/mysqlid${MYSQLID}.my.cnf
+#Check for $CONFDIR/mysql/mysqlid$MYSQLID.my.cnf to see if I have unique settings for this one instance
+MYCNFTMP=$CONFDIR/mysql/default.my.cnf
+if [ -e $CONFDIR/mysql/mysqlid${MYSQLID}.my.cnf ]; then
+	./log.sh "$CONFDIR/mysql/mysqlid${MYSQLID}.my.cnf exists"
+    MYCNFTMP=$CONFDIR/mysql/mysqlid${MYSQLID}.my.cnf
 else
-	./log.sh "conf/mysql/mysqlid${MYSQLID}.my.cnf not found, using default my.cnf"
+	./log.sh "$CONFDIR/mysql/mysqlid${MYSQLID}.my.cnf not found, using default my.cnf"
 fi
 
 #Copy to data

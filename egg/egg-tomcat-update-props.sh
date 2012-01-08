@@ -47,17 +47,17 @@ mkdir -p "data"
 touch "data/$APP.tomcatid$TOMCATID.instance.props.tmp"
 
 #Determine which of system.props and/or instance.props exist and combine them into combined.props
-if [ -e conf/apps/$APP/system.props ] && [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
+if [ -e $CONFDIR/apps/$APP/system.props ] && [ -e $CONFDIR/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Both system.props and instance.props exist"
-	cat conf/apps/$APP/system.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
+	cat $CONFDIR/apps/$APP/system.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
 	echo -e "\n" >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
-	cat conf/apps/$APP/tomcatid$TOMCATID.instance.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
-elif [ -e conf/apps/$APP/system.props ]; then
+	cat $CONFDIR/apps/$APP/tomcatid$TOMCATID.instance.props >> data/$APP.tomcatid$TOMCATID.instance.props.tmp
+elif [ -e $CONFDIR/apps/$APP/system.props ]; then
 	echo "Only system.props exists"
-	cp conf/apps/$APP/system.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
-elif [ -e conf/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
+	cp $CONFDIR/apps/$APP/system.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
+elif [ -e $CONFDIR/apps/$APP/tomcatid$TOMCATID.instance.props ]; then
 	echo "Only instance.props exists"
-	cp conf/apps/$APP/tomcatid$TOMCATID.instance.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
+	cp $CONFDIR/apps/$APP/tomcatid$TOMCATID.instance.props data/$APP.tomcatid$TOMCATID.instance.props.tmp
 else
 	echo "Neither instance.props nor system.props exist"
 fi

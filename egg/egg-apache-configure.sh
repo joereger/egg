@@ -193,12 +193,12 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 }; done; exec 3>&-
 
 
-HTTPDCONFTOUSE=conf/apache/default.httpd.conf
-if [ -e conf/apache/apacheid$APACHEID.httpd.conf ]; then
-	./log.sh "conf/apache/apacheid$APACHEID.httpd.conf exists"
-    HTTPDCONFTOUSE=conf/apache/apacheid$APACHEID.httpd.conf
+HTTPDCONFTOUSE=$CONFDIR/apache/default.httpd.conf
+if [ -e $CONFDIR/apache/apacheid$APACHEID.httpd.conf ]; then
+	./log.sh "$CONFDIR/apache/apacheid$APACHEID.httpd.conf exists"
+    HTTPDCONFTOUSE=$CONFDIR/apache/apacheid$APACHEID.httpd.conf
 else
-	./log.sh "conf/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
+	./log.sh "$CONFDIR/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
 fi
 
 

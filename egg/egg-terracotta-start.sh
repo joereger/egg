@@ -14,12 +14,12 @@ TERRACOTTAID=$2
 
 
 #Send the latest config file
-CONFTOUSE=conf/terracotta/default.tc-config.xml
-if [ -e conf/terracotta/terracottaid$TERRACOTTAID.tc-config.xml ]; then
-	./log.sh "conf/terracotta/terracottaid$TERRACOTTAID.tc-config.xml exists"
-    CONFTOUSE=conf/terracotta/terracottaid$TERRACOTTAID.tc-config.xml
+CONFTOUSE=$CONFDIR/terracotta/default.tc-config.xml
+if [ -e $CONFDIR/terracotta/terracottaid$TERRACOTTAID.tc-config.xml ]; then
+	./log.sh "$CONFDIR/terracotta/terracottaid$TERRACOTTAID.tc-config.xml exists"
+    CONFTOUSE=$CONFDIR/terracotta/terracottaid$TERRACOTTAID.tc-config.xml
 else
-	./log.sh "conf/terracotta/terracottaid$TERRACOTTAID.tc-config.xml not found, using default"
+	./log.sh "$CONFDIR/terracotta/terracottaid$TERRACOTTAID.tc-config.xml not found, using default"
 fi
 #Move conftouse to a tmp file in data/
 TMPCONF=data/terracottaid$TERRACOTTAID.tc-config.xml
@@ -56,12 +56,12 @@ ssh -t -t $HOST "sudo chmod 755 terracotta-3.4.0_1/tc-config.xml"
 ssh -t -t $HOST "rm tc-config.xml"
 
 #Send the latest startup script
-STARTUPSCRIPTTOUSE=conf/terracotta/default.start-tc-server.sh
-if [ -e conf/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh ]; then
-	./log.sh "conf/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh exists"
-    STARTUPSCRIPTTOUSE=conf/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh
+STARTUPSCRIPTTOUSE=$CONFDIR/terracotta/default.start-tc-server.sh
+if [ -e $CONFDIR/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh ]; then
+	./log.sh "$CONFDIR/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh exists"
+    STARTUPSCRIPTTOUSE=$CONFDIR/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh
 else
-	./log.sh "conf/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh not found, using default"
+	./log.sh "$CONFDIR/terracotta/terracottaid$TERRACOTTAID.start-tc-server.sh not found, using default"
 fi
 ssh -t -t $HOST "mkdir -p terracotta-3.4.0_1/bin"
 scp $STARTUPSCRIPTTOUSE ec2-user@$HOST:start-tc-server.sh
