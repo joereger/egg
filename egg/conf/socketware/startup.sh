@@ -17,7 +17,7 @@ echo "Hello from startup.sh" >> /home/ec2-user/egg/logs/startup.log
 
 
 #Associate Elastic IP
-$EC2_HOME/bin/ec2-associate-address -K $EC2_PRIVATE_KEY -C $EC2_CERT 107.22.246.218 -i i-34efa856
+$EC2_HOME/bin/ec2-associate-address -K $EC2_PRIVATE_KEY -C $EC2_CERT 107.22.246.218 -i i-6e4d0d0c
 if [ $? != 0 ]; then
    echo "Error associating elastic ip" >> /home/ec2-user/egg/logs/startup.log
 else 

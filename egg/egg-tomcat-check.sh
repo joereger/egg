@@ -36,7 +36,7 @@ exec 3<> $TOMCATSFILE; while read intomcatline <&3; do {
 
 
             #HTTP Check
-            ./log.sh "Start HTTP Check $APPDIR"
+            ./log.sh "Start HTTP Check $APPDIR http://$HOST:$HTTPPORT/"
             url="http://$HOST:$HTTPPORT/"
             retries=0
             timeout=120
