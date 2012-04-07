@@ -126,6 +126,7 @@ if [ "$FREEPASS" == "0" ]; then
                 RUNSTARTEDATPLUSTIMEOUT=$((RUNSTARTEDAT+10800))
                 if [ "${CURRENTTIME}" -lt "${RUNSTARTEDATPLUSTIMEOUT}"  ]; then
                     ./log-debug.sh "CRONVERIFYUP lock is valid, exiting $CRONNAME"
+                    ./pulse-update.sh "Cron" "OK CRONVERIFYUP lock is valid, exiting $CRONNAME"
                     exit
                 else
                     ./log-debug.sh "CRONVERIFYUP lock has expired, continuing $CRONNAME"

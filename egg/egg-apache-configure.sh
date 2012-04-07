@@ -50,12 +50,48 @@ exec 3<> $INSTANCESFILE; while read ininstancesline <&3; do {
 	fi
 }; done; exec 3>&-
 
+./pulse-update.sh "Apache$APACHEID" "CONFIGURATION BEGINNING"
+
+
+#SSL - Key/Cert need to be named as below
+#/conf/default/apache/apacheid1.ssl.public.crt
+#/conf/default/apache/apacheid1.ssl.private.key
+#/conf/default/apache/apacheid1.ssl.intermediate.crt
+DOSSL="0"
+if [ -e $CONFDIR/apache/apacheid$APACHEID.ssl.public.crt ]; then
+    if [ -e $CONFDIR/apache/apacheid$APACHEID.ssl.private.key ]; then
+        if [ -e $CONFDIR/apache/apacheid$APACHEID.ssl.intermediate.crt ]; then
+
+            DOSSL="1"
+            ./log.sh "$CONFDIR/apache/apacheid$APACHEID.ssl.public.crt, private.key and intermediate.crt exist"
+            ./pulse-update.sh "Apache$APACHEID" "CONFIGURING, SSL FILES FOUND"
+
+            scp $CONFDIR/apache/apacheid$APACHEID.ssl.public.crt ec2-user@$HOST:apacheid$APACHEID.ssl.public.crt
+            ssh -t -t $HOST "sudo cp apacheid$APACHEID.ssl.public.crt /etc/httpd/conf/apacheid$APACHEID.ssl.public.crt"
+            ssh -t -t $HOST "rm -f apacheid$APACHEID.ssl.public.crt"
+
+            scp $CONFDIR/apache/apacheid$APACHEID.ssl.private.key ec2-user@$HOST:apacheid$APACHEID.ssl.private.key
+            ssh -t -t $HOST "sudo cp apacheid$APACHEID.ssl.private.key /etc/httpd/conf/apacheid$APACHEID.ssl.private.key"
+            ssh -t -t $HOST "rm -f apacheid$APACHEID.ssl.private.key"
+
+            scp $CONFDIR/apache/apacheid$APACHEID.ssl.intermediate.crt ec2-user@$HOST:apacheid$APACHEID.ssl.intermediate.crt
+            ssh -t -t $HOST "sudo cp apacheid$APACHEID.ssl.intermediate.crt /etc/httpd/conf/apacheid$APACHEID.ssl.intermediate.crt"
+            ssh -t -t $HOST "rm -f apacheid$APACHEID.ssl.intermediate.crt"
+
+        fi
+    fi
+else
+	./log.sh "$CONFDIR/apache/apacheid$APACHEID.ssl. certs and/or keys not found"
+	./pulse-update.sh "Apache$APACHEID" "CONFIGURING, NO SSL FILES FOUND"
+fi
+
 
 
 #Now I know the LOGICALINSTANCEID and HOST of the Apache instance I'm supposed to be configuring.
 #I need to iterate apps to find those that should be on this Apache.
 #Along the way I'm building up VHOSTS with the VirtualHost config section(s)
 VHOSTS=""
+VHOSTSSL=""
 NEWLINE="\x0a"
 exec 3<> $APPSFILE; while read inappsline <&3; do {
 	if [ $(echo "$inappsline" | cut -c1) != "#" ]; then
@@ -65,13 +101,25 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 		
 			#This is an app that should be on this Apache
 		
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"<VirtualHost *:80>"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"DocumentRoot /www/docs/$APPNAME"
-			VHOSTS=$VHOSTS$NEWLINE
+
+			VHOSTS=$VHOSTS$NEWLINE"<VirtualHost *:80>"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"<VirtualHost *:443>"
+
+			VHOSTS=$VHOSTS$NEWLINE"DocumentRoot /www/docs/$APPNAME"$NEWLINE
+			VHOSTSSL=$VHOSTSSL$NEWLINE"DocumentRoot /www/docs/$APPNAME"$NEWLINE
+
+
+			#Start SSL-heavy section
+			VHOSTSSL=$VHOSTSSL$NEWLINE"SSLEngine on"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"SSLCertificateFile /etc/httpd/conf/apacheid$APACHEID.ssl.public.crt"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"SSLCertificateKeyFile /etc/httpd/conf/apacheid$APACHEID.ssl.private.key"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"SSLCertificateChainFile /etc/httpd/conf/apacheid$APACHEID.ssl.intermediate.crt"
+			#End SSL-heavy section
+
+
 			
 			BALANCEMEMBERS=""
+			BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
 			BALANCEMEMBERS=$BALANCEMEMBERS$NEWLINE
 			
 			PROXYPASSREVERSES=""
@@ -102,11 +150,11 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 								URL=$(echo "$inurlsfile" | cut -d ":" -f2)
 								if [ "$APPNAME_B" == "$APPNAME" ]; then
 									if [ $ISFIRST = "0" ]; then
-										VHOSTS=$VHOSTS"ServerName "$URL
-										VHOSTS=$VHOSTS$NEWLINE
+										VHOSTS=$VHOSTS$NEWLINE"ServerName "$URL$NEWLINE
+                                        VHOSTSSL=$VHOSTSSL$NEWLINE"ServerName "$URL$NEWLINE
 									else
-										VHOSTS=$VHOSTS"ServerAlias "$URL
-										VHOSTS=$VHOSTS$NEWLINE
+										VHOSTS=$VHOSTS$NEWLINE"ServerAlias "$URL$NEWLINE
+										VHOSTSSL=$VHOSTSSL$NEWLINE"ServerAlias "$URL$NEWLINE
 									fi
 									ISFIRST="1"
 								fi
@@ -142,72 +190,109 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 				fi
 			}; done; exec 4>&-
 			
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"<Proxy balancer://$APPNAME>"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase baidu isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase slurp isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase yandexbot isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase msnbot isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase MJ12bot isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase Sosospider isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase Exabot isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"BrowserMatchNoCase bingbot isrobot"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"deny from env=isrobot"	
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS$BALANCEMEMBERS
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"</Proxy>"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"ProxyPreserveHost On"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS$PROXYPASSREVERSES
-			VHOSTS=$VHOSTS$NEWLINE
-			
-			VHOSTS=$VHOSTS"ErrorLog logs/$APPNAME-error_log"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-access_log combinedshort"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-referer_log referer"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-agent_log agent"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"CustomLog logs/$APPNAME-instanceperformance_log instanceperformance"
-			VHOSTS=$VHOSTS$NEWLINE
-			VHOSTS=$VHOSTS"</VirtualHost>"
-			VHOSTS=$VHOSTS$NEWLINE
+
+			VHOSTS=$VHOSTS$NEWLINE$NEWLINE"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
+			VHOSTSSL=$VHOSTSSL$NEWLINE$NEWLINE"ProxyPass / balancer://$APPNAME/ stickysession=JSESSIONID|jsessionid maxattempts=4 lbmethod=byrequests timeout=120"
+
+			VHOSTS=$VHOSTS$NEWLINE"<Proxy balancer://$APPNAME>"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"<Proxy balancer://$APPNAME>"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase baidu isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase baidu isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase slurp isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase slurp isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase yandexbot isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase yandexbot isrobot"
+
+#			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase msnbot isrobot"
+#			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase msnbot isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase MJ12bot isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase MJ12bot isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase Sosospider isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase Sosospider isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase Exabot isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase Exabot isrobot"
+
+#			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase bingbot isrobot"
+#			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase bingbot isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE"deny from env=isrobot"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"deny from env=isrobot"
+
+			VHOSTS=$VHOSTS$NEWLINE$BALANCEMEMBERS
+			VHOSTSSL=$VHOSTSSL$NEWLINE$BALANCEMEMBERS
+
+			VHOSTS=$VHOSTS$NEWLINE"</Proxy>"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"</Proxy>"
+
+			VHOSTS=$VHOSTS$NEWLINE$NEWLINE"ProxyPreserveHost On"
+			VHOSTSSL=$VHOSTSSL$NEWLINE$NEWLINE"ProxyPreserveHost On"
+
+			VHOSTS=$VHOSTS$NEWLINE$PROXYPASSREVERSES
+			VHOSTSSL=$VHOSTSSL$NEWLINE$PROXYPASSREVERSES
+
+			VHOSTS=$VHOSTS$NEWLINE"ErrorLog logs/$APPNAME-error_log"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"ErrorLog logs/$APPNAME-error_log"
+
+			VHOSTS=$VHOSTS$NEWLINE"CustomLog logs/$APPNAME-access_log combinedshort"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"CustomLog logs/$APPNAME-access_log combinedshort"
+
+			VHOSTS=$VHOSTS$NEWLINE"CustomLog logs/$APPNAME-referer_log referer"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"CustomLog logs/$APPNAME-referer_log referer"
+
+			VHOSTS=$VHOSTS$NEWLINE"CustomLog logs/$APPNAME-agent_log agent"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"CustomLog logs/$APPNAME-agent_log agent"
+
+			VHOSTS=$VHOSTS$NEWLINE"CustomLog logs/$APPNAME-instanceperformance_log instanceperformance"
+			VHOSTSSL=$VHOSTSSL$NEWLINE"CustomLog logs/$APPNAME-instanceperformance_log instanceperformance"
+
+			VHOSTS=$VHOSTS$NEWLINE"</VirtualHost>"$NEWLINE
+			VHOSTSSL=$VHOSTSSL$NEWLINE"</VirtualHost>"$NEWLINE
+
+
 			
 		fi
 	fi
 }; done; exec 3>&-
 
 
+
+
+#Find the base httpd.conf to use
 HTTPDCONFTOUSE=$CONFDIR/apache/default.httpd.conf
 if [ -e $CONFDIR/apache/apacheid$APACHEID.httpd.conf ]; then
 	./log.sh "$CONFDIR/apache/apacheid$APACHEID.httpd.conf exists"
+	./pulse-update.sh "Apache$APACHEID" "CONFIGURING, USING APACHEID$APACHEID.HTTPD.CONF"
     HTTPDCONFTOUSE=$CONFDIR/apache/apacheid$APACHEID.httpd.conf
 else
 	./log.sh "$CONFDIR/apache/apacheid$APACHEID.httpd.conf not found, using default httpd.conf"
+	./pulse-update.sh "Apache$APACHEID" "CONFIGURING, USING DEFAULT HTTPD.CONF"
 fi
-
 
 
 #Append the VHOSTS entry to the end of the file
 rm -f data/apacheid$APACHEID.httpd.conf.tmp
 cp $HTTPDCONFTOUSE data/apacheid$APACHEID.httpd.conf.tmp
-echo -e "NameVirtualHost *:80" >> data/apacheid$APACHEID.httpd.conf.tmp
+#echo -e "NameVirtualHost *:80" >> data/apacheid$APACHEID.httpd.conf.tmp
 echo -e ${VHOSTS} >> data/apacheid$APACHEID.httpd.conf.tmp
+#SSL
+#If SSL is on we need to create a :443 VirtualHost
+if [ "$DOSSL" == "1" ]; then
+    ./log.sh "DOSSL is 1 so Creating :443 VirtualHost"
+    ./pulse-update.sh "Apache$APACHEID" "CONFIGURING, DOSSL=1, APPENDING SSL"
+    #echo -e "NameVirtualHost *:443" >> data/apacheid$APACHEID.httpd.conf.tmp
+    echo -e ${VHOSTSSL} >> data/apacheid$APACHEID.httpd.conf.tmp
+else
+    ./log.sh "DOSSL NOT 1 so NOT Creating :443 VirtualHost"
+    ./pulse-update.sh "Apache$APACHEID" "CONFIGURING, DOSSL=0, NOT APPENDING SSL"
+fi
+
+
 
 
 #Download the latest remote file
@@ -237,6 +322,8 @@ else
 fi
 
 rm -f data/apacheid$APACHEID.httpd.conf.tmp
+
+./pulse-update.sh "Apache$APACHEID" "CONFIGURATION COMPLETE"
 
 
 

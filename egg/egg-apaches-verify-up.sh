@@ -79,7 +79,7 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 					#Check the configuration... will only adjust/bounce if something's changed
 					./egg-apache-configure.sh $APACHEID
 
-
+                    ./pulse-update.sh "Apache$APACHEID" "DONE RESTARTING AND RECONFIGURING"
 
 				fi
 			fi

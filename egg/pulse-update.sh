@@ -14,7 +14,7 @@ sed -i "
 /^${KEY}:/ d\
 " $PULSEFILE
 
-#Write a record to amazoniids.conf
+#Write a record
 sed -i "
 /#BEGINDATA/ a\
 $KEY:$VALUE
