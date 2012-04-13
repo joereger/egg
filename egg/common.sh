@@ -77,6 +77,12 @@ if [ ! -f "$MYSQLSFILE" ]; then
   exit 1
 fi
 
+MONGODBSFILE=$CONFDIR/mongodbs.conf
+if [ ! -f "$MONGODBSFILE" ]; then
+  echo "Sorry, $MONGODBSFILE does not exist."
+  exit 1
+fi
+
 TERRACOTTASFILE=$CONFDIR/terracottas.conf
 if [ ! -f "$TERRACOTTASFILE" ]; then
   echo "Sorry, $TERRACOTTASFILE does not exist."

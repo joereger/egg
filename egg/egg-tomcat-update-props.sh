@@ -95,6 +95,32 @@ exec 3<> $MYSQLSFILE; while read inmysqlsline <&3; do {
 }; done; exec 3>&-
 
 
+#Replace [MONGODBID.2.INTERNALHOSTNAME] with actual internal hostname
+#Read MONGODBs
+exec 3<> $MONGODBSFILE; while read inmongodbsline <&3; do {
+	if [ $(echo "$inmongodbsline" | cut -c1) != "#" ]; then
+
+		MONGODBID=$(echo "$inmongodbsline" | cut -d ":" -f1)
+		LOGICALINSTANCEID=$(echo "$inmongodbsline" | cut -d ":" -f2)
+
+        #Read AMAZONIIDSFILE
+        exec 4<> $AMAZONIIDSFILE; while read amazoniidsline <&4; do {
+            if [ $(echo "$amazoniidsline" | cut -c1) != "#" ]; then
+                LOGICALINSTANCEID_A=$(echo "$amazoniidsline" | cut -d ":" -f1)
+                if [ "$LOGICALINSTANCEID_A" == "$LOGICALINSTANCEID" ]; then
+                    AMAZONINSTANCEID=$(echo "$amazoniidsline" | cut -d ":" -f2)
+                    MONGODBINTERNALHOST=$(echo "$amazoniidsline" | cut -d ":" -f4)
+
+                    #Now I have MYSQLINTERNALHOST and MYSQLID
+                    #Replace instances of [MYSQLID.$MYSQLID.INTERNALHOSTNAME] with $MYSQLINTERNALHOST
+                    sed -i "s/\[MONGODBID.$MONGODBID.INTERNALHOSTNAME\]/$MONGODBINTERNALHOST/g" data/$APP.tomcatid$TOMCATID.instance.props.tmp
+
+                fi
+            fi
+        }; done; exec 4>&-
+	fi
+}; done; exec 3>&-
+
 
 
 #Replace [TERRACOTTAID.2.INTERNALHOSTNAME] with actual internal hostname

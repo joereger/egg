@@ -16,6 +16,9 @@ VSTARTTIME=`date +%s`
 ./pulse-update.sh "VerifyUp" "OK ./egg-mysqls-verify-up.sh"
 ./egg-mysqls-verify-up.sh
 
+./pulse-update.sh "VerifyUp" "OK ./egg-mongodbs-verify-up.sh"
+./egg-mongodbs-verify-up.sh
+
 ./pulse-update.sh "VerifyUp" "OK ./egg-terracottas-verify-up.sh"
 ./egg-terracottas-verify-up.sh
 

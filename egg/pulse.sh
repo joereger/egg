@@ -95,6 +95,24 @@ do
 
     ROWS=$(( $ROWS + 1 ))
     tput cup $ROWS 0
+    echo "MONGODBS___________________________"
+
+    exec 3<> $MONGODBSFILE; while read inmongodbs <&3; do {
+        if [ $(echo "$inmongodbs" | cut -c1) != "#" ]; then
+            MYSQLID=$(echo "$inmongodbs" | cut -d ":" -f1)
+            ROWS=$(( $ROWS + 1 ))
+            tput cup $ROWS 1
+            tput el
+            echo "MONGODB$MYSQLID"
+            KEY="MONGODB$MYSQLID"
+            hput rows $KEY $ROWS
+            hput cols $KEY 20
+        fi
+    }; done; exec 3>&-
+
+
+    ROWS=$(( $ROWS + 1 ))
+    tput cup $ROWS 0
     echo "MISC_____________________________"
 
 

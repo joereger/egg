@@ -55,6 +55,18 @@ echo "Connect to which instance? (Type the number and hit enter)"
             fi
         }; done; exec 4>&-
 
+        #Read Mongodbs
+        MONGODBECHO=""
+        exec 4<> $MONGODBSFILE; while read inmongodbsline <&4; do {
+            if [ $(echo "$inmongodbsline" | cut -c1) != "#" ]; then
+                MONGODBID=$(echo "$inmongodbsline" | cut -d ":" -f1)
+                LOGICALINSTANCEID_DA=$(echo "$inmongodbsline" | cut -d ":" -f2)
+                if [ "$LOGICALINSTANCEID_DA" == "$LOGICALINSTANCEID" ]; then
+                    MONGODBECHO=$MONGODBECHO" mongodb"$MONGODBID
+                fi
+            fi
+        }; done; exec 4>&-
+
         #Read Terracottas
         TERECHO=""
         exec 4<> $TERRACOTTASFILE; while read interracottas <&4; do {
@@ -107,7 +119,7 @@ echo "Connect to which instance? (Type the number and hit enter)"
 #        echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO" >> logs/instances.speed.log
 
 
-        echo "${LOGICALINSTANCEID} - $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+        echo "${LOGICALINSTANCEID} - $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO"
 
 
 

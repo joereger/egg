@@ -12,7 +12,8 @@ ALLISWELL=1
 #Read APACHESFILE
 exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 	if [ $(echo "$inapacheline" | cut -c1) != "#" ]; then
-	
+
+	    ALLISWELL=1
 		APACHEID=$(echo "$inapacheline" | cut -d ":" -f1)
 		LOGICALINSTANCEID=$(echo "$inapacheline" | cut -d ":" -f2)
 
@@ -81,15 +82,18 @@ exec 3<> $APACHESFILE; while read inapacheline <&3; do {
 
                     ./pulse-update.sh "Apache$APACHEID" "DONE RESTARTING AND RECONFIGURING"
 
+
+
 				fi
 			fi
 		}; done; exec 4>&-
-		
+
+
+        if [ "$ALLISWELL" == "1"  ]; then
+            ./pulse-update.sh "Apache$APACHEID" "OK"
+        fi
+
 	
 	fi
 }; done; exec 3>&-
 
-if [ "$ALLISWELL" == "1"  ]; then
-    ./log-status.sh "Apaches AllIsWell `date`"
-    ./pulse-update.sh "Apache$APACHEID" "OK"
-fi
