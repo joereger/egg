@@ -5,3 +5,5 @@ To tell Egg to use conf files from /conf/socketware/ create a file called 000-us
 Egg directory.  Egg will do a simple check to see if that file exists and if it does then it'll use /conf/socketware/
 
 This file is necessary because Egg has a single codebase checked into source control.
+
+***Yes, I just used this file to verify that SVN works on the macbook pro... deal.***
