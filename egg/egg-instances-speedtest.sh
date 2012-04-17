@@ -53,6 +53,19 @@ source common.sh
             fi
         }; done; exec 4>&-
 
+
+        #Read Mongodbs
+        MONGODBECHO=""
+        exec 4<> $MONGODBSFILE; while read inmongodbsline <&4; do {
+            if [ $(echo "$inmongodbsline" | cut -c1) != "#" ]; then
+                MONGODBID=$(echo "$inmongodbsline" | cut -d ":" -f1)
+                LOGICALINSTANCEID_D=$(echo "$inmongodbsline" | cut -d ":" -f2)
+                if [ "$LOGICALINSTANCEID_D" == "$LOGICALINSTANCEID" ]; then
+                    MONGODBECHO=$MONGODBECHO" mongodb"$MONGODBID
+                fi
+            fi
+        }; done; exec 4>&-
+
         #Read Terracottas
         TERECHO=""
         exec 4<> $TERRACOTTASFILE; while read interracottas <&4; do {
@@ -105,16 +118,16 @@ source common.sh
 
         if [ "$min_1" != "" ]; then
             if [ $DISKSPACEAVAILABLE < 1000000 ]; then
-                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "LOW DISK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "LOW DISK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO"
             else
-                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+                ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "OK ($min_1 $min_5 $min_15) $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO"
             fi
         else
-            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "SPEEDTEST EMPTY RESULT $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
+            ./pulse-update.sh "Instance${LOGICALINSTANCEID}" "SPEEDTEST EMPTY RESULT $AMAZONINSTANCEID ${GIGAVAIL}G $TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO"
         fi
 
-        echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO"
-        echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO" >> logs/instances.speed.log
+        echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO"
+        echo -e "$CURRENTTIME \t$($min_1 $min_5 $min_15) \tLOGICALINSTANCEID=$LOGICALINSTANCEID \t$AMAZONINSTANCEID \t$INSTANCESIZE \t$SECURITYGROUP \t$TCECHO$TERECHO$APAACHEECHO$MYSQLECHO$MONGODBECHO" >> logs/instances.speed.log
 
 
 
