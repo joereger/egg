@@ -3,8 +3,6 @@
 source common.sh
 
 
-
-
 		
 #Read INSTANCESFILE
  exec 3<> $INSTANCESFILE; while read line_instances_ivu <&3; do {
