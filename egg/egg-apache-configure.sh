@@ -100,7 +100,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 		if [ "$APACHEID_C" == "$APACHEID" ]; then
 		
 			#This is an app that should be on this Apache
-		    ./log.sh "found $APPNAME which should be on this Apache"
+		    ./log.sh "$APPNAME will be added to this Apache config"
 
 			VHOSTS=$VHOSTS$NEWLINE"<VirtualHost *:80>"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"<VirtualHost *:443>"
@@ -253,7 +253,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 
 
 		else
-		    ./log.sh "found $APPNAME but not on this Apache"
+		    ./log.sh "$APPNAME won't be added to this Apache config"
 		fi
 	fi
 }; done; exec 3>&-
