@@ -15,6 +15,8 @@ source common.sh
 		ELASTICIP=$(echo "$line_instances_ivu" | cut -d ":" -f5)
 		EBSVOLUME=$(echo "$line_instances_ivu" | cut -d ":" -f6)
 		EBSDEVICENAME=$(echo "$line_instances_ivu" | cut -d ":" -f7)
+    EBSVOLUME2=$(echo "$line_instances_ivu" | cut -d ":" -f8)
+    EBSDEVICENAME2=$(echo "$line_instances_ivu" | cut -d ":" -f9)
 
 
 		#First, determine whether this instance should be up based on time
@@ -162,7 +164,7 @@ source common.sh
                     ./log.sh "iptablesremap=$iptablesremap"
                     ./log.sh "Done remapping port 25 to port 8025"
 
-                    #Attach EBS volumes if necessary
+                    #Attach EBS volume 1 if necessary
                     EBSMOUNTSUCCESS=1
                     if [ "$EBSVOLUME" != "" ]; then
                         ./pulse-update.sh "Instance$LOGICALINSTANCEID" "INSTALLING XFSPROGS"
@@ -208,6 +210,52 @@ source common.sh
                         done
                     fi
 
+                    #Attach EBS volume 2 if necessary
+                    EBSMOUNTSUCCESS2=1
+                    if [ "$EBSVOLUME2" != "" ]; then
+                        ./pulse-update.sh "Instance$LOGICALINSTANCEID" "INSTALLING XFSPROGS"
+                        ssh -t -t $HOST "sudo yum -y install xfsprogs"
+                        ./pulse-update.sh "Instance$LOGICALINSTANCEID" "EBS2 MOUNTING"
+                        # Attach the volume to the running instance
+                        # For future reference here's what I did to the volume to create the file system
+                        # sudo yum install xfsprogs
+                        #grep -q xfs /proc/filesystems || sudo modprobe xfs
+                        #sudo mkfs.xfs /dev/sdh
+                        #Note that this filesystem creation is done manually and only once to make the EBS volume usable
+                        ./log.sh "Attaching volume2 ${EBSVOLUME2}"
+                        ${EC2_HOME}/bin/ec2-attach-volume ${EBSVOLUME2} -i ${iid} -d ${EBSDEVICENAME2}
+                        ./log.sh "Sleeping 10 sec for volume2 to attach"
+                        sleep 10
+                        # Loop until the volume status changes to "attached"
+                        export COUNTMOUNTATTEMPTS=0
+                        export ATTACHED="attached"
+                        export done="false"
+                        while [ $done == "false" ]
+                        do
+                           export status=`${EC2_HOME}/bin/ec2-describe-volumes | grep ATTACHMENT | grep ${EBSVOLUME2} | cut -f5`
+                           if [ "$status" == "${ATTACHED}" ]; then
+                               export done="true"
+                               ./log.sh "EBS2 volume mount success ${iid} ${EBSVOLUME2} ${EBSDEVICENAME2}"
+                               #Configure the instance to have the drive on reboot and to have it mounted as /vol
+                               sshtmp1=`ssh -t -t $HOST "echo '/dev/sdh2 /vol2 xfs noatime 0 0' | sudo tee -a /etc/fstab"`
+                               echo $sshtmp1
+                               sshtmp2=`ssh -t -t $HOST "sudo mkdir -m 000 /vol2"`
+                               echo $sshtmp2
+                               sshtmp3=`ssh -t -t $HOST "sudo mount /vol2"`
+                               echo $sshtmp3
+                           else
+                              ./log.sh "Sleeping 10 sec for volume2 to attach, status=$status"
+                              sleep 10
+                           fi
+                           COUNTMOUNTATTEMPTS=$(( $COUNTMOUNTATTEMPTS + 1 ))
+                           if [ "$COUNTMOUNTATTEMPTS" == "10" ]; then
+                              EBSMOUNTSUCCESS=0
+                              export done="true"
+                              ./log-status-red.sh "EBS volume mount fail ${iid} ${EBSVOLUME2} ${EBSDEVICENAME2}"
+                           fi
+                        done
+                    fi
+
                     #Delete any current line with this logicalinstanceid
                     sed -i "
                     /^${LOGICALINSTANCEID}:/ d\
@@ -222,6 +270,18 @@ source common.sh
                         " $AMAZONIIDSFILE
                     else
                         ./pulse-update.sh "Instance$LOGICALINSTANCEID" "EBS MOUNT FAIL, TERMINATING"
+                        ./egg-instance-terminate.sh $LOGICALINSTANCEID
+                    fi
+
+                    if [ "$EBSMOUNTSUCCESS2" == "1" ]; then
+                        ./pulse-update.sh "Instance$LOGICALINSTANCEID" "OK, BUT NEW"
+                        #Write a record to amazoniids.conf
+                        #sed -i "
+                        #/#BEGINDATA/ a\
+                        #$LOGICALINSTANCEID:$AMAZONINSTANCEID:$HOST:$INTERNALHOSTNAME
+                        #" $AMAZONIIDSFILE
+                    else
+                        ./pulse-update.sh "Instance$LOGICALINSTANCEID" "EBS2 MOUNT FAIL, TERMINATING"
                         ./egg-instance-terminate.sh $LOGICALINSTANCEID
                     fi
 
