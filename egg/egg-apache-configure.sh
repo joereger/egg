@@ -100,7 +100,7 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 		if [ "$APACHEID_C" == "$APACHEID" ]; then
 		
 			#This is an app that should be on this Apache
-		
+		    ./log.sh "found $APPNAME which should be on this Apache"
 
 			VHOSTS=$VHOSTS$NEWLINE"<VirtualHost *:80>"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"<VirtualHost *:443>"
@@ -206,9 +206,6 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase yandexbot isrobot"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase yandexbot isrobot"
 
-#			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase msnbot isrobot"
-#			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase msnbot isrobot"
-
 			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase MJ12bot isrobot"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase MJ12bot isrobot"
 
@@ -217,9 +214,6 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 
 			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase Exabot isrobot"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase Exabot isrobot"
-
-#			VHOSTS=$VHOSTS$NEWLINE"BrowserMatchNoCase bingbot isrobot"
-#			VHOSTSSL=$VHOSTSSL$NEWLINE"BrowserMatchNoCase bingbot isrobot"
 
 			VHOSTS=$VHOSTS$NEWLINE"deny from env=isrobot"
 			VHOSTSSL=$VHOSTSSL$NEWLINE"deny from env=isrobot"
@@ -258,7 +252,8 @@ exec 3<> $APPSFILE; while read inappsline <&3; do {
 			VHOSTSSL=$VHOSTSSL$NEWLINE"</VirtualHost>"$NEWLINE
 
 
-			
+		else
+		    ./log.sh "found $APPNAME but not on this Apache"
 		fi
 	fi
 }; done; exec 3>&-
