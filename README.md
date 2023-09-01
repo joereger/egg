@@ -1,28 +1,68 @@
-# egg
+# Egg: The Bash-Based Precursor to Modern DevOps Tools
 
-Egg is a bash-based precursor to Puppet/Chef, before those things existed/were mature enough.
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Background](#background)
+3. [Features](#features)
+4. [Technologies Managed](#technologies-managed)
+5. [Lessons Learned](#lessons-learned)
+6. [Evolution of DevOps](#evolution-of-devops)
+7. [Conclusion](#conclusion)
 
-For years I ran 30ish apps (eight-ish codebases, multiple instances per client) across 20ish physical servers at a datacenter. Late night runs to fix hard drives, reinstall OSes and generally curse at the moon. 
+---
 
-Then Amazon AWS came along and I was able to light up a server via code.  Revolutionary.
+## Introduction
 
-Egg started as a single bash script to fire up a new server.  Then I added a heartbeat check.  Then I added a deployer.  And then, and then, and then.
+Egg is a bash-based deployment and management system, developed at a time when modern orchestration tools like Puppet and Chef were either non-existent or not yet mature. It serves as a testament to the power of automation and configuration, especially in a cloud-based environment.
 
-Eventually I had built a full deployment system that could stand up a rather large 30ish server cluster consisting of app servers and databases completely via configuration.  
+---
 
-I kept the logical definition of the cluster in just a couple files.  
+## Background
 
-Eventually Egg reached 109 unique bash scripts that all worked together to keep an infrastructure deployed and running that consisted of:
-- Apache http servers
-- Tomcat app servers
-- MySQL databases
-- Terracotta key/val cache servers
-- MongoDB databases
+In the early days, managing 30ish applications across approximately 20 physical servers in a datacenter was a daunting task. It involved late-night runs to fix hardware issues, reinstall operating systems, and a fair amount of cursing at the moon. The advent of Amazon AWS was revolutionary, allowing for server management via code.
 
-It could detect issues at the server, service and system level and tear things completely down and spin them back up.  This improved my quality of life dramatically.
+Egg originated as a humble bash script designed to automate the process of firing up a new server. Over time, it evolved to include features like heartbeat checks, deployment automation, and more. 
 
-I learned a lot about bash and linux systems. But mostly I learned the power of configuration coupled with cloud servers.
+There's no signifigance to the name beyond the fact that I knew I'd be typing it into a console a lot.  I wanted something short and sweet.
 
-It was no surprise to me when Heroku and similar Paas platforms great.  And when Chef/Puppet matured.  And when Docker took off.
+---
 
-Nowadays it's a quaint reminder to me of how investments in automation focus your technology to conform to functional and improved outcomes.  Bash scripts aren't great with nuance.  They wring every last drop of silly code out of your platform and leave you in a much happier place.
+## Features
+
+- **Heartbeat Checks**: Monitors the health of servers and services.
+- **Deployment Automation**: Streamlines the process of deploying codebases across multiple instances.
+- **Error Detection**: Identifies issues at the server, service, and system levels.
+- **Self-Healing**: Capable of tearing down problematic components and spinning them back up.
+- **Configuration-Driven**: All logical definitions for the cluster are kept in a minimal set of configuration files.
+
+---
+
+## Technologies Managed
+
+Egg is versatile enough to manage a diverse set of technologies, including but not limited to:
+
+- **Apache HTTP Servers**: For web hosting and load balancing.
+- **Tomcat App Servers**: For running Java-based web applications.
+- **MySQL Databases**: For relational data storage.
+- **Terracotta Key/Value Cache Servers**: For fast data retrieval.
+- **MongoDB Databases**: For NoSQL data storage.
+
+---
+
+## Lessons Learned
+
+The development of Egg was not just a journey through bash scripting and Linux system administration. It was a deep dive into the transformative power of configuration when coupled with cloud servers. The system forced a level of functional clarity by eliminating redundant or "silly" code, thereby improving the overall quality of the technology stack.
+
+---
+
+## Evolution of DevOps
+
+The success of Egg was a precursor to the rise of Platform as a Service (PaaS) solutions like Heroku, and the maturation of configuration management tools like Puppet and Chef. It also paved the way for containerization technologies like Docker.
+
+---
+
+## Conclusion
+
+Egg serves as a historical yet still relevant example of how focused investments in automation can drive technology to conform to functional and improved outcomes. While bash scripts may lack the nuance of modern DevOps tools, they offer a level of simplicity and directness that is both educational and, at times, surprisingly effective.
+
+---
